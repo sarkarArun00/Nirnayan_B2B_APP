@@ -3,18 +3,18 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import Header from '../componenets/Header';
 
-const HomeScreen = () => {
+const ProfileScreen = () => {
   return (
     <View style={styles.container}>
-      <Header title="Home" />
+      <Header title="Profile" />
       <View style={styles.content}>
-        <Text>Nirnayan B2B Management System!</Text>
+        <Text>Welcome to Profile!</Text>
       </View>
     </View>
   );
 };
 
-export default HomeScreen;
+export default ProfileScreen;
 
 const styles = StyleSheet.create({
   container: { flex: 1 },

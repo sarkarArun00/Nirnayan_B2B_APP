@@ -1,25 +1,25 @@
+// src/components/Header.js
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { Text, StyleSheet, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const Header = ({ title }) => (
-  <View style={styles.container}>
+  <SafeAreaView style={styles.container}>
     <Text style={styles.title}>{title}</Text>
-  </View>
+  </SafeAreaView>
 );
+
+export default Header;
 
 const styles = StyleSheet.create({
   container: {
-    height: 60,
-    backgroundColor: '#1976d2',
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 4,
+    backgroundColor: '#6200ee',
+    paddingVertical: 16,
+    paddingHorizontal: 16,
   },
   title: {
     color: '#fff',
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: '600',
   },
 });
-
-export default Header;

@@ -9,29 +9,24 @@
 import { StatusBar, StyleSheet, useColorScheme, View, Text } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import TabNavigator from './Pages/navigation/TabNavigator';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+
+
+
+
 function App() {
   const isDarkMode = useColorScheme() === 'dark';
 
-  //   <NavigationContainer>
-  //   <TabNavigator />
-  // </NavigationContainer>
-
-  return (
-    <>
-      <View style={styles.container}>
-        <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-        {/* <NewAppScreen templateFileName="App.tsx" /> */}
-
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <Text style={{ color: isDarkMode ? '#fff' : '#000' }}>
-            Welcome to the New App Screen!
-          </Text>
-        </View>
-      </View>
 
 
-    </>
-  );
+    return (
+      <SafeAreaProvider>
+        <NavigationContainer>
+          <TabNavigator />
+        </NavigationContainer>
+      </SafeAreaProvider>
+    );
+  
 }
 
 const styles = StyleSheet.create({
