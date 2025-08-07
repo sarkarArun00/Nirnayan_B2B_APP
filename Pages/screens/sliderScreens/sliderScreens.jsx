@@ -1,37 +1,3 @@
-// import React from 'react'
-// import { StyleSheet, Text, TouchableOpacity } from 'react-native';
-
-// function sliderScreens() {
-//   return (
-//     <>
-//         <View>
-//             <View>
-//                 <Text>Scrren 1</Text>
-//                 <TouchableOpacity>
-//                     <Text>Next</Text>
-//                 </TouchableOpacity>
-//             </View>
-//             <View>
-//                 <Text>Scrren 2</Text>
-//                 <TouchableOpacity>
-//                     <Text>Next</Text>
-//                 </TouchableOpacity>
-//             </View>
-//             <View>
-//                 <Text>Scrren 3</Text>
-//                 <TouchableOpacity>
-//                     <Text>Next</Text>
-//                 </TouchableOpacity>
-//             </View>
-//         </View>
-//     </>
-//   )
-// }
-
-// const styles = StyleSheet.create({})
-
-// export default sliderScreens
-
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
 
