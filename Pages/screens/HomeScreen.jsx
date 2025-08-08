@@ -18,6 +18,12 @@ const HomeScreen = () => {
         <TouchableOpacity onPress={() => navigation.navigate('SliderScreens')}>
           <Text>Go to Onboarding Screen</Text>
         </TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+          <Text>Login</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate('ResetPassword')}>
+          <Text>Reset Password</Text>
+        </TouchableOpacity>
 
 
 

@@ -14,6 +14,8 @@ import Inventory from '../screens/Inventory/Inventory';
 import Reports from '../screens/Reports/Reports';
 import Accounts from '../screens/Accounts/Accounts';
 import SliderScreens from '../screens/sliderScreens/sliderScreens'; // ✅ Capitalized for component
+import Login from '../screens/Login/Login';
+import ResetPassword from '../screens/ResetPassword/ResetPassword';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -91,7 +93,6 @@ const CustomTabBar = (props) => {
   );
 };
 
-// ✅ Tab Navigator
 const TabNavigator = () => (
   <Tab.Navigator
     tabBar={(props) => <CustomTabBar {...props} />}
@@ -105,12 +106,13 @@ const TabNavigator = () => (
   </Tab.Navigator>
 );
 
-// ✅ Stack Navigator (Main)
 const AppNavigator = () => {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Main" component={TabNavigator} />
       <Stack.Screen name="SliderScreens" component={SliderScreens} />
+      <Stack.Screen name="Login" component={Login} />
+      <Stack.Screen name="ResetPassword" component={ResetPassword} />
     </Stack.Navigator>
   );
 };

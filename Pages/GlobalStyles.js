@@ -9,7 +9,7 @@ export const theme = {
 export const GlobalStyles = StyleSheet.create({
   SafeAreaView: {
     flex: 1,
-    paddingVertical:205,
+    paddingVertical:25,
     paddingHorizontal:16,
   },
   scrollView: {

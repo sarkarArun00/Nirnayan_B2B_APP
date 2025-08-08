@@ -1,0 +1,295 @@
+import React, { useState } from 'react';
+import {
+    View,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    StyleSheet,
+    ImageBackground,
+    Image,
+    ScrollView,
+    KeyboardAvoidingView,
+    Platform,
+    Modal
+} from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+
+function Login() {
+    const [passwordVisible, setPasswordVisible] = useState(false);
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+
+    const [isEmailFocused, setIsEmailFocused] = useState(false);
+    const [isPasswordFocused, setIsPasswordFocused] = useState(false);
+
+    const [forgotModalVisible, setForgotModalVisible] = useState(false);
+    const [mobileNumber, setMobileNumber] = useState('');
+
+    return (
+        <KeyboardAvoidingView
+            style={{ flex: 1 }}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        >
+            <ImageBackground
+                source={require('../../../assets/loginbg.jpg')}
+                style={styles.background}
+                resizeMode="cover"
+            >
+                <ScrollView
+                    contentContainerStyle={{ flexGrow: 1 }}
+                    keyboardShouldPersistTaps="handled"
+                >
+                    <View style={styles.container}>
+                        <Image source={require('../../../assets/logo1.png')} style={styles.logo} />
+
+                        <Text style={styles.title}>Welcome Back!</Text>
+                        <Text style={styles.subtitle}>Smooth Access, Stronger Business</Text>
+
+                        {/* Email Input */}
+                        <View style={styles.inputContainer}>
+                            <TextInput
+                                style={[
+                                    styles.input,
+                                    { borderColor: isEmailFocused ? '#00A651' : '#B2B2B2' }
+                                ]}
+                                placeholder="Email or Mobile Number"
+                                value={email}
+                                onChangeText={setEmail}
+                                keyboardType="email-address"
+                                onFocus={() => setIsEmailFocused(true)}
+                                onBlur={() => setIsEmailFocused(false)}
+                            />
+                            <Image
+                                source={require('../../../assets/logicon.png')}
+                                style={{ position: 'absolute', left: 15, top: 13 }}
+                            />
+                        </View>
+
+                        {/* Password Input */}
+                        <View style={styles.inputContainer}>
+                            <TextInput
+                                style={[
+                                    styles.input,
+                                    { borderColor: isPasswordFocused ? '#00A651' : '#B2B2B2' }
+                                ]}
+                                placeholder="Password"
+                                secureTextEntry={!passwordVisible}
+                                value={password}
+                                onChangeText={setPassword}
+                                onFocus={() => setIsPasswordFocused(true)}
+                                onBlur={() => setIsPasswordFocused(false)}
+                            />
+                            <Image
+                                source={require('../../../assets/logicon2.png')}
+                                style={{ position: 'absolute', left: 15, top: 13 }}
+                            />
+                            <TouchableOpacity
+                                onPress={() => setPasswordVisible(!passwordVisible)}
+                                style={{ position: 'absolute', right: 15, top: 13 }}
+                            >
+                                <Icon
+                                    name={passwordVisible ? 'eye-off-outline' : 'eye-outline'}
+                                    size={20}
+                                    color="#CECECE"
+                                />
+                            </TouchableOpacity>
+                        </View>
+
+                        {/* Forgot Password */}
+                        <TouchableOpacity
+                            style={styles.forgotPass}
+                            onPress={() => setForgotModalVisible(true)}
+                        >
+                            <Image source={require('../../../assets/log-info.png')} />
+                            <Text style={styles.forgotPassword}> Forgot password?</Text>
+                        </TouchableOpacity>
+
+                        {/* Login Button */}
+                        <TouchableOpacity style={styles.loginButton}>
+                            <Image source={require('../../../assets/login.png')} />
+                            <Text style={styles.loginText}> Login</Text>
+                        </TouchableOpacity>
+                    </View>
+                </ScrollView>
+
+                {/* Forgot Password Modal */}
+                <Modal
+                    transparent={true}
+                    visible={forgotModalVisible}
+                    animationType="slide"
+                    onRequestClose={() => setForgotModalVisible(false)}
+                >
+                    <View style={styles.modalOverlay}>
+                        <View style={styles.modalContainer}>
+                            <TouchableOpacity
+                                style={styles.modalClose}
+                                onPress={() => setForgotModalVisible(false)}
+                            >
+                                <Text style={styles.closeIcon}>✕</Text>
+                            </TouchableOpacity>
+                            <Text style={styles.modalTitle}>Forgot Password?</Text>
+                            <Text style={styles.modalSubtitle}>
+                                Enter your mobile number to receive an OTP and {"\n"}reset your password
+                            </Text>
+
+                            <View style={styles.inputContainer}>
+                                <TextInput
+                                    style={styles.input}
+                                    placeholder="Enter Your Mobile Number"
+                                    keyboardType="phone-pad"
+                                    value={mobileNumber}
+                                    onChangeText={setMobileNumber}
+                                />
+                                <Image
+                                    source={require('../../../assets/key.png')}
+                                    style={{ position: 'absolute', left: 15, top: 13 }}
+                                />
+                            </View>
+
+                            <TouchableOpacity style={styles.continueButton}>
+                                <Text style={styles.continueText}>Continue</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </Modal>
+            </ImageBackground>
+        </KeyboardAvoidingView>
+    );
+}
+
+export default Login;
+
+const styles = StyleSheet.create({
+    background: {
+        flex: 1,
+        padding: 16,
+    },
+    container: {
+        flex: 1,
+        justifyContent: 'center',
+    },
+    logo: {
+        marginHorizontal: 'auto',
+        marginBottom: 35,
+    },
+    title: {
+        fontFamily: 'Poppins-SemiBold',
+        fontSize: 24,
+        lineHeight: 26,
+        color: '#333333',
+        textAlign: 'center',
+        marginBottom: 10,
+    },
+    subtitle: {
+        fontFamily: 'Poppins-Medium',
+        fontSize: 13,
+        lineHeight: 15,
+        color: '#949494',
+        textAlign: 'center',
+        marginBottom: 30,
+    },
+    inputContainer: {
+        position: 'relative',
+    },
+    input: {
+        fontFamily: 'Poppins-Medium',
+        fontSize: 12,
+        borderWidth: 1,
+        color: '#949494',
+        borderRadius: 10,
+        height: 48,
+        marginBottom: 14,
+        paddingHorizontal: 15,
+        paddingLeft: 50,
+    },
+    forgotPass: {
+        flexDirection: 'row',
+        marginBottom: 14,
+    },
+    forgotPassword: {
+        fontFamily: 'Poppins-Medium',
+        fontSize: 11,
+        color: '#060606',
+    },
+    loginButton: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        backgroundColor: '#00A651',
+        width: '100%',
+        padding: 16,
+        borderRadius: 10,
+    },
+    loginText: {
+        fontFamily: 'Poppins-Bold',
+        fontSize: 16,
+        color: '#ffffff',
+        marginLeft: 8,
+    },
+
+    // Modal
+    modalOverlay: {
+        position: 'absolute',
+        bottom: 0,
+        backgroundColor: 'rgba(0,0,0,0.3)',
+        flex: 1,
+        width: '100%',
+        height: '100%',
+        justifyContent: 'flex-end',
+    },
+    modalContainer: {
+        backgroundColor: '#fff',
+        paddingHorizontal: 16,
+        paddingTop: 45,
+        paddingBottom: 60,
+        borderTopLeftRadius: 25,
+        borderTopRightRadius: 25,
+    },
+    modalClose: {
+        width: 23,
+        height: 23,
+        backgroundColor: '#000',
+        borderRadius: 12.5,
+        justifyContent: 'center',
+        alignItems: 'center',
+        position: 'absolute',
+        top: -27,
+        left: '50%',
+        marginLeft: -11.5,
+    },
+    closeIcon: {
+        fontSize: 11,
+        color: '#fff',
+    },
+    modalTitle: {
+        fontFamily: 'Poppins-SemiBold',
+        fontSize: 16,
+        lineHeight: 18,
+        color: '#535353',
+        marginBottom: 10,
+    },
+    modalSubtitle: {
+        fontFamily: 'Poppins-Regular',
+        fontSize: 11,
+        lineHeight: 13,
+        color: '#535353',
+        marginBottom: 15,
+    },
+    continueButton: {
+        backgroundColor: '#00A651',
+        width: '100%',
+        padding: 16,
+        borderRadius: 10,
+    },
+    continueText: {
+        fontFamily: 'Poppins-Bold',
+        fontSize: 16,
+        color: '#fff',
+        textAlign: 'center',
+    },
+
+
+
+
+
+    // Modal
+});
