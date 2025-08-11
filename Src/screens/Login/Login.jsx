@@ -107,13 +107,14 @@ function Login() {
                             <Text style={styles.forgotPassword}> Forgot password?</Text>
                         </TouchableOpacity>
 
-                        <TouchableOpacity
+                        {/* Reset Password Button */}
+                        {/* <TouchableOpacity
                             style={styles.forgotPass}
                             onPress={() => setResetPasswordModal(true)}
                         >
                             <Image source={require('../../../assets/log-info.png')} />
                             <Text style={styles.forgotPassword}> Reset password?</Text>
-                        </TouchableOpacity>
+                        </TouchableOpacity> */}
 
                         {/* Login Button */}
                         <TouchableOpacity style={styles.loginButton}>

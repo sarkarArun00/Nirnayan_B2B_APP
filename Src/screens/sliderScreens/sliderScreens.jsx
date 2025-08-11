@@ -210,7 +210,7 @@ const slides = [
     title: 'Care . Connect . Grow',
     subtitle:
       'Your all-in-one healthcare services with the futuristic vision bring cost efficiency to an online business platform.',
-    buttonText: 'Get Started Now',
+    buttonText: 'Next',
   },
   {
     key: '2',
@@ -227,7 +227,7 @@ const slides = [
     bg: require('../../../assets/screen2.jpg'),
     title: 'Effortless & \n Easy Access',
     subtitle: 'Achieve your business goals with fast,\n smooth, & secure access.',
-    buttonText: 'Next',
+    buttonText: 'Get Started',
   },
 ];
 
