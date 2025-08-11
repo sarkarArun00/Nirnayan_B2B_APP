@@ -25,6 +25,9 @@ function Login() {
     const [forgotModalVisible, setForgotModalVisible] = useState(false);
     const [mobileNumber, setMobileNumber] = useState('');
 
+    const [resetPasswordModal, setResetPasswordModal] = useState(false);
+    const [focusedInput, setFocusedInput] = useState(null);
+
     return (
         <KeyboardAvoidingView
             style={{ flex: 1 }}
@@ -104,6 +107,14 @@ function Login() {
                             <Text style={styles.forgotPassword}> Forgot password?</Text>
                         </TouchableOpacity>
 
+                        <TouchableOpacity
+                            style={styles.forgotPass}
+                            onPress={() => setResetPasswordModal(true)}
+                        >
+                            <Image source={require('../../../assets/log-info.png')} />
+                            <Text style={styles.forgotPassword}> Reset password?</Text>
+                        </TouchableOpacity>
+
                         {/* Login Button */}
                         <TouchableOpacity style={styles.loginButton}>
                             <Image source={require('../../../assets/login.png')} />
@@ -152,6 +163,71 @@ function Login() {
                         </View>
                     </View>
                 </Modal>
+
+                {/* Reset Password Modal */}
+                <Modal
+                    transparent={true}
+                    visible={resetPasswordModal}
+                    animationType="slide"
+                    onRequestClose={() => setResetPasswordModal(false)}
+                >
+                    <View style={styles.modalOverlay}>
+                        <View style={styles.modalContainer}>
+                            <TouchableOpacity
+                                style={styles.modalClose}
+                                onPress={() => setResetPasswordModal(false)}
+                            >
+                                <Text style={styles.closeIcon}>✕</Text>
+                            </TouchableOpacity>
+
+                            <Text style={styles.modalTitle}>Reset Password</Text>
+                            <Text style={styles.modalSubtitle}>
+                                Create and confirm your new password to ensure secure login to your account
+                            </Text>
+
+                            {/* Old Password */}
+                            <View style={styles.inputContainer}>
+                                <TextInput
+                                    style={[
+                                        styles.input,
+                                        focusedInput === 'old' && { borderColor: '#00A651', borderWidth: 1 }
+                                    ]}
+                                    placeholder="Old Password"
+                                    secureTextEntry
+                                    onFocus={() => setFocusedInput('old')}
+                                    onBlur={() => setFocusedInput(null)}
+                                />
+                                <Image
+                                    source={require('../../../assets/logicon2.png')}
+                                    style={{ position: 'absolute', left: 15, top: 13 }}
+                                />
+                            </View>
+
+                            {/* New Password */}
+                            <View style={styles.inputContainer}>
+                                <TextInput
+                                    style={[
+                                        styles.input,
+                                        focusedInput === 'new' && { borderColor: '#00A651', borderWidth: 1 }
+                                    ]}
+                                    placeholder="New Password"
+                                    secureTextEntry
+                                    onFocus={() => setFocusedInput('new')}
+                                    onBlur={() => setFocusedInput(null)}
+                                />
+                                <Image
+                                    source={require('../../../assets/logicon2.png')}
+                                    style={{ position: 'absolute', left: 15, top: 13 }}
+                                />
+                            </View>
+
+                            <TouchableOpacity style={styles.continueButton}>
+                                <Text style={styles.continueText}>Save</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </Modal>
+
             </ImageBackground>
         </KeyboardAvoidingView>
     );
