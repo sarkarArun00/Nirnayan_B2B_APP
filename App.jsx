@@ -8,7 +8,7 @@
 // import { NewAppScreen } from '@react-native/new-app-screen';
 import { StatusBar, StyleSheet, useColorScheme, View, Text } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
-import TabNavigator from './Pages/navigation/TabNavigator';
+import TabNavigator from './Src/navigation/TabNavigator';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 

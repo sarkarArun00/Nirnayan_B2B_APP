@@ -14,7 +14,7 @@ const HomeScreen = () => {
   const navigation = useNavigation();
   return (
     <SafeAreaView style={[GlobalStyles.SafeAreaView]}>
-      <ScrollView contentContainerStyle={[GlobalStyles.scrollView]}>
+      <ScrollView contentContainerStyle={[GlobalStyles.scrollView, { marginTop: 20 }]}>
         <TouchableOpacity onPress={() => navigation.navigate('SliderScreens')}>
           <Text>Go to Onboarding Screen</Text>
         </TouchableOpacity>
