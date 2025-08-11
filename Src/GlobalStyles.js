@@ -12,8 +12,6 @@ export const GlobalStyles = StyleSheet.create({
     paddingVertical:25,
     paddingHorizontal:16,
   },
-  scrollView: {
-    flex: 1,
-  }
+
 
 });
