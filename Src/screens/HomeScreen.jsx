@@ -224,7 +224,7 @@ const HomeScreen = () => {
                   <Text style={styles.drTitle}>Dr. Smith Clinic</Text>
                   <Text style={styles.Price}>8 patients • ₹12,400</Text>
                 </View>
-                <View style={{flexDirection:'row', gap:8, }}>
+                <View style={{flexDirection:'row', alignItems:'center', gap:8, }}>
                   <Text style={styles.perfMrp}>₹3,200</Text>
                   <Text style={styles.perfIncrease}>10% <Text style={styles.perftopArrow}>▲</Text></Text>
                 </View>
@@ -243,7 +243,7 @@ const HomeScreen = () => {
                   <Text style={styles.drTitle}>Dr. Smith Clinic</Text>
                   <Text style={styles.Price}>8 patients • ₹12,400</Text>
                 </View>
-                <View style={{flexDirection:'row', gap:8, }}>
+                <View style={{flexDirection:'row', alignItems:'center', gap:8, }}>
                   <Text style={styles.perfMrp}>₹3,200</Text>
                   <Text style={styles.perfIncrease}>10% <Text style={styles.perfBtmArrow}>▼</Text></Text>
                 </View>
