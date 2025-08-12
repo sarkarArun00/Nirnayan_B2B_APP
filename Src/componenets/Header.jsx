@@ -10,7 +10,7 @@ import {
   Dimensions
 } from 'react-native';
 
-const { width } = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
 
 const Header = ({ title }) => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -18,18 +18,26 @@ const Header = ({ title }) => {
 
   const toggleMenu = () => {
     if (menuOpen) {
+      // Close menu
       Animated.timing(slideAnim, {
         toValue: width,
         duration: 300,
         useNativeDriver: false,
       }).start(() => setMenuOpen(false));
     } else {
+      // Open menu
       setMenuOpen(true);
       Animated.timing(slideAnim, {
-        toValue: width * 0.2,
+        toValue: 0, // Start from left edge
         duration: 300,
         useNativeDriver: false,
       }).start();
+    }
+  };
+
+  const closeMenu = () => {
+    if (menuOpen) {
+      toggleMenu();
     }
   };
 
@@ -65,21 +73,39 @@ const Header = ({ title }) => {
         </View>
       </ImageBackground>
 
-      {/* Slide Menu */}
+      {/* Full Screen Overlay and Slide Menu */}
       {menuOpen && (
-        <Animated.View style={[styles.menu, { left: slideAnim }]}>
-          <ImageBackground
-            source={require('../../assets/bg2.jpg')}
-            style={{ flex: 1, padding: 20 }}
-            resizeMode="cover"
-          >
-            <Text style={styles.menuTitle}>Navigation Menu</Text>
-            <TouchableOpacity><Text style={styles.menuItem}>Home</Text></TouchableOpacity>
-            <TouchableOpacity><Text style={styles.menuItem}>Profile</Text></TouchableOpacity>
-            <TouchableOpacity><Text style={styles.menuItem}>Settings</Text></TouchableOpacity>
-            <TouchableOpacity><Text style={styles.menuItem}>Logout</Text></TouchableOpacity>
-          </ImageBackground>
-        </Animated.View>
+        <View style={styles.menuContainer}>
+
+          {/* Overlay - left 20% clickable area */}
+          <TouchableOpacity
+            style={styles.overlay}
+            onPress={closeMenu}
+            activeOpacity={0.7}
+          />
+
+          {/* Slide Menu - 80% width */}
+          <Animated.View style={[styles.menu, { transform: [{ translateX: slideAnim }] }]}>
+            <ImageBackground
+              source={require('../../assets/bg2.jpg')}
+              style={styles.menuBackground}
+              resizeMode="cover"
+            >
+              <TouchableOpacity>
+                <Text style={styles.menuItem}>Home</Text>
+              </TouchableOpacity>
+              <TouchableOpacity>
+                <Text style={styles.menuItem}>Profile</Text>
+              </TouchableOpacity>
+              <TouchableOpacity>
+                <Text style={styles.menuItem}>Settings</Text>
+              </TouchableOpacity>
+              <TouchableOpacity>
+                <Text style={styles.menuItem}>Logout</Text>
+              </TouchableOpacity>
+            </ImageBackground>
+          </Animated.View>
+        </View>
       )}
     </>
   );
@@ -147,23 +173,40 @@ const styles = StyleSheet.create({
     top: 0,
   },
 
-  // 
-  menu: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    width: width * 0.8,
-    backgroundColor: 'rgba(0,0,0,0.7)',
-    zIndex: 9,
-  },
-    leftTrigger: {
+  // Menu Container
+  menuContainer: {
     position: 'absolute',
     top: 0,
     left: 0,
-    width: width * 0.2,
-    height: '100%',
-    backgroundColor: 'transparent',
-    zIndex: 1,
+    right: 0,
+    bottom: 0,
+    zIndex: 1000,
+    flexDirection: 'row',
+    backgroundColor: 'rgba(0,0,0,0.5)',
   },
+
+  // Menu styles
+  menu: {
+    width: width * 0.8,
+    height: '100%',
+    backgroundColor: 'rgba(0,0,0,0.9)',
+    elevation: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 2, height: 0 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+  },
+  menuBackground: {
+    flex: 1,
+  },
+  overlay: {
+    flex: 1,
+  },
+
+
+
+
+
+
 
 });
