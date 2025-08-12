@@ -10,7 +10,6 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { GlobalStyles, theme } from '../GlobalStyles';
 import Header from '../componenets/Header';
-import Icon from 'react-native-vector-icons/Feather';
 
 const HomeScreen = () => {
   const navigation = useNavigation();
@@ -26,7 +25,7 @@ const [scrollEnabled, setScrollEnabled] = useState(true);
   return (
     // style={[GlobalStyles.SafeAreaView]}
     <SafeAreaView>
-      <ScrollView scrollEnabled={scrollEnabled} contentContainerStyle={[GlobalStyles.scrollView,]}
+      <ScrollView contentContainerStyle={[GlobalStyles.scrollView,]}
         showsVerticalScrollIndicator={false}
       >
         <View>
@@ -41,7 +40,7 @@ const [scrollEnabled, setScrollEnabled] = useState(true);
           </TouchableOpacity> */}
         </View>
 
-         <Header setScrollEnabled={setScrollEnabled} />
+         <Header />
 
         <View>
           {/* Search Bar */}

@@ -113,6 +113,7 @@ const AppNavigator = () => {
       <Stack.Screen name="SliderScreens" component={SliderScreens} />
       <Stack.Screen name="Login" component={Login} />
       <Stack.Screen name="ResetPassword" component={ResetPassword} />
+      <Stack.Screen name="Profile" component={ProfileScreen} />
     </Stack.Navigator>
   );
 };
