@@ -1,4 +1,3 @@
-// src/components/Header.js
 import React, { useState, useRef } from 'react';
 import {
   Text,
@@ -11,28 +10,28 @@ import {
   Dimensions
 } from 'react-native';
 
-// const { width, height } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 
 const Header = ({ title }) => {
-  // const [menuOpen, setMenuOpen] = useState(false);
-  // const slideAnim = useRef(new Animated.Value(width)).current;
+  const [menuOpen, setMenuOpen] = useState(false);
+  const slideAnim = useRef(new Animated.Value(width)).current;
 
-  // const toggleMenu = () => {
-  //   if (menuOpen) {
-  //     Animated.timing(slideAnim, {
-  //       toValue: width,
-  //       duration: 300,
-  //       useNativeDriver: false,
-  //     }).start(() => setMenuOpen(false));
-  //   } else {
-  //     setMenuOpen(true);
-  //     Animated.timing(slideAnim, {
-  //       toValue: width * 0.2,
-  //       duration: 300,
-  //       useNativeDriver: false,
-  //     }).start();
-  //   }
-  // };
+  const toggleMenu = () => {
+    if (menuOpen) {
+      Animated.timing(slideAnim, {
+        toValue: width,
+        duration: 300,
+        useNativeDriver: false,
+      }).start(() => setMenuOpen(false));
+    } else {
+      setMenuOpen(true);
+      Animated.timing(slideAnim, {
+        toValue: width * 0.2,
+        duration: 300,
+        useNativeDriver: false,
+      }).start();
+    }
+  };
 
   return (
     <>
@@ -53,13 +52,13 @@ const Header = ({ title }) => {
             </View>
           </View>
 
-          {/* Notifications Menu */}
+          {/* Notifications & Menu */}
           <View style={styles.rightSection}>
             <TouchableOpacity style={{ position: 'relative' }}>
               <Image source={require('../../assets/notification.png')} />
               <View style={styles.notiDot}></View>
             </TouchableOpacity>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={toggleMenu}>
               <Image source={require('../../assets/menu-bar.png')} />
             </TouchableOpacity>
           </View>
@@ -67,10 +66,11 @@ const Header = ({ title }) => {
       </ImageBackground>
 
       {/* Slide Menu */}
-      {/* {menuOpen && (
+      {menuOpen && (
         <Animated.View style={[styles.menu, { left: slideAnim }]}>
           <ImageBackground
             source={require('../../assets/bg2.jpg')}
+            style={{ flex: 1, padding: 20 }}
             resizeMode="cover"
           >
             <Text style={styles.menuTitle}>Navigation Menu</Text>
@@ -80,7 +80,7 @@ const Header = ({ title }) => {
             <TouchableOpacity><Text style={styles.menuItem}>Logout</Text></TouchableOpacity>
           </ImageBackground>
         </Animated.View>
-      )} */}
+      )}
     </>
   );
 };
@@ -147,10 +147,23 @@ const styles = StyleSheet.create({
     top: 0,
   },
 
-
-
-
-
-
+  // 
+  menu: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    width: width * 0.8,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    zIndex: 9,
+  },
+    leftTrigger: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: width * 0.2,
+    height: '100%',
+    backgroundColor: 'transparent',
+    zIndex: 1,
+  },
 
 });
