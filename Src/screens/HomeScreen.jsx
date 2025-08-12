@@ -22,11 +22,11 @@ const HomeScreen = () => {
     { title: 'Download', icon: require('../../assets/qc-icon3.png') },
     { title: 'Raise Ticket', icon: require('../../assets/qc-icon4.png') },
   ];
-
+const [scrollEnabled, setScrollEnabled] = useState(true);
   return (
     // style={[GlobalStyles.SafeAreaView]}
     <SafeAreaView>
-      <ScrollView contentContainerStyle={[GlobalStyles.scrollView,]}
+      <ScrollView scrollEnabled={scrollEnabled} contentContainerStyle={[GlobalStyles.scrollView,]}
         showsVerticalScrollIndicator={false}
       >
         <View>
@@ -41,7 +41,7 @@ const HomeScreen = () => {
           </TouchableOpacity> */}
         </View>
 
-        <Header />
+         <Header setScrollEnabled={setScrollEnabled} />
 
         <View>
           {/* Search Bar */}
