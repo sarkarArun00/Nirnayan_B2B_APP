@@ -25,7 +25,6 @@ const ProfileScreen = () => {
       }}
     >
       <SafeAreaView style={{ flex: 1 }}>
-
         {/* Back Button */}
         <TouchableOpacity style={styles.locateBack} onPress={() => navigation.goBack()}>
           <Icon name="arrow-left" size={24} color="#000" />
