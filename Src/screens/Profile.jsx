@@ -8,7 +8,7 @@ import {
   ScrollView,
   TouchableOpacity,
 } from 'react-native';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Feather';
 import { useNavigation } from '@react-navigation/native';
 
@@ -123,7 +123,7 @@ export default ProfileScreen;
 
 const styles = StyleSheet.create({
   locateBack: {
-    paddingTop: 40,
+    paddingTop: 5,
     paddingHorizontal: 20,
   },
   menuBackground: {
@@ -149,8 +149,8 @@ const styles = StyleSheet.create({
   },
   menuText: {
     fontFamily: 'Poppins-Medium',
-    fontSize: 12,
-    lineHeight: 14,
+    fontSize: 13,
+    lineHeight: 15,
     color: '#000000',
   },
   appVersion: {
@@ -180,7 +180,7 @@ const styles = StyleSheet.create({
   sideProfile: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingTop: 15,
+    paddingTop:20,
     paddingHorizontal: 20,
   },
   sdProImg: {
