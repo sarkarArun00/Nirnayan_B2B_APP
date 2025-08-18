@@ -61,9 +61,9 @@ export default function AnimatedSplash({ onAnimationEnd }) {
         ]}
         resizeMode="contain"
       />
-      <Animated.Text style={[styles.text, { opacity: textFadeAnim }]}>
+      {/* <Animated.Text style={[styles.text, { opacity: textFadeAnim }]}>
         Welcome to Nirnayan
-      </Animated.Text>
+      </Animated.Text> */}
     </View>
   );
 }

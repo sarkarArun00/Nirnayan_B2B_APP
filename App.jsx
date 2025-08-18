@@ -6,14 +6,16 @@
  */
 
 // import { NewAppScreen } from '@react-native/new-app-screen';
-import React,  {useEffect, useState} from 'react'
+import React, { useEffect, useState } from 'react'
 import { StatusBar, StyleSheet, useColorScheme, Text } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import TabNavigator from './Src/navigation/TabNavigator';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import RNBootSplash from "react-native-bootsplash";
 import AnimatedSplash from "./AnimatedSplash"
+import AppNavigator from './Src/navigation/TabNavigator';
 
+import RootNavigator from './Src/navigation/RootNavigator'
 
 function App() {
   const isDarkMode = useColorScheme() === 'dark';
@@ -36,24 +38,24 @@ function App() {
 
 
 
-    return (
-      // <SafeAreaProvider>
-      //   <NavigationContainer>
-      //     <TabNavigator />
-      //   </NavigationContainer>
-      // </SafeAreaProvider>
+  return (
+    // <SafeAreaProvider>
+    //   <NavigationContainer>
+    //     <TabNavigator />
+    //   </NavigationContainer>
+    // </SafeAreaProvider>
 
-      <SafeAreaProvider>
+    <SafeAreaProvider>
       {showAnimatedSplash ? (
         <AnimatedSplash onAnimationEnd={() => setShowAnimatedSplash(false)} />
       ) : (
         <NavigationContainer>
-          <TabNavigator />
+          <RootNavigator />
         </NavigationContainer>
       )}
     </SafeAreaProvider>
-    );
-  
+  );
+
 }
 
 const styles = StyleSheet.create({

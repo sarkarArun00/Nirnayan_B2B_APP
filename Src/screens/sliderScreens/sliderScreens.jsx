@@ -199,6 +199,11 @@ import {
   FlatList,
   Dimensions
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+
+
 
 const { width } = Dimensions.get('window');
 
@@ -234,14 +239,22 @@ const slides = [
 export default function SliderScreens() {
   const [current, setCurrent] = useState(0);
   const flatListRef = useRef(null);
+  const navigation = useNavigation();
 
-  const handleNext = () => {
+
+
+
+  const handleNext = async () => {
     if (current < slides.length - 1) {
       flatListRef.current.scrollToIndex({ index: current + 1 });
     } else {
-      console.log('Go to home screen');
+      await AsyncStorage.setItem('hasSeenOnboarding', 'true');
+      const dd = await AsyncStorage.getItem('hasSeenOnboarding')
+      navigation.replace('Login'); 
+      console.log('Checking navigation.......', dd)
     }
   };
+  
 
   const renderItem = ({ item }) => (
     <ImageBackground
