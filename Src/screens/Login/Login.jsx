@@ -10,9 +10,11 @@ import {
     ScrollView,
     KeyboardAvoidingView,
     Platform,
-    Modal
+    Modal,
+    Alert
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { useNavigation } from '@react-navigation/native';
 
 function Login() {
     const [passwordVisible, setPasswordVisible] = useState(false);
@@ -27,6 +29,50 @@ function Login() {
 
     const [resetPasswordModal, setResetPasswordModal] = useState(false);
     const [focusedInput, setFocusedInput] = useState(null);
+    const navigation = useNavigation();
+     const [errors, setErrors] = useState({ email: '', password: '' });
+
+
+
+
+const validateEmail = (email) => {
+    const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return pattern.test(email);
+  };
+
+  const handleLogin = () => {
+    let valid = true;
+    let newErrors = { email: '', password: '' };
+
+    if (!email) {
+      newErrors.email = 'Email is required';
+      valid = false;
+    } else if (!validateEmail(email)) {
+      newErrors.email = 'Enter a valid email address';
+      valid = false;
+    }
+
+    if (!password) {
+      newErrors.password = 'Password is required';
+      valid = false;
+    } else if (password.length < 6) {
+      newErrors.password = 'Password must be at least 6 characters';
+      valid = false;
+    }
+
+    setErrors(newErrors);
+
+    if (valid) {
+      // Proceed with navigation or API call
+      const loginRequest = {
+        "email": email,
+        "password": password
+      }
+      console.log('Login Form: ', loginRequest)
+      Alert.alert("Welcome", "Login Successful!")
+      navigation.replace('AppTabs');
+    }
+  };
 
     return (
         <KeyboardAvoidingView
@@ -39,90 +85,83 @@ function Login() {
                 resizeMode="cover"
             >
                 <ScrollView
-                    contentContainerStyle={{ flexGrow: 1 }}
-                    keyboardShouldPersistTaps="handled"
-                >
-                    <View style={styles.container}>
-                        <Image source={require('../../../assets/logo1.png')} style={styles.logo} />
+      contentContainerStyle={{ flexGrow: 1 }}
+      keyboardShouldPersistTaps="handled"
+    >
+      <View style={styles.container}>
+        <Image source={require('../../../assets/logo1.png')} style={styles.logo} />
 
-                        <Text style={styles.title}>Welcome Back!</Text>
-                        <Text style={styles.subtitle}>Smooth Access, Stronger Business</Text>
+        <Text style={styles.title}>Welcome Back!</Text>
+        <Text style={styles.subtitle}>Smooth Access, Stronger Business</Text>
 
-                        {/* Email Input */}
-                        <View style={styles.inputContainer}>
-                            <TextInput
-                                style={[
-                                    styles.input,
-                                    { borderColor: isEmailFocused ? '#00A651' : '#B2B2B2' }
-                                ]}
-                                placeholder="Email or Mobile Number"
-                                value={email}
-                                onChangeText={setEmail}
-                                keyboardType="email-address"
-                                onFocus={() => setIsEmailFocused(true)}
-                                onBlur={() => setIsEmailFocused(false)}
-                            />
-                            <Image
-                                source={require('../../../assets/logicon.png')}
-                                style={{ position: 'absolute', left: 15, top: 13 }}
-                            />
-                        </View>
+        {/* Email Input */}
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={[
+              styles.input,
+              { borderColor: isEmailFocused ? '#00A651' : '#B2B2B2' },
+            ]}
+            placeholder="Email"
+            value={email}
+            onChangeText={(text) => setEmail(text)}
+            keyboardType="email-address"
+            onFocus={() => setIsEmailFocused(true)}
+            onBlur={() => setIsEmailFocused(false)}
+          />
+          <Image
+            source={require('../../../assets/logicon.png')}
+            style={{ position: 'absolute', left: 15, top: 13 }}
+          />
+        </View>
+        {errors.email ? <Text style={styles.errorText}>{errors.email}</Text> : null}
 
-                        {/* Password Input */}
-                        <View style={styles.inputContainer}>
-                            <TextInput
-                                style={[
-                                    styles.input,
-                                    { borderColor: isPasswordFocused ? '#00A651' : '#B2B2B2' }
-                                ]}
-                                placeholder="Password"
-                                secureTextEntry={!passwordVisible}
-                                value={password}
-                                onChangeText={setPassword}
-                                onFocus={() => setIsPasswordFocused(true)}
-                                onBlur={() => setIsPasswordFocused(false)}
-                            />
-                            <Image
-                                source={require('../../../assets/logicon2.png')}
-                                style={{ position: 'absolute', left: 15, top: 13 }}
-                            />
-                            <TouchableOpacity
-                                onPress={() => setPasswordVisible(!passwordVisible)}
-                                style={{ position: 'absolute', right: 15, top: 13 }}
-                            >
-                                <Icon
-                                    name={passwordVisible ? 'eye-off-outline' : 'eye-outline'}
-                                    size={20}
-                                    color="#CECECE"
-                                />
-                            </TouchableOpacity>
-                        </View>
+        {/* Password Input */}
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={[
+              styles.input,
+              { borderColor: isPasswordFocused ? '#00A651' : '#B2B2B2' },
+            ]}
+            placeholder="Password"
+            secureTextEntry={!passwordVisible}
+            value={password}
+            onChangeText={(text) => setPassword(text)}
+            onFocus={() => setIsPasswordFocused(true)}
+            onBlur={() => setIsPasswordFocused(false)}
+          />
+          <Image
+            source={require('../../../assets/logicon2.png')}
+            style={{ position: 'absolute', left: 15, top: 13 }}
+          />
+          <TouchableOpacity
+            onPress={() => setPasswordVisible(!passwordVisible)}
+            style={{ position: 'absolute', right: 15, top: 13 }}
+          >
+            <Icon
+              name={passwordVisible ? 'eye-off-outline' : 'eye-outline'}
+              size={20}
+              color="#CECECE"
+            />
+          </TouchableOpacity>
+        </View>
+        {errors.password ? <Text style={styles.errorText}>{errors.password}</Text> : null}
 
-                        {/* Forgot Password */}
-                        <TouchableOpacity
-                            style={styles.forgotPass}
-                            onPress={() => setForgotModalVisible(true)}
-                        >
-                            <Image source={require('../../../assets/log-info.png')} />
-                            <Text style={styles.forgotPassword}> Forgot password?</Text>
-                        </TouchableOpacity>
+        {/* Forgot Password */}
+        <TouchableOpacity
+          style={styles.forgotPass}
+          onPress={() => setForgotModalVisible(true)}
+        >
+          <Image source={require('../../../assets/log-info.png')} />
+          <Text style={styles.forgotPassword}> Forgot password?</Text>
+        </TouchableOpacity>
 
-                        {/* Reset Password Button */}
-                        {/* <TouchableOpacity
-                            style={styles.forgotPass}
-                            onPress={() => setResetPasswordModal(true)}
-                        >
-                            <Image source={require('../../../assets/log-info.png')} />
-                            <Text style={styles.forgotPassword}> Reset password?</Text>
-                        </TouchableOpacity> */}
-
-                        {/* Login Button */}
-                        <TouchableOpacity style={styles.loginButton}>
-                            <Image source={require('../../../assets/login.png')} />
-                            <Text style={styles.loginText}> Login</Text>
-                        </TouchableOpacity>
-                    </View>
-                </ScrollView>
+        {/* Login Button */}
+        <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+          <Image source={require('../../../assets/login.png')} />
+          <Text style={styles.loginText}> Login</Text>
+        </TouchableOpacity>
+      </View>
+    </ScrollView>
 
                 {/* Forgot Password Modal */}
                 <Modal
@@ -237,6 +276,13 @@ function Login() {
 export default Login;
 
 const styles = StyleSheet.create({
+    errorText: {
+  color: 'red',
+  fontSize: 12,
+  marginBottom: 10,
+  marginLeft: 10,
+},
+
     background: {
         flex: 1,
         padding: 16,

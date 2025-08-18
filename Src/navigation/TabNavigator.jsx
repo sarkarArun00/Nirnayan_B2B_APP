@@ -16,7 +16,7 @@ import Accounts from '../screens/Accounts/Accounts';
 import SliderScreens from '../screens/sliderScreens/sliderScreens'; // ✅ Capitalized for component
 import Login from '../screens/Login/Login';
 import ResetPassword from '../screens/ResetPassword/ResetPassword';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();

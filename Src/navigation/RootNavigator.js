@@ -22,7 +22,7 @@ export default function RootNavigator() {
       } else if (!token) {
         setInitialRoute('Login');
       } else {
-        setInitialRoute('Main');
+        setInitialRoute('AppTabs');
       }
     };
 
@@ -35,7 +35,7 @@ export default function RootNavigator() {
     <Stack.Navigator initialRouteName={initialRoute} screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Onboarding" component={SliderScreens} />
       <Stack.Screen name="Login" component={Login} />
-      <Stack.Screen name="Main" component={TabNavigator} />
+      <Stack.Screen name="AppTabs" component={TabNavigator} />
     </Stack.Navigator>
   );
 }
