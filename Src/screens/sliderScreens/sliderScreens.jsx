@@ -251,7 +251,7 @@ export default function SliderScreens() {
       await AsyncStorage.setItem('hasSeenOnboarding', 'true');
       const dd = await AsyncStorage.getItem('hasSeenOnboarding')
       navigation.replace('Login'); 
-      console.log('Checking navigation.......', dd)
+
     }
   };
   

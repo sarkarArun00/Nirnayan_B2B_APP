@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     View,
     Text,
@@ -11,10 +11,18 @@ import {
     KeyboardAvoidingView,
     Platform,
     Modal,
-    Alert
+    BackHandler
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useNavigation } from '@react-navigation/native';
+import AuthService from '../../services/auth_service';
+import { useGlobalAlert } from '../../../Context/GlobalAlertContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+
+
+
+
 
 function Login() {
     const [passwordVisible, setPasswordVisible] = useState(false);
@@ -30,50 +38,99 @@ function Login() {
     const [resetPasswordModal, setResetPasswordModal] = useState(false);
     const [focusedInput, setFocusedInput] = useState(null);
     const navigation = useNavigation();
-     const [errors, setErrors] = useState({ email: '', password: '' });
+    const [errors, setErrors] = useState({ email: '', password: '' });
+    const { showAlertModal, hideAlert } = useGlobalAlert();
 
 
 
+    const validateEmail = (email) => {
+        const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return pattern.test(email);
+    };
 
-const validateEmail = (email) => {
-    const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return pattern.test(email);
-  };
+    const handleLogin = async () => {
+        let valid = true;
+        let newErrors = { email: '', password: '' };
 
-  const handleLogin = () => {
-    let valid = true;
-    let newErrors = { email: '', password: '' };
+        if (!email) {
+            newErrors.email = 'Email is required';
+            valid = false;
+        } else if (!validateEmail(email)) {
+            newErrors.email = 'Enter a valid email address';
+            valid = false;
+        }
 
-    if (!email) {
-      newErrors.email = 'Email is required';
-      valid = false;
-    } else if (!validateEmail(email)) {
-      newErrors.email = 'Enter a valid email address';
-      valid = false;
-    }
+        if (!password) {
+            newErrors.password = 'Password is required';
+            valid = false;
+        } else if (password.length < 6) {
+            newErrors.password = 'Password must be at least 6 characters';
+            valid = false;
+        }
 
-    if (!password) {
-      newErrors.password = 'Password is required';
-      valid = false;
-    } else if (password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
-      valid = false;
-    }
+        setErrors(newErrors);
 
-    setErrors(newErrors);
+        if (valid) {
+            try {
+                const loginRequest = {
+                    "email": email,
+                    "user_pass": password
+                }
+                const response = await AuthService.empLogin(loginRequest);
+                console.log('Login API Response: ', response)
+                if (response?.access_token) {
+                    await AsyncStorage.setItem("token", response.access_token);
 
-    if (valid) {
-      // Proceed with navigation or API call
-      const loginRequest = {
-        "email": email,
-        "password": password
-      }
-      console.log('Login Form: ', loginRequest)
-      Alert.alert("Welcome", "Login Successful!")
-      navigation.replace('AppTabs');
-    }
-  };
+                    await AsyncStorage.setItem("user_id", response.userData?.id?.toString() || '');
+                    await AsyncStorage.setItem("user_name", response.userData?.client_name || '');
+                    await AsyncStorage.setItem("user_email", response.userData?.email || '');
 
+                    const lastLoginFormatted = formatLoginDate();
+                    await AsyncStorage.setItem("lastLogin", lastLoginFormatted);
+
+                    showAlertModal('Login Successful!', false);
+                    setTimeout(() => {
+                        hideAlert();
+                        navigation.replace('AppTabs');
+                    }, 1000)
+                }
+                else {
+                    showAlertModal('Invalid email or password.', true);
+                }
+            } catch (error) {
+                console.error("Login Error:", error);
+                showAlertModal("Login Failed"+ "Invalid email or password. Please check your credentials and try again.", true);
+            } finally {
+                setLoginLoading(false); // End login loading
+            }
+        }
+    };
+
+
+    const formatLoginDate = () => {
+        const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        const now = new Date();
+      
+        const day = now.getDate();
+        const month = months[now.getMonth()];
+        const year = now.getFullYear();
+      
+        // Format time
+        let hours = now.getHours();
+        const minutes = now.getMinutes().toString().padStart(2, '0');
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12 || 12; // convert 0 to 12
+      
+        return `${day} ${month} ${year}, at ${hours}:${minutes} ${ampm}`;
+      };
+      
+
+      useEffect(() => {
+        const backAction = () => true; // block
+        const backHandler = BackHandler.addEventListener("hardwareBackPress", backAction);
+        return () => backHandler.remove();
+      }, []);
+      
     return (
         <KeyboardAvoidingView
             style={{ flex: 1 }}
@@ -85,83 +142,83 @@ const validateEmail = (email) => {
                 resizeMode="cover"
             >
                 <ScrollView
-      contentContainerStyle={{ flexGrow: 1 }}
-      keyboardShouldPersistTaps="handled"
-    >
-      <View style={styles.container}>
-        <Image source={require('../../../assets/logo1.png')} style={styles.logo} />
+                    contentContainerStyle={{ flexGrow: 1 }}
+                    keyboardShouldPersistTaps="handled"
+                >
+                    <View style={styles.container}>
+                        <Image source={require('../../../assets/logo1.png')} style={styles.logo} />
 
-        <Text style={styles.title}>Welcome Back!</Text>
-        <Text style={styles.subtitle}>Smooth Access, Stronger Business</Text>
+                        <Text style={styles.title}>Welcome Back!</Text>
+                        <Text style={styles.subtitle}>Smooth Access, Stronger Business</Text>
 
-        {/* Email Input */}
-        <View style={styles.inputContainer}>
-          <TextInput
-            style={[
-              styles.input,
-              { borderColor: isEmailFocused ? '#00A651' : '#B2B2B2' },
-            ]}
-            placeholder="Email"
-            value={email}
-            onChangeText={(text) => setEmail(text)}
-            keyboardType="email-address"
-            onFocus={() => setIsEmailFocused(true)}
-            onBlur={() => setIsEmailFocused(false)}
-          />
-          <Image
-            source={require('../../../assets/logicon.png')}
-            style={{ position: 'absolute', left: 15, top: 13 }}
-          />
-        </View>
-        {errors.email ? <Text style={styles.errorText}>{errors.email}</Text> : null}
+                        {/* Email Input */}
+                        <View style={styles.inputContainer}>
+                            <TextInput
+                                style={[
+                                    styles.input,
+                                    { borderColor: isEmailFocused ? '#00A651' : '#B2B2B2' },
+                                ]}
+                                placeholder="Email"
+                                value={email}
+                                onChangeText={(text) => setEmail(text)}
+                                keyboardType="email-address"
+                                onFocus={() => setIsEmailFocused(true)}
+                                onBlur={() => setIsEmailFocused(false)}
+                            />
+                            <Image
+                                source={require('../../../assets/logicon.png')}
+                                style={{ position: 'absolute', left: 15, top: 13 }}
+                            />
+                        </View>
+                        {errors.email ? <Text style={styles.errorText}>{errors.email}</Text> : null}
 
-        {/* Password Input */}
-        <View style={styles.inputContainer}>
-          <TextInput
-            style={[
-              styles.input,
-              { borderColor: isPasswordFocused ? '#00A651' : '#B2B2B2' },
-            ]}
-            placeholder="Password"
-            secureTextEntry={!passwordVisible}
-            value={password}
-            onChangeText={(text) => setPassword(text)}
-            onFocus={() => setIsPasswordFocused(true)}
-            onBlur={() => setIsPasswordFocused(false)}
-          />
-          <Image
-            source={require('../../../assets/logicon2.png')}
-            style={{ position: 'absolute', left: 15, top: 13 }}
-          />
-          <TouchableOpacity
-            onPress={() => setPasswordVisible(!passwordVisible)}
-            style={{ position: 'absolute', right: 15, top: 13 }}
-          >
-            <Icon
-              name={passwordVisible ? 'eye-off-outline' : 'eye-outline'}
-              size={20}
-              color="#CECECE"
-            />
-          </TouchableOpacity>
-        </View>
-        {errors.password ? <Text style={styles.errorText}>{errors.password}</Text> : null}
+                        {/* Password Input */}
+                        <View style={styles.inputContainer}>
+                            <TextInput
+                                style={[
+                                    styles.input,
+                                    { borderColor: isPasswordFocused ? '#00A651' : '#B2B2B2' },
+                                ]}
+                                placeholder="Password"
+                                secureTextEntry={!passwordVisible}
+                                value={password}
+                                onChangeText={(text) => setPassword(text)}
+                                onFocus={() => setIsPasswordFocused(true)}
+                                onBlur={() => setIsPasswordFocused(false)}
+                            />
+                            <Image
+                                source={require('../../../assets/logicon2.png')}
+                                style={{ position: 'absolute', left: 15, top: 13 }}
+                            />
+                            <TouchableOpacity
+                                onPress={() => setPasswordVisible(!passwordVisible)}
+                                style={{ position: 'absolute', right: 15, top: 13 }}
+                            >
+                                <Icon
+                                    name={passwordVisible ? 'eye-off-outline' : 'eye-outline'}
+                                    size={20}
+                                    color="#CECECE"
+                                />
+                            </TouchableOpacity>
+                        </View>
+                        {errors.password ? <Text style={styles.errorText}>{errors.password}</Text> : null}
 
-        {/* Forgot Password */}
-        <TouchableOpacity
-          style={styles.forgotPass}
-          onPress={() => setForgotModalVisible(true)}
-        >
-          <Image source={require('../../../assets/log-info.png')} />
-          <Text style={styles.forgotPassword}> Forgot password?</Text>
-        </TouchableOpacity>
+                        {/* Forgot Password */}
+                        <TouchableOpacity
+                            style={styles.forgotPass}
+                            onPress={() => setForgotModalVisible(true)}
+                        >
+                            <Image source={require('../../../assets/log-info.png')} />
+                            <Text style={styles.forgotPassword}> Forgot password?</Text>
+                        </TouchableOpacity>
 
-        {/* Login Button */}
-        <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-          <Image source={require('../../../assets/login.png')} />
-          <Text style={styles.loginText}> Login</Text>
-        </TouchableOpacity>
-      </View>
-    </ScrollView>
+                        {/* Login Button */}
+                        <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+                            <Image source={require('../../../assets/login.png')} />
+                            <Text style={styles.loginText}> Login</Text>
+                        </TouchableOpacity>
+                    </View>
+                </ScrollView>
 
                 {/* Forgot Password Modal */}
                 <Modal
@@ -277,11 +334,11 @@ export default Login;
 
 const styles = StyleSheet.create({
     errorText: {
-  color: 'red',
-  fontSize: 12,
-  marginBottom: 10,
-  marginLeft: 10,
-},
+        color: 'red',
+        fontSize: 12,
+        marginBottom: 10,
+        marginLeft: 10,
+    },
 
     background: {
         flex: 1,

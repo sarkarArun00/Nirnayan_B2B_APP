@@ -15,7 +15,7 @@ export default function RootNavigator() {
   useEffect(() => {
     const checkState = async () => {
       const hasSeen = await AsyncStorage.getItem('hasSeenOnboarding');
-      const token = await AsyncStorage.getItem('authToken'); // rename your userToken -> authToken
+      const token = await AsyncStorage.getItem('token'); // rename your userToken -> token
 
       if (!hasSeen) {
         setInitialRoute('Onboarding');

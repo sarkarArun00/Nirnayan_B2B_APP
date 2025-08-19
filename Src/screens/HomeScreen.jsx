@@ -21,7 +21,7 @@ const HomeScreen = () => {
     { title: 'Download', icon: require('../../assets/qc-icon3.png') },
     { title: 'Raise Ticket', icon: require('../../assets/qc-icon4.png') },
   ];
-const [scrollEnabled, setScrollEnabled] = useState(true);
+  const [scrollEnabled, setScrollEnabled] = useState(true);
   return (
     // style={[GlobalStyles.SafeAreaView]}
     <SafeAreaView>
@@ -40,19 +40,27 @@ const [scrollEnabled, setScrollEnabled] = useState(true);
           </TouchableOpacity> */}
         </View>
 
-         <Header />
+        <Header />
 
         <View>
           {/* Search Bar */}
-          <View style={{ position: 'relative', paddingBottom: 24, marginHorizontal: 16, }}>
+          <View style={{ position: 'relative', paddingBottom: 24, marginHorizontal: 16 }}>
             <TextInput
               placeholder="Search"
-              style={[styles.input, { borderColor: isFocused ? '#00A651' : '#BBE7D1' }]}
+              placeholderTextColor="#777"        // <--- here
+              style={[
+                styles.input,
+                { borderColor: isFocused ? '#00A651' : '#BBE7D1' }
+              ]}
               onFocus={() => setIsFocused(true)}
               onBlur={() => setIsFocused(false)}
             />
-            <Image source={require('../../assets/search2.png')} style={{ position: 'absolute', left: 15, top: 15, }} />
+            <Image
+              source={require('../../assets/search2.png')}
+              style={{ position: 'absolute', left: 15, top: 15 }}
+            />
           </View>
+
 
           {/* Scroll Card */}
           <ScrollView
@@ -212,10 +220,10 @@ const [scrollEnabled, setScrollEnabled] = useState(true);
             <Text style={styles.perfTitle}>Partner Performance</Text>
             <View style={styles.performanceBox}>
               <View style={styles.iconBox}>
-                <Image 
-                  source={require('../../assets/doctor.png')} 
-                  style={{ width:30, height:30 }} 
-                  resizeMode='contain' 
+                <Image
+                  source={require('../../assets/doctor.png')}
+                  style={{ width: 30, height: 30 }}
+                  resizeMode='contain'
                 />
               </View>
               <View style={styles.performanceLeft}>
@@ -223,7 +231,7 @@ const [scrollEnabled, setScrollEnabled] = useState(true);
                   <Text style={styles.drTitle}>Dr. Smith Clinic</Text>
                   <Text style={styles.Price}>8 patients • ₹12,400</Text>
                 </View>
-                <View style={{flexDirection:'row', alignItems:'center', gap:8, }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, }}>
                   <Text style={styles.perfMrp}>₹3,200</Text>
                   <Text style={styles.perfIncrease}>10% <Text style={styles.perftopArrow}>▲</Text></Text>
                 </View>
@@ -231,10 +239,10 @@ const [scrollEnabled, setScrollEnabled] = useState(true);
             </View>
             <View style={styles.performanceBox}>
               <View style={styles.iconBox}>
-                <Image 
-                  source={require('../../assets/doctor.png')} 
-                  style={{ width:30, height:30 }} 
-                  resizeMode='contain' 
+                <Image
+                  source={require('../../assets/doctor.png')}
+                  style={{ width: 30, height: 30 }}
+                  resizeMode='contain'
                 />
               </View>
               <View style={styles.performanceLeft}>
@@ -242,7 +250,7 @@ const [scrollEnabled, setScrollEnabled] = useState(true);
                   <Text style={styles.drTitle}>Dr. Smith Clinic</Text>
                   <Text style={styles.Price}>8 patients • ₹12,400</Text>
                 </View>
-                <View style={{flexDirection:'row', alignItems:'center', gap:8, }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, }}>
                   <Text style={styles.perfMrp}>₹3,200</Text>
                   <Text style={styles.perfIncrease}>10% <Text style={styles.perfBtmArrow}>▼</Text></Text>
                 </View>
@@ -259,93 +267,93 @@ const [scrollEnabled, setScrollEnabled] = useState(true);
 export default HomeScreen;
 
 const styles = StyleSheet.create({
-  perfomanceCard:{
-    paddingVertical:24,
-    paddingHorizontal:16,
+  perfomanceCard: {
+    paddingVertical: 24,
+    paddingHorizontal: 16,
   },
-  perfTitle:{
+  perfTitle: {
     fontFamily: 'Poppins-SemiBold',
     fontSize: 14,
     lineHeight: 16,
     color: '#171717',
-    marginBottom:14,
+    marginBottom: 14,
   },
-  performanceBox:{
-    borderWidth:1,
-    borderColor:'#fff',
-    borderRadius:20,
-    backgroundColor:'#f2f9ff',
-    paddingHorizontal:10,
-    paddingVertical:10,
-    marginBottom:8,
-    flexDirection:'row',
-    alignItems:'center',
+  performanceBox: {
+    borderWidth: 1,
+    borderColor: '#fff',
+    borderRadius: 20,
+    backgroundColor: '#f2f9ff',
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+    marginBottom: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
-  iconBox:{
-    width:55,
-    height:55,
-    backgroundColor:'#fff',
-    borderRadius:10,
-    flexDirection:'row',
-    justifyContent:'center',
-    alignItems:'center',
+  iconBox: {
+    width: 55,
+    height: 55,
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  performanceLeft:{
-    flex:1,
-    paddingLeft:8,
-    flexDirection:'row',
-    justifyContent:'center',
-    alignItems:'center',
-    flexDirection:'row',
-    alignItems:'center',
-    justifyContent:'space-between',
+  performanceLeft: {
+    flex: 1,
+    paddingLeft: 8,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
-  drTitle:{
+  drTitle: {
     fontFamily: 'Poppins-SemiBold',
     fontSize: 14,
     lineHeight: 16,
     color: '#000000',
-    marginBottom:5,
+    marginBottom: 5,
   },
-  Price:{
+  Price: {
     fontFamily: 'Poppins-regular',
     fontSize: 12,
     lineHeight: 14,
     color: '#000000',
   },
-  perfMrp:{
+  perfMrp: {
     fontFamily: 'Poppins-SemiBold',
     fontSize: 14,
     lineHeight: 16,
     color: '#525252',
   },
-  perfIncrease:{
+  perfIncrease: {
     fontFamily: 'Poppins-SemiBold',
-    fontSize:8,
+    fontSize: 8,
     lineHeight: 10,
     color: '#525252',
   },
-  perftopArrow:{
+  perftopArrow: {
     fontFamily: 'Poppins-SemiBold',
-    fontSize:10,
+    fontSize: 10,
     lineHeight: 12,
-    color:'#00A651',
+    color: '#00A651',
   },
-  perfBtmArrow:{
+  perfBtmArrow: {
     fontFamily: 'Poppins-SemiBold',
-    fontSize:10,
+    fontSize: 10,
     lineHeight: 12,
-    color:'#00A651',
+    color: '#00A651',
   },
-  perfBtmArrow:{
+  perfBtmArrow: {
     fontFamily: 'Poppins-SemiBold',
-    fontSize:10,
+    fontSize: 10,
     lineHeight: 12,
-    color:'#E64B60',
+    color: '#E64B60',
   },
 
 
-// 
+  // 
   input: {
     borderWidth: 1,
     height: 54,
@@ -400,22 +408,22 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 25,
     flexDirection: 'row',
-    justifyContent:'center',
-    alignItems:'center',
-    gap:4,
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 4,
   },
   testIncTitle: {
     fontFamily: 'Poppins-Medium',
     fontSize: 10,
-    lineHeight:12,
+    lineHeight: 12,
     color: '#3CD03C',
   },
-  testInctopArrow:{
+  testInctopArrow: {
     fontFamily: 'Poppins-Medium',
     fontSize: 15,
-    lineHeight:17,
+    lineHeight: 17,
     color: '#3CD03C',
-    marginTop:-4
+    marginTop: -4
   },
   supportInc: {
     fontFamily: 'Poppins-Medium',
@@ -519,34 +527,34 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 16,
     color: '#fff',
-    textAlign:'center',
-    marginBottom:15,
+    textAlign: 'center',
+    marginBottom: 15,
   },
-  sumRow:{
-    flexDirection:'row',
+  sumRow: {
+    flexDirection: 'row',
     // justifyContent:'space-between',
   },
-  sumColumn:{
-    flex:1,
-    alignItems:'center',
+  sumColumn: {
+    flex: 1,
+    alignItems: 'center',
   },
-  sumValue:{
+  sumValue: {
     fontFamily: 'Poppins-SemiBold',
     fontSize: 20,
     lineHeight: 22,
     color: '#fff',
-    textAlign:'center',
-    marginBottom:10,
+    textAlign: 'center',
+    marginBottom: 10,
   },
-  sumArrow:{
-    fontSize:15,
+  sumArrow: {
+    fontSize: 15,
   },
-  sumLabel:{
+  sumLabel: {
     fontFamily: 'Poppins-SemiBold',
     fontSize: 12,
     lineHeight: 14,
     color: '#fff',
-    textAlign:'center',
+    textAlign: 'center',
   },
 
 

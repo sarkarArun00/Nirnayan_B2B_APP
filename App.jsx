@@ -14,7 +14,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import RNBootSplash from "react-native-bootsplash";
 import AnimatedSplash from "./AnimatedSplash"
 import AppNavigator from './Src/navigation/TabNavigator';
-
+import { GlobalAlertProvider } from './Context/GlobalAlertContext';
 import RootNavigator from './Src/navigation/RootNavigator'
 
 function App() {
@@ -25,7 +25,7 @@ function App() {
   useEffect(() => {
     const init = async () => {
       // Simulate a task
-      await new Promise(resolve => setTimeout(resolve, 200));
+      await new Promise(resolve => setTimeout(resolve, 100));
       RNBootSplash.hide({ fade: true });
     };
     init();
@@ -39,12 +39,8 @@ function App() {
 
 
   return (
-    // <SafeAreaProvider>
-    //   <NavigationContainer>
-    //     <TabNavigator />
-    //   </NavigationContainer>
-    // </SafeAreaProvider>
 
+    <GlobalAlertProvider>
     <SafeAreaProvider>
       {showAnimatedSplash ? (
         <AnimatedSplash onAnimationEnd={() => setShowAnimatedSplash(false)} />
@@ -54,6 +50,7 @@ function App() {
         </NavigationContainer>
       )}
     </SafeAreaProvider>
+    </GlobalAlertProvider>
   );
 
 }

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   Text,
   StyleSheet,
@@ -8,10 +8,32 @@ import {
   ImageBackground,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Header = () => {
   const navigation = useNavigation();
 
+
+
+  const [userName, setUserName] = useState('');
+  const [userEmail, setUserEmail] = useState('');
+  const [userLastLogin, setUserLastLogin] = useState('');
+  
+  useEffect(() => {
+    const fetchData = async () => {
+      const name = await AsyncStorage.getItem('user_name');
+      const email = await AsyncStorage.getItem('user_email');
+      const lastLogin = await AsyncStorage.getItem('lastLogin');
+  
+      setUserName(name);
+      setUserEmail(email);
+      setUserLastLogin(lastLogin);
+
+      console.log('useerrrrrr', userName)
+    };
+  
+    fetchData();
+  }, []);
   return (
     <>
       <ImageBackground
@@ -27,7 +49,7 @@ const Header = () => {
             </View>
             <View style={styles.textBlock}>
               <Text style={styles.title}>Welcome back</Text>
-              <Text style={styles.subTitle}>Arun Sarkar</Text>
+              <Text style={styles.subTitle}>{userName}</Text>
             </View>
           </View>
 

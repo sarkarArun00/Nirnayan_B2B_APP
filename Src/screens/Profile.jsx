@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -11,10 +11,35 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Feather';
 import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
-  // const insets = useSafeAreaInsets();
+
+  const [userName, setUserName] = useState('');
+  const [userEmail, setUserEmail] = useState('');
+  const [userLastLogin, setUserLastLogin] = useState('');
+  
+  useEffect(() => {
+    const fetchData = async () => {
+      const name = await AsyncStorage.getItem('user_name');
+      const email = await AsyncStorage.getItem('user_email');
+      const lastLogin = await AsyncStorage.getItem('lastLogin');
+  
+      setUserName(name);
+      setUserEmail(email);
+      setUserLastLogin(lastLogin);
+
+      console.log('useerrrrrr', userName)
+    };
+  
+    fetchData();
+  }, []);
+
+
+
+
+
 
   return (
     <ImageBackground
@@ -37,9 +62,9 @@ const ProfileScreen = () => {
           </View>
           <View style={styles.sdProfileTextBlock}>
             <Text style={styles.sdProTitle}>Welcome back</Text>
-            <Text style={styles.sdProSubTitle}>Arun Sarkar</Text>
+            <Text style={styles.sdProSubTitle}>{userName}</Text>
             <Text style={styles.sdProLoginTime}>
-              Last sign In on 26 Jul 2025, at 04:34pm
+              Last sign In on {userLastLogin}
             </Text>
           </View>
         </View>
@@ -103,15 +128,35 @@ const ProfileScreen = () => {
               <Image style={styles.menuImg} source={require('../../assets/menu11.png')} />
               <Text style={styles.menuText}>Settings</Text>
             </TouchableOpacity>
+            <TouchableOpacity style={styles.menuItem}
+            onPress={async () => {
+              await AsyncStorage.removeItem('token');
+              await AsyncStorage.removeItem('user_id');
+              await AsyncStorage.removeItem('user_name');
+              await AsyncStorage.removeItem('user_email');
+              await AsyncStorage.removeItem('lastLogin');
+              navigation.replace('Login');
+            }}
+            >
+              <Image style={styles.menuImg} source={require('../../assets/logout.png')} />
+              <Text style={styles.menuText}>Log Out</Text>
+            </TouchableOpacity>
           </ScrollView>
 
           {/* Bottom Section */}
           <View>
             <Text style={styles.appVersion}>App version 2.0</Text>
-            <TouchableOpacity style={styles.logout}>
+            {/* <TouchableOpacity style={styles.logout} onPress={() => {
+              AsyncStorage.removeItem('token'),
+              AsyncStorage.removeItem('user_id'),
+              AsyncStorage.removeItem('user_name'),
+              AsyncStorage.removeItem('user_email'),
+              AsyncStorage.removeItem('lastLogin'),
+              navigation.replace('Login');
+            }}>
               <Image style={styles.logoutImg} source={require('../../assets/logout.png')} />
               <Text style={styles.logText}>Log Out</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </View>
         </View>
       </SafeAreaView>
