@@ -213,7 +213,7 @@ function Login() {
                         </TouchableOpacity>
 
                         {/* Login Button */}
-                        <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+                        <TouchableOpacity style={styles.loginButton} onPress={() => {handleLogin()}}>
                             <Image source={require('../../../assets/login.png')} />
                             <Text style={styles.loginText}> Login</Text>
                         </TouchableOpacity>
