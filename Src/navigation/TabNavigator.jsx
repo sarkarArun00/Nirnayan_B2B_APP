@@ -16,6 +16,7 @@ import Accounts from '../screens/Accounts/Accounts';
 import SliderScreens from '../screens/sliderScreens/sliderScreens'; // ✅ Capitalized for component
 import Login from '../screens/Login/Login';
 import ResetPassword from '../screens/ResetPassword/ResetPassword';
+import Partner from '../screens/Partner/Partner';
 
 
 const Tab = createBottomTabNavigator();
@@ -116,6 +117,7 @@ const AppNavigator = () => {
       <Stack.Screen name="Login" component={Login} />
       <Stack.Screen name="ResetPassword" component={ResetPassword} />
       <Stack.Screen name="Profile" component={ProfileScreen} />
+      <Stack.Screen name="Partner" component={Partner} />
     </Stack.Navigator>
   );
 };

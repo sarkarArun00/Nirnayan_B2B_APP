@@ -96,7 +96,7 @@ const ProfileScreen = () => {
               <Image style={styles.menuImg} source={require('../../assets/menu4.png')} />
               <Text style={styles.menuText}>Report Download</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.menuItem}>
+            <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('Partner')}>
               <Image style={styles.menuImg} source={require('../../assets/menu12.png')} />
               <Text style={styles.menuText}>Partner</Text>
             </TouchableOpacity>
