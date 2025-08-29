@@ -10,14 +10,12 @@ const screenWidth = Dimensions.get('window').width;
 const cardWidth = (screenWidth - 48) / 3;
 
 function Partner() {
+    const navigation = useNavigation();
     const placeholderOptions = ['Search Partner', 'Search Blog', 'Search Report'];
     const [placeholderIndex, setPlaceholderIndex] = useState(0);
     const [activeTab, setActiveTab] = useState('partner');
     const [filterModalVisible, setFilterModalVisible] = useState(false);
     const [activeAction, setActiveAction] = useState(null);
-
-
-
     const [fromDate, setFromDate] = useState('');
     const [toDate, setToDate] = useState('');
     const [selectedType, setSelectedType] = useState('');
@@ -86,9 +84,18 @@ function Partner() {
         ],
     };
 
-    const navigation = useNavigation();
     const handleGoBack = () => {
         navigation.goBack();
+    };
+
+    const handleActionPress = (label) => {
+        if (label === 'Download Rate') {
+            navigation.navigate('DownloadRates');
+        } else if (label === 'Add Partner' || label === 'Create Rate') {
+            setActiveAction(label);
+        } else {
+            setActiveAction(null);
+        }
     };
 
     return (
@@ -188,13 +195,12 @@ function Partner() {
                             <TouchableOpacity
                                 key={index}
                                 style={styles.card}
-                                onPress={() => setActiveAction(action.label)}
+                                onPress={() => handleActionPress(action.label)}
                             >
                                 <Image source={action.icon} style={styles.icon} resizeMode="contain" />
                                 <Text style={styles.qacLabel}>{action.label}</Text>
                             </TouchableOpacity>
                         ))}
-
                     </View>
                 </View>
 
@@ -598,19 +604,19 @@ const styles = StyleSheet.create({
         color: '#64748B',
         textAlign: 'center',
     },
-    tabInner:{
-        position:'relative',
+    tabInner: {
+        position: 'relative',
         paddingVertical: 14,
     },
     activeTabUnderline: {
-        position:'absolute',
-        left:0,
-        bottom:-1,
+        position: 'absolute',
+        left: 0,
+        bottom: -1,
         height: 4,
-        width:'100%',
+        width: '100%',
         backgroundColor: '#00A651',
-        borderTopLeftRadius:3,
-        borderTopRightRadius:3,
+        borderTopLeftRadius: 3,
+        borderTopRightRadius: 3,
     },
     activeTabText: {
         color: '#1E293B',
@@ -762,7 +768,7 @@ const styles = StyleSheet.create({
     leftArrow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 20,
+        gap:15,
     },
     arrowBox: {
         width: 32,
