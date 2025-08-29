@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Text, SafeAreaView, ScrollView, StyleSheet, ImageBackground, View, Image, TouchableOpacity, TextInput, Dimensions, Modal } from 'react-native'
+import { Text, SafeAreaView, ScrollView, StyleSheet, ImageBackground, View, Image, TouchableOpacity, TextInput, Dimensions, Modal, Switch } from 'react-native'
 import Icon from 'react-native-vector-icons/Ionicons';
 import LinearGradient from 'react-native-linear-gradient';
 import { GlobalStyles } from '../../GlobalStyles';
@@ -14,10 +14,16 @@ function Partner() {
     const [placeholderIndex, setPlaceholderIndex] = useState(0);
     const [activeTab, setActiveTab] = useState('partner');
     const [filterModalVisible, setFilterModalVisible] = useState(false);
+    const [activeAction, setActiveAction] = useState(null);
+
+
 
     const [fromDate, setFromDate] = useState('');
     const [toDate, setToDate] = useState('');
     const [selectedType, setSelectedType] = useState('');
+    const [tempCash, setTempCash] = useState('');
+    const [isEnabled, setIsEnabled] = useState(false);
+    const toggleSwitch = () => setIsEnabled(previousState => !previousState);
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -179,11 +185,16 @@ function Partner() {
                     <Text style={styles.qacTitle}>Quick Actions</Text>
                     <View style={styles.cardRow}>
                         {actions.map((action, index) => (
-                            <TouchableOpacity key={index} style={styles.card}>
+                            <TouchableOpacity
+                                key={index}
+                                style={styles.card}
+                                onPress={() => setActiveAction(action.label)}
+                            >
                                 <Image source={action.icon} style={styles.icon} resizeMode="contain" />
                                 <Text style={styles.qacLabel}>{action.label}</Text>
                             </TouchableOpacity>
                         ))}
+
                     </View>
                 </View>
 
@@ -260,23 +271,41 @@ function Partner() {
                     end={{ x: 0.5, y: 1 }}
                     style={styles.gradientBox}
                 >
-                    <View style={{ flexDirection: 'row', gap: 10, marginBottom: 12, }}>
+                    <View style={{ flexDirection: 'row', gap: 0, marginBottom: 12, }}>
                         <TouchableOpacity
-                            style={[styles.tbButton, activeTab === 'partner' && styles.activeTab]}
+                            style={styles.tbButton}
                             onPress={() => setActiveTab('partner')}
                         >
-                            <Text style={[styles.tbButtonText, activeTab === 'partner' && styles.activeTabText]}>
-                                Partner Rates
-                            </Text>
+                            <View style={styles.tabInner}>
+                                <Text style={[
+                                    styles.tbButtonText,
+                                    activeTab === 'partner' && styles.activeTabText
+                                ]}>
+                                    Partner Rates
+                                </Text>
+                                {activeTab === 'partner' && (
+                                    <View style={styles.activeTabUnderline} />
+                                )}
+                            </View>
                         </TouchableOpacity>
+
                         <TouchableOpacity
-                            style={[styles.tbButton, activeTab === 'template' && styles.activeTab]}
+                            style={styles.tbButton}
                             onPress={() => setActiveTab('template')}
                         >
-                            <Text style={[styles.tbButtonText, activeTab === 'template' && styles.activeTabText]}>
-                                Template Rates
-                            </Text>
+                            <View style={styles.tabInner}>
+                                <Text style={[
+                                    styles.tbButtonText,
+                                    activeTab === 'template' && styles.activeTabText
+                                ]}>
+                                    Template Rates
+                                </Text>
+                                {activeTab === 'template' && (
+                                    <View style={styles.activeTabUnderline} />
+                                )}
+                            </View>
                         </TouchableOpacity>
+
                     </View>
 
                     {rateList[activeTab].map((item) => (
@@ -327,7 +356,7 @@ function Partner() {
                     </View>
                 </LinearGradient>
 
-                {/* Forgot Password Modal */}
+                {/* Filter Modal */}
                 <Modal
                     transparent={true}
                     visible={filterModalVisible}
@@ -345,61 +374,200 @@ function Partner() {
                             </TouchableOpacity>
                             <Text style={GlobalStyles.mdlTitle}>Filter</Text>
                             <Text style={GlobalStyles.mdlSubTitle}>Short Subheading may be fit</Text>
-                            <View style={GlobalStyles.inpBox}>
-                                <Text style={GlobalStyles.label}>From Date <Text style={{ color: '#FA2C2C' }}>*</Text></Text>
-                                <TouchableOpacity style={GlobalStyles.inputContainer}>
-                                    {/* <Image source={require('../../../assets/mdl-calender.png')} style={GlobalStyles.mdlIcon} /> */}
-                                    <TextInput
-                                        placeholder="DD-MM-YY"
-                                        style={GlobalStyles.input}
-                                        value={fromDate}
-                                        onChangeText={setFromDate}
-                                        placeholderTextColor="#C2C2C2"
-                                    />
-                                </TouchableOpacity>
-                            </View>
-                            <View style={GlobalStyles.inpBox}>
-                                <Text style={GlobalStyles.label}>To Date <Text style={{ color: '#FA2C2C' }}>*</Text></Text>
-                                <TouchableOpacity style={GlobalStyles.inputContainer}>
-                                    {/* <Image source={require('../../../assets/mdl-calender.png')} style={GlobalStyles.mdlIcon} /> */}
-                                    <TextInput
-                                        placeholder="DD-MM-YY"
-                                        style={GlobalStyles.input}
-                                        value={toDate}
-                                        onChangeText={setToDate}
-                                        placeholderTextColor="#C2C2C2"
-                                    />
-                                </TouchableOpacity>
-                            </View>
-                            <View style={GlobalStyles.inpBox}>
-                                <Text style={GlobalStyles.label}>Search Type <Text style={{ color: '#FA2C2C' }}>*</Text></Text>
-                                <View style={GlobalStyles.inputContainer}>
-                                    <View style={GlobalStyles.input}>
-                                        {/* <Image source={require('../../../assets/mdl-search.png')} style={GlobalStyles.mdlIcon} /> */}
-                                        <Picker
-                                            selectedValue={selectedType}
-                                            onValueChange={value => setSelectedType(value)}
-                                            dropdownIconColor='#C2C2C2'
-                                            style={{
-                                                color:'#C2C2C2',
-                                            }}
+                            <ScrollView
+                                showsVerticalScrollIndicator={false}
+                                showsHorizontalScrollIndicator={false}
+                            >
+                                <View style={GlobalStyles.inpBox}>
+                                    <Text style={GlobalStyles.label}>From Date <Text style={{ color: '#FA2C2C' }}>*</Text></Text>
+                                    <TouchableOpacity style={GlobalStyles.inputContainer}>
+                                        {/* <Image source={require('../../../assets/mdl-calender.png')} style={GlobalStyles.mdlIcon} /> */}
+                                        <TextInput
+                                            placeholder="DD-MM-YY"
+                                            style={GlobalStyles.input}
+                                            value={fromDate}
+                                            onChangeText={setFromDate}
+                                            placeholderTextColor="#C2C2C2"
+                                        />
+                                    </TouchableOpacity>
+                                </View>
+                                <View style={GlobalStyles.inpBox}>
+                                    <Text style={GlobalStyles.label}>To Date <Text style={{ color: '#FA2C2C' }}>*</Text></Text>
+                                    <TouchableOpacity style={GlobalStyles.inputContainer}>
+                                        {/* <Image source={require('../../../assets/mdl-calender.png')} style={GlobalStyles.mdlIcon} /> */}
+                                        <TextInput
+                                            placeholder="DD-MM-YY"
+                                            style={GlobalStyles.input}
+                                            value={toDate}
+                                            onChangeText={setToDate}
+                                            placeholderTextColor="#C2C2C2"
+                                        />
+                                    </TouchableOpacity>
+                                </View>
+                                <View style={GlobalStyles.inpBox}>
+                                    <Text style={GlobalStyles.label}>Search Type <Text style={{ color: '#FA2C2C' }}>*</Text></Text>
+                                    <View style={GlobalStyles.inputContainer}>
+                                        <View style={GlobalStyles.input}>
+                                            {/* <Image source={require('../../../assets/mdl-search.png')} style={GlobalStyles.mdlIcon} /> */}
+                                            <Picker
+                                                selectedValue={selectedType}
+                                                onValueChange={value => setSelectedType(value)}
+                                                dropdownIconColor='#C2C2C2'
+                                                style={{
+                                                    color: '#C2C2C2',
+                                                }}
                                             >
-                                            <Picker.Item label="Select Type" value="" />
-                                            <Picker.Item label="Partner" value="partner" />
-                                            <Picker.Item label="Report" value="report" />
-                                        </Picker>
+                                                <Picker.Item label="Select Type" value="" />
+                                                <Picker.Item label="Partner" value="partner" />
+                                                <Picker.Item label="Report" value="report" />
+                                            </Picker>
+                                        </View>
                                     </View>
                                 </View>
-                            </View>
-                            <TouchableOpacity style={GlobalStyles.applyBtn}>
-                                <Text style={GlobalStyles.applyBtnText}>Apply</Text>
-                            </TouchableOpacity>
+                                <TouchableOpacity style={GlobalStyles.applyBtn}>
+                                    <Text style={GlobalStyles.applyBtnText}>Apply</Text>
+                                </TouchableOpacity>
+                            </ScrollView>
                         </View>
                     </View>
                 </Modal>
 
+                {/* Add Partner Modal */}
+                {activeAction === 'Add Partner' && (
+                    <Modal
+                        transparent={true}
+                        visible={true}
+                        animationType="slide"
+                        onRequestClose={() => setActiveAction(null)}
+                    >
+                        <View style={GlobalStyles.modalOverlay}>
+                            <View style={GlobalStyles.modalContainer}>
+                                <TouchableOpacity
+                                    style={GlobalStyles.modalClose}
+                                    onPress={() => setActiveAction(null)}
+                                >
+                                    <Text style={GlobalStyles.closeIcon}>✕</Text>
+                                </TouchableOpacity>
+                                <Text style={GlobalStyles.mdlTitle}>Add Partner</Text>
+                                <Text style={GlobalStyles.mdlSubTitle}>Short Subheading may be fit</Text>
+                                <ScrollView
+                                    showsVerticalScrollIndicator={false}
+                                    showsHorizontalScrollIndicator={false}
+                                >
+                                    <View style={GlobalStyles.inpBox}>
+                                        <Text style={GlobalStyles.label}>Partner Name <Text style={{ color: '#FA2C2C' }}>*</Text></Text>
+                                        <TextInput
+                                            placeholder="Name Here"
+                                            style={GlobalStyles.input}
+                                            placeholderTextColor="#C2C2C2"
+                                        />
+                                    </View>
+                                    <View style={GlobalStyles.inpBox}>
+                                        <Text style={GlobalStyles.label}>Phone <Text style={{ color: '#FA2C2C' }}>*</Text></Text>
+                                        <TextInput
+                                            placeholder="Number"
+                                            style={GlobalStyles.input}
+                                            placeholderTextColor="#C2C2C2"
+                                            keyboardType="email-address"
+                                        />
+                                    </View>
+                                    <View style={GlobalStyles.inpBox}>
+                                        <Text style={GlobalStyles.label}>Address <Text style={{ color: '#FA2C2C' }}>*</Text></Text>
+                                        <TextInput
+                                            placeholder="Location"
+                                            style={GlobalStyles.input}
+                                            placeholderTextColor="#C2C2C2"
+                                            keyboardType="email-address"
+                                        />
+                                    </View>
+                                    <View style={GlobalStyles.inpBox}>
+                                        <Text style={GlobalStyles.label}>Description <Text style={{ color: '#FA2C2C' }}>*</Text></Text>
+                                        <TextInput
+                                            style={GlobalStyles.textArea}
+                                            multiline={true}
+                                            numberOfLines={4}
+                                            placeholder="Description Here..."
+                                            placeholderTextColor="#C2C2C2"
+                                        />
+                                    </View>
+                                    <TouchableOpacity style={GlobalStyles.applyBtn}>
+                                        <Text style={GlobalStyles.applyBtnText}>Add Partner</Text>
+                                    </TouchableOpacity>
+                                </ScrollView>
+                            </View>
+                        </View>
+                    </Modal>
+                )}
 
+                {/* Create Rate Modal */}
+                {activeAction === 'Create Rate' && (
+                    <Modal
+                        transparent={true}
+                        visible={activeAction === 'Create Rate'}
+                        animationType="slide"
+                        onRequestClose={() => setActiveAction(null)}
+                    >
+                        <View style={GlobalStyles.modalOverlay}>
+                            <View style={GlobalStyles.modalContainer}>
+                                <TouchableOpacity
+                                    style={GlobalStyles.modalClose}
+                                    onPress={() => setActiveAction(null)}
+                                >
+                                    <Text style={GlobalStyles.closeIcon}>✕</Text>
+                                </TouchableOpacity>
+                                <Text style={GlobalStyles.mdlTitle}>Create Rate</Text>
+                                <Text style={GlobalStyles.mdlSubTitle}>Short Subheading may be fit</Text>
+                                <ScrollView
+                                    showsVerticalScrollIndicator={false}
+                                    showsHorizontalScrollIndicator={false}
+                                >
+                                    <View style={GlobalStyles.inpBox}>
+                                        <Text style={GlobalStyles.label}>Template Name <Text style={{ color: '#FA2C2C' }}>*</Text></Text>
+                                        <TextInput
+                                            placeholder="Enter Template Name"
+                                            style={GlobalStyles.input}
+                                            placeholderTextColor="#C2C2C2"
+                                        />
+                                    </View>
+                                    <View style={GlobalStyles.inpBox}>
+                                        <Text style={GlobalStyles.label}>Rate Type <Text style={{ color: '#FA2C2C' }}>*</Text></Text>
+                                        <View style={GlobalStyles.input}>
+                                            <Picker
+                                                selectedValue={tempCash}
+                                                onValueChange={value => setTempCash(value)}
+                                                dropdownIconColor="#C2C2C2"
+                                                style={{
+                                                    color: '#C2C2C2',
+                                                }}
+                                            >
+                                                <Picker.Item label="Select Type" value="" />
+                                                <Picker.Item label="Cash" value="partner" />
+                                                <Picker.Item label="UPI" value="report" />
+                                            </Picker>
 
+                                        </View>
+                                    </View>
+
+                                    <View style={GlobalStyles.tempSwitch}>
+                                        <Text style={GlobalStyles.switchLabel}>Template Rate</Text>
+                                        <Switch
+                                            trackColor={{ false: '#ccc', true: '#10C751' }}
+                                            thumbColor={isEnabled ? '#fff' : '#f4f3f4'}
+                                            ios_backgroundColor="#ccc"
+                                            onValueChange={toggleSwitch}
+                                            value={isEnabled}
+                                        />
+                                    </View>
+
+                                    <TouchableOpacity style={GlobalStyles.applyBtn}>
+                                        <Text style={GlobalStyles.applyBtnText}>Save</Text>
+                                    </TouchableOpacity>
+                                </ScrollView>
+                            </View>
+                        </View>
+                    </Modal>
+
+                )}
 
             </ScrollView>
         </SafeAreaView>
@@ -418,22 +586,34 @@ const styles = StyleSheet.create({
         borderTopRightRadius: 20,
     },
     tbButton: {
-        backgroundColor: '#DADADA',
-        paddingVertical: 10,
-        paddingHorizontal: 12,
-        borderRadius: 50,
+        width: '50%',
+        borderBottomWidth: 1,
+        borderColor: '#72B183',
+        paddingHorizontal: 0,
     },
     tbButtonText: {
-        fontFamily: 'Poppins-Medium',
-        fontSize: 10,
-        lineHeight: 12,
-        color: '#B5B5B5',
+        fontFamily: 'Poppins-SemiBold',
+        fontSize: 14,
+        lineHeight: 16,
+        color: '#64748B',
+        textAlign: 'center',
     },
-    activeTab: {
+    tabInner:{
+        position:'relative',
+        paddingVertical: 14,
+    },
+    activeTabUnderline: {
+        position:'absolute',
+        left:0,
+        bottom:-1,
+        height: 4,
+        width:'100%',
         backgroundColor: '#00A651',
+        borderTopLeftRadius:3,
+        borderTopRightRadius:3,
     },
     activeTabText: {
-        color: '#fff',
+        color: '#1E293B',
     },
     tbBox: {
         flexDirection: 'row',
