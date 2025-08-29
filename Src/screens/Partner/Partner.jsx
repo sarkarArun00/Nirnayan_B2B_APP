@@ -3,6 +3,8 @@ import { Text, SafeAreaView, ScrollView, StyleSheet, ImageBackground, View, Imag
 import Icon from 'react-native-vector-icons/Ionicons';
 import LinearGradient from 'react-native-linear-gradient';
 import { GlobalStyles } from '../../GlobalStyles';
+import { useNavigation } from '@react-navigation/native';
+import { Picker } from '@react-native-picker/picker';
 
 const screenWidth = Dimensions.get('window').width;
 const cardWidth = (screenWidth - 48) / 3;
@@ -15,6 +17,7 @@ function Partner() {
 
     const [fromDate, setFromDate] = useState('');
     const [toDate, setToDate] = useState('');
+    const [selectedType, setSelectedType] = useState('');
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -77,6 +80,11 @@ function Partner() {
         ],
     };
 
+    const navigation = useNavigation();
+    const handleGoBack = () => {
+        navigation.goBack();
+    };
+
     return (
         <SafeAreaView style={{ flex: 1, }}>
             <ScrollView style={{ flex: 1, }}>
@@ -85,10 +93,10 @@ function Partner() {
                     style={styles.background}
                     resizeMode="stretch">
                     <View style={styles.flexdv}>
-                        <View style={styles.leftArrow}>
+                        <TouchableOpacity style={styles.leftArrow} onPress={handleGoBack}>
                             <View style={styles.arrowBox}><Image source={require('../../../assets/arrow1.png')} /></View>
                             <Text style={styles.titleText}>Partner Master</Text>
-                        </View>
+                        </TouchableOpacity>
                         <View style={styles.rightSection}>
                             <TouchableOpacity style={{ position: 'relative' }}>
                                 <Image source={require('../../../assets/notification.png')} />
@@ -340,27 +348,52 @@ function Partner() {
                             <View style={GlobalStyles.inpBox}>
                                 <Text style={GlobalStyles.label}>From Date <Text style={{ color: '#FA2C2C' }}>*</Text></Text>
                                 <TouchableOpacity style={GlobalStyles.inputContainer}>
+                                    {/* <Image source={require('../../../assets/mdl-calender.png')} style={GlobalStyles.mdlIcon} /> */}
                                     <TextInput
                                         placeholder="DD-MM-YY"
                                         style={GlobalStyles.input}
                                         value={fromDate}
                                         onChangeText={setFromDate}
-                                        placeholderTextColor="#999"
+                                        placeholderTextColor="#C2C2C2"
                                     />
                                 </TouchableOpacity>
                             </View>
                             <View style={GlobalStyles.inpBox}>
                                 <Text style={GlobalStyles.label}>To Date <Text style={{ color: '#FA2C2C' }}>*</Text></Text>
-                                <TouchableOpacity style={GlobalStyles.inputContainer} activeOpacity={0.8}>
+                                <TouchableOpacity style={GlobalStyles.inputContainer}>
+                                    {/* <Image source={require('../../../assets/mdl-calender.png')} style={GlobalStyles.mdlIcon} /> */}
                                     <TextInput
                                         placeholder="DD-MM-YY"
                                         style={GlobalStyles.input}
                                         value={toDate}
                                         onChangeText={setToDate}
-                                        placeholderTextColor="#999"
+                                        placeholderTextColor="#C2C2C2"
                                     />
                                 </TouchableOpacity>
                             </View>
+                            <View style={GlobalStyles.inpBox}>
+                                <Text style={GlobalStyles.label}>Search Type <Text style={{ color: '#FA2C2C' }}>*</Text></Text>
+                                <View style={GlobalStyles.inputContainer}>
+                                    <View style={GlobalStyles.input}>
+                                        {/* <Image source={require('../../../assets/mdl-search.png')} style={GlobalStyles.mdlIcon} /> */}
+                                        <Picker
+                                            selectedValue={selectedType}
+                                            onValueChange={value => setSelectedType(value)}
+                                            dropdownIconColor='#C2C2C2'
+                                            style={{
+                                                color:'#C2C2C2',
+                                            }}
+                                            >
+                                            <Picker.Item label="Select Type" value="" />
+                                            <Picker.Item label="Partner" value="partner" />
+                                            <Picker.Item label="Report" value="report" />
+                                        </Picker>
+                                    </View>
+                                </View>
+                            </View>
+                            <TouchableOpacity style={GlobalStyles.applyBtn}>
+                                <Text style={GlobalStyles.applyBtnText}>Apply</Text>
+                            </TouchableOpacity>
                         </View>
                     </View>
                 </Modal>

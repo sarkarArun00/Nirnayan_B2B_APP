@@ -68,21 +68,43 @@ export const GlobalStyles = StyleSheet.create({
     fontFamily:'Poppins-Reqular',
     fontSize:12,
     lineHeight:14,
-    color:'#4A4A4A',
+    color:'#7D7B7B',
     marginBottom:10,
   },
   inputContainer:{
     position:'relative',
   },
+  // mdlIcon:{
+  //   position:'absolute',
+  //   left:10,
+  //   top:18,
+  // },
   input:{
+    fontFamily:'Poppins-Reqular',
+    fontSize:12,
+    lineHeight:14,
     height:50,
     borderWidth:1,
     borderColor:'#C5C5C5',
     borderRadius:10,
-    paddingLeft:40,
+    paddingLeft:10,
     paddingRight:10,
+    color:'#C2C2C2',
   },
-
+  applyBtn:{
+    alignSelf:'center',
+    backgroundColor:'#00A651',
+    borderRadius:6,
+    paddingVertical:13,
+    paddingHorizontal:38,
+    marginTop:10,
+  },
+  applyBtnText:{
+    fontFamily:'Poppins-Medium',
+    fontSize:13,
+    lineHeight:15,
+    color:'#fff',
+  },
 
 
 
