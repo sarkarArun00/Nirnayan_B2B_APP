@@ -121,7 +121,6 @@ function Partner() {
                 {
                     text: 'Delete',
                     onPress: () => {
-                        // Perform deletion logic here (API call or state update)
                         console.log('Deleting item:', item.id);
                     },
                     style: 'destructive',
