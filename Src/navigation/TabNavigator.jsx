@@ -18,6 +18,7 @@ import Login from '../screens/Login/Login';
 import ResetPassword from '../screens/ResetPassword/ResetPassword';
 import Partner from '../screens/Partner/Partner';
 import DownloadRates from '../screens/DownloadRates/DownloadRates';
+import PartnerRate from '../screens/PartnerRate/PartnerRate';
 
 
 const Tab = createBottomTabNavigator();
@@ -120,6 +121,7 @@ const AppNavigator = () => {
       <Stack.Screen name="Profile" component={ProfileScreen} />
       <Stack.Screen name="Partner" component={Partner} />
       <Stack.Screen name="DownloadRates" component={DownloadRates} />
+      <Stack.Screen name="PartnerRate" component={PartnerRate} />
     </Stack.Navigator>
   );
 };

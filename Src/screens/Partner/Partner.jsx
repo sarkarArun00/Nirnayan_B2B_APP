@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Text, SafeAreaView, ScrollView, StyleSheet, ImageBackground, View, Image, TouchableOpacity, TextInput, Dimensions, Modal, Switch } from 'react-native'
+import { Text, SafeAreaView, ScrollView, StyleSheet, ImageBackground, View, Image, TouchableOpacity, TextInput, Dimensions, Modal, Switch, Alert } from 'react-native'
 import Icon from 'react-native-vector-icons/Ionicons';
 import LinearGradient from 'react-native-linear-gradient';
 import { GlobalStyles } from '../../GlobalStyles';
@@ -83,6 +83,53 @@ function Partner() {
             },
         ],
     };
+
+    const tabActions = {
+        partner: [
+            {
+                icon: require('../../../assets/rupee.png'),
+                route: 'RupeeScreen',
+            },
+            {
+                icon: require('../../../assets/delete.png'),
+                onPress: (item) => handleDelete(item),
+            },
+        ],
+        template: [
+            {
+                icon: require('../../../assets/edit.png'),
+                route: 'EditTemplateScreen',
+            },
+            {
+                icon: require('../../../assets/setting.png'),
+                route: 'TemplateSettingsScreen',
+            },
+            {
+                icon: require('../../../assets/delete.png'),
+                onPress: (item) => handleDelete(item),
+            },
+        ],
+    };
+
+
+    const handleDelete = (item) => {
+        Alert.alert(
+            'Confirm Delete',
+            `Are you sure you want to delete "${item.title}"?`,
+            [
+                { text: 'Cancel', style: 'cancel' },
+                {
+                    text: 'Delete',
+                    onPress: () => {
+                        // Perform deletion logic here (API call or state update)
+                        console.log('Deleting item:', item.id);
+                    },
+                    style: 'destructive',
+                },
+            ]
+        );
+    };
+
 
     const handleGoBack = () => {
         navigation.goBack();
@@ -345,13 +392,23 @@ function Partner() {
                             </View>
 
                             <View style={styles.tbactionIcon}>
-                                <TouchableOpacity>
-                                    <Image source={require('../../../assets/edit.png')} />
-                                </TouchableOpacity>
-                                <TouchableOpacity>
-                                    <Image source={require('../../../assets/delete.png')} />
-                                </TouchableOpacity>
+                                {tabActions[activeTab].map((action, index) => (
+                                    <TouchableOpacity
+                                        key={index}
+                                        onPress={() => {
+                                            if (action.route) {
+                                                navigation.navigate(action.route, { item });
+                                            } else if (action.onPress) {
+                                                action.onPress(item);
+                                            }
+                                        }}
+                                    >
+                                        <Image source={action.icon} />
+                                    </TouchableOpacity>
+                                ))}
                             </View>
+
+
                         </View>
                     ))}
 
@@ -649,6 +706,7 @@ const styles = StyleSheet.create({
     },
     tbactionIcon: {
         flexDirection: 'row',
+        alignItems: 'center',
         gap: 13,
     },
     pbViewAllBtn: {
@@ -768,7 +826,7 @@ const styles = StyleSheet.create({
     leftArrow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap:15,
+        gap: 15,
     },
     arrowBox: {
         width: 32,
