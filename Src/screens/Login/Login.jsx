@@ -73,7 +73,7 @@ function Login() {
         if (valid) {
             try {
                 const loginRequest = {
-                    "email": email,
+                    "emailOrMobile": email,
                     "user_pass": password
                 }
                 const response = await AuthService.empLogin(loginRequest);
