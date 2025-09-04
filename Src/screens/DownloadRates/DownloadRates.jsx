@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Text, SafeAreaView, ScrollView, StyleSheet, ImageBackground, View, Image, TouchableOpacity, TextInput, Modal, } from 'react-native'
+import { Text, SafeAreaView, ScrollView, StyleSheet, ImageBackground, View, Image, TouchableOpacity, TextInput, Modal, Alert } from 'react-native'
 import Icon from 'react-native-vector-icons/Ionicons';
 import { GlobalStyles } from '../../GlobalStyles';
 import { Picker } from '@react-native-picker/picker';
@@ -52,6 +52,50 @@ function DownloadRates() {
                 status: 'inactive',
             },
         ],
+    };
+
+    const tabActions = {
+        partner: [
+            {
+                icon: require('../../../assets/rupee.png'),
+                route: 'RupeeScreen',
+            },
+            {
+                icon: require('../../../assets/delete.png'),
+                onPress: (item) => handleDelete(item),
+            },
+        ],
+        template: [
+            {
+                icon: require('../../../assets/edit.png'),
+                route: 'EditTemplateScreen',
+            },
+            {
+                icon: require('../../../assets/setting.png'),
+                route: 'TemplateSettingsScreen',
+            },
+            {
+                icon: require('../../../assets/delete.png'),
+                onPress: (item) => handleDelete(item),
+            },
+        ],
+    };
+
+    const handleDelete = (item) => {
+        Alert.alert(
+            'Confirm Delete',
+            `Are you sure you want to delete "${item.title}"?`,
+            [
+                { text: 'Cancel', style: 'cancel' },
+                {
+                    text: 'Delete',
+                    onPress: () => {
+                        console.log('Deleting item:', item.id);
+                    },
+                    style: 'destructive',
+                },
+            ]
+        );
     };
 
     return (
@@ -164,26 +208,24 @@ function DownloadRates() {
                             </View>
 
                             <View style={styles.tbactionIcon}>
-                                <TouchableOpacity>
-                                    <Image
-                                        source={require('../../../assets/xls.png')}
-                                        style={{ width: 20, height: 20, }}
-                                        resizeMode="contain"
-                                    />
-                                </TouchableOpacity>
-                                <TouchableOpacity>
-                                    <Image
-                                        source={require('../../../assets/pdf.png')}
-                                        style={{ width: 26, height: 26 }}
-                                        resizeMode="contain"
-                                    />
-                                </TouchableOpacity>
-
+                                {tabActions[activeTab].map((action, index) => (
+                                    <TouchableOpacity
+                                        key={index}
+                                        onPress={() => {
+                                            if (action.route) {
+                                                navigation.navigate(action.route, { item });
+                                            } else if (action.onPress) {
+                                                action.onPress(item);
+                                            }
+                                        }}
+                                    >
+                                        <Image source={action.icon} />
+                                    </TouchableOpacity>
+                                ))}
                             </View>
                         </View>
                     ))}
                 </View>
-
 
                 {/* Filter Modal */}
                 <Modal
