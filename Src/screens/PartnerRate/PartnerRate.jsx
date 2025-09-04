@@ -33,7 +33,7 @@ function PartnerRate() {
                     <View style={styles.flexdv}>
                         <TouchableOpacity style={styles.leftArrow} onPress={() => navigation.goBack()}>
                             <View style={styles.arrowBox}><Image source={require('../../../assets/arrow1.png')} /></View>
-                            <Text style={styles.titleText}>Partner Master</Text>
+                            <Text style={styles.titleText}>Partner Rate Set</Text>
                         </TouchableOpacity>
                         <View style={styles.rightSection}>
                             <TouchableOpacity style={{ position: 'relative' }}>
@@ -175,7 +175,9 @@ function PartnerRate() {
                             >
                                 <Text style={GlobalStyles.closeIcon}>✕</Text>
                             </TouchableOpacity>
-                            <Image source={require('../../../assets/testimg1.png')} style={styles.percentageImg} />
+                            <View style={styles.percentageImg}>
+                                <Image source={require('../../../assets/testimg1.png')} />
+                            </View>
                             <Text style={styles.mdlSubTitle}>CBC</Text>
                             <Text style={styles.mdlTitle}>Complete Blood Count</Text>
                             <View style={styles.mdlFlexdvs}>
@@ -294,7 +296,7 @@ const styles = StyleSheet.create({
     percentageImg:{
         marginBottom:20,
         alignSelf:'center',
-        flex:1,
+        // flex:1,
     },
     mdlSubTitle:{
         fontFamily: 'Poppins-Regular',
