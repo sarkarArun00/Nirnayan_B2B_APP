@@ -5,6 +5,8 @@ import LinearGradient from 'react-native-linear-gradient';
 import { GlobalStyles } from '../../GlobalStyles';
 import { useNavigation } from '@react-navigation/native';
 import { Picker } from '@react-native-picker/picker';
+import AlertModal from '../../componenets/AlertModal';
+import PartnerService from '../../services/partner_service'
 
 const screenWidth = Dimensions.get('window').width;
 const cardWidth = (screenWidth - 48) / 3;
@@ -21,9 +23,77 @@ function Partner() {
     const [selectedType, setSelectedType] = useState('');
     const [tempCash, setTempCash] = useState('');
     const [isEnabled, setIsEnabled] = useState(false);
-    const toggleSwitch = () => setIsEnabled(previousState => !previousState);
+    // const toggleSwitch = () => setIsEnabled(previousState => !previousState);
+
+    const [isVisible, setIsVisible] = useState(false);
+
+    const [partnerName, setPartnerName] = useState('');
+    const [phone, setPhone] = useState('');
+    const [address, setAddress] = useState('');
+    const [description, setDescription] = useState('');
+
+    const openModal = () => setIsVisible(true);
+    const closeModal = () => setIsVisible(false);
+    const [modalVisible, setModalVisible] = useState(false);
+
+    const [alertMessage, setAlertMessage] = useState('');
+    const [alertType, setAlertType] = useState('success');  // 'success' | 'error' | 'warning'
+    const [errors, setErrors] = useState({});
+    const [allPartners, setPartners] = useState([])
+    const [allTemplates, setTemplates] = useState([])
+    const [allPartnerRate, setPartnerRateList] = useState([])
+
+
+    const [rateType, setRateType] = useState("");
+    const [status, setStatus] = useState("");
+    const [templateName, setTemplateName] = useState("");
+    const [selectedTemplate, setSelectedTemplate] = useState("");
+
+
+    const showAlert = (message, type = 'success') => {
+        setAlertMessage(message);
+        setAlertType(type);
+        setModalVisible(true);
+    };
 
     useEffect(() => {
+        const fetchPartner = async () => {
+            try {
+                const response = await PartnerService.getAllPartners();
+                if (response.status == 1) {
+                    setPartners(response.data)
+                }
+            } catch (error) {
+                setPartners([])
+            }
+
+        }
+        
+        const fetchTemplate = async () => {
+            try {
+                const response = await PartnerService.getAllTemplateRate();
+                setTemplates(response.data)
+            } catch (error) {
+                console.log(error)
+                setTemplates([])
+            }
+        }
+
+        const fetchPartnerRateMaster = async () => {
+            try {
+                const response = await PartnerService.getAllPartnerRateMaster();
+                console.log('pppppp rrrrrr', response.data)
+                setPartnerRateList(response.data)
+            } catch (error) {
+                console.log(error)
+                setPartnerRateList([])
+            }
+        }
+
+        fetchPartner();
+        fetchTemplate();
+        fetchPartnerRateMaster();
+
         const interval = setInterval(() => {
             setPlaceholderIndex((prevIndex) => (prevIndex + 1) % placeholderOptions.length);
         }, 2000);
@@ -138,11 +208,129 @@ function Partner() {
         if (label === 'Download Rate') {
             navigation.navigate('DownloadRates');
         } else if (label === 'Add Partner' || label === 'Create Rate') {
+            openModal();
             setActiveAction(label);
+            return
         } else {
             setActiveAction(null);
         }
     };
+
+
+    const handleAddPartner = async () => {
+        const newErrors = {};
+
+        if (!partnerName.trim()) newErrors.partnerName = "Partner Name is required";
+        if (!phone.trim()) newErrors.phone = "Phone is required";
+        if (phone.length != 10) newErrors.phone = "Enter valid phone no.";
+        if (!address.trim()) newErrors.address = "Address is required";
+
+        setErrors(newErrors);
+
+        if (Object.keys(newErrors).length === 0) {
+            const request = {
+                "partner_name": partnerName,
+                "partner_address": address,
+                "partner_phone": phone,
+                "description": description
+            }
+            try {
+                const response = await PartnerService.storePartnerMaster(request);
+                console.log('ressssss', response)
+                if (response.status == 1) {
+                    showAlert('Partner created successfully!', 'success')
+                    setPartnerName("");
+                    setPhone("");
+                    setAddress("");
+                    setDescription("");
+                    setErrors({});
+                    closeModal();
+                }
+            } catch (error) {
+                showAlert('Failed to creaed Partner', 'error')
+            }
+        }
+    };
+
+    const toggleSwitch = () => {
+        setIsEnabled((prev) => !prev);
+        // Clear all form values when toggling
+        setTemplateName("");
+        setRateType("");
+        setStatus("");
+        setSelectedTemplate("");
+        setPartnerName("");
+        setErrors({});
+    };
+
+    const refreshData = async () => {
+        try {
+            const partnerRes = await PartnerService.getAllPartners();
+            if (partnerRes.status == 1) setPartners(partnerRes.data);
+
+            const templateRes = await PartnerService.getAllTemplateRate();
+            setTemplates(templateRes.data);
+        } catch (error) {
+            setPartners([]);
+            setTemplates([]);
+        }
+    };
+
+    const handleSave =  async () => {
+        let tempErrors = {};
+
+        if (isEnabled) {
+            // Template Rate validations
+            if (!templateName.trim()) tempErrors.templateName = "Template Name is required";
+            if (!rateType) tempErrors.rateType = "Rate Type is required";
+            if (!status) tempErrors.status = "Status is required";
+        } else {
+            // Partner Rate Master validations
+            if (!selectedTemplate) tempErrors.selectedTemplate = "Template is required";
+            if (!partnerName) tempErrors.partnerName = "Partner Name is required";
+            if (!rateType) tempErrors.rateType = "Rate Type is required";
+            if (!status) tempErrors.status = "Status is required";
+        }
+
+        if (Object.keys(tempErrors).length > 0) {
+            setErrors(tempErrors);
+            return;
+        }
+
+        // Clear errors if no validation issues
+        setErrors({});
+
+        // Example API data payload
+        const payload = isEnabled
+            ? { template_name: templateName, rate_type: rateType, status: status=="1"?1:0 }
+            : { templateId: selectedTemplate, partnerId: partnerName, rateTypeId: rateType, status:status=="1"?1:0 };
+
+        if(isEnabled) {
+            try {
+                const response = await PartnerService.creatTemplateRate(payload);
+                if(response.status==1) {
+                    showAlert("Template Created Successfully!", 'success');
+                    refreshData();
+                }
+            } catch (error) {
+                showAlert("Failed to create template", 'error')
+            }
+        } else {
+            try {
+                const response = await PartnerService.creatPartnerRateMaster(payload);
+                if(response.status==1) {
+                    showAlert("Partner Rate Created Successfully!", 'success');
+                    refreshData();
+                }
+            } catch (error) {
+                showAlert("Failed to create Partner Rate", 'error')
+            }
+        }
+        console.log("Submitting Data:", payload);
+
+        // TODO: Replace with your API call, e.g., apiClient.post(...)
+    };
+
 
     return (
         <SafeAreaView style={{ flex: 1, }}>
@@ -367,14 +555,14 @@ function Partner() {
                                 <View
                                     style={[
                                         styles.statusBadge,
-                                        item.status === 'active' ? styles.active : styles.inactive,
+                                        item.status == "active" ? styles.active : styles.inactive,
                                         { marginBottom: 10 },
                                     ]}
                                 >
                                     <Text
                                         style={[
                                             styles.statusText,
-                                            item.status === 'active' ? { color: '#00A651' } : { color: '#888' },
+                                            item.status == "active" ? { color: '#00A651' } : { color: '#888' },
                                         ]}
                                     >
                                         {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
@@ -498,61 +686,82 @@ function Partner() {
                 {activeAction === 'Add Partner' && (
                     <Modal
                         transparent={true}
-                        visible={true}
+                        visible={isVisible}
                         animationType="slide"
-                        onRequestClose={() => setActiveAction(null)}
+                        onRequestClose={closeModal}
                     >
                         <View style={GlobalStyles.modalOverlay}>
                             <View style={GlobalStyles.modalContainer}>
-                                <TouchableOpacity
-                                    style={GlobalStyles.modalClose}
-                                    onPress={() => setActiveAction(null)}
-                                >
+                                <TouchableOpacity style={GlobalStyles.modalClose} onPress={closeModal}>
                                     <Text style={GlobalStyles.closeIcon}>✕</Text>
                                 </TouchableOpacity>
+
                                 <Text style={GlobalStyles.mdlTitle}>Add Partner</Text>
                                 <Text style={GlobalStyles.mdlSubTitle}>Short Subheading may be fit</Text>
-                                <ScrollView
-                                    showsVerticalScrollIndicator={false}
-                                    showsHorizontalScrollIndicator={false}
-                                >
+
+                                <ScrollView showsVerticalScrollIndicator={false}>
+                                    {/* Partner Name */}
                                     <View style={GlobalStyles.inpBox}>
-                                        <Text style={GlobalStyles.label}>Partner Name <Text style={{ color: '#FA2C2C' }}>*</Text></Text>
+                                        <Text style={GlobalStyles.label}>
+                                            Partner Name <Text style={{ color: '#FA2C2C' }}>*</Text>
+                                        </Text>
                                         <TextInput
                                             placeholder="Name Here"
                                             style={GlobalStyles.input}
                                             placeholderTextColor="#C2C2C2"
+                                            value={partnerName}
+                                            onChangeText={text => setPartnerName(text)}
                                         />
+                                        {errors.partnerName && <Text style={GlobalStyles.errorText}>{errors.partnerName}</Text>}
                                     </View>
+
+                                    {/* Phone */}
                                     <View style={GlobalStyles.inpBox}>
-                                        <Text style={GlobalStyles.label}>Phone <Text style={{ color: '#FA2C2C' }}>*</Text></Text>
+                                        <Text style={GlobalStyles.label}>
+                                            Phone <Text style={{ color: '#FA2C2C' }}>*</Text>
+                                        </Text>
                                         <TextInput
                                             placeholder="Number"
                                             style={GlobalStyles.input}
                                             placeholderTextColor="#C2C2C2"
-                                            keyboardType="email-address"
+                                            keyboardType="phone-pad"
+                                            value={phone}
+                                            onChangeText={text => setPhone(text)}
                                         />
+                                        {errors.phone && <Text style={GlobalStyles.errorText}>{errors.phone}</Text>}
                                     </View>
+
+                                    {/* Address */}
                                     <View style={GlobalStyles.inpBox}>
-                                        <Text style={GlobalStyles.label}>Address <Text style={{ color: '#FA2C2C' }}>*</Text></Text>
+                                        <Text style={GlobalStyles.label}>
+                                            Address <Text style={{ color: '#FA2C2C' }}>*</Text>
+                                        </Text>
                                         <TextInput
                                             placeholder="Location"
                                             style={GlobalStyles.input}
                                             placeholderTextColor="#C2C2C2"
-                                            keyboardType="email-address"
+                                            value={address}
+                                            onChangeText={text => setAddress(text)}
                                         />
+                                        {errors.address && <Text style={GlobalStyles.errorText}>{errors.address}</Text>}
                                     </View>
+
+                                    {/* Description */}
                                     <View style={GlobalStyles.inpBox}>
-                                        <Text style={GlobalStyles.label}>Description <Text style={{ color: '#FA2C2C' }}>*</Text></Text>
+                                        <Text style={GlobalStyles.label}>Description</Text>
                                         <TextInput
                                             style={GlobalStyles.textArea}
                                             multiline={true}
                                             numberOfLines={4}
                                             placeholder="Description Here..."
                                             placeholderTextColor="#C2C2C2"
+                                            value={description}
+                                            onChangeText={text => setDescription(text)}
                                         />
                                     </View>
-                                    <TouchableOpacity style={GlobalStyles.applyBtn}>
+
+                                    {/* Submit */}
+                                    <TouchableOpacity style={GlobalStyles.applyBtn} onPress={handleAddPartner}>
                                         <Text style={GlobalStyles.applyBtnText}>Add Partner</Text>
                                     </TouchableOpacity>
                                 </ScrollView>
@@ -577,39 +786,15 @@ function Partner() {
                                 >
                                     <Text style={GlobalStyles.closeIcon}>✕</Text>
                                 </TouchableOpacity>
+
                                 <Text style={GlobalStyles.mdlTitle}>Create Rate</Text>
                                 <Text style={GlobalStyles.mdlSubTitle}>Short Subheading may be fit</Text>
+
                                 <ScrollView
                                     showsVerticalScrollIndicator={false}
                                     showsHorizontalScrollIndicator={false}
                                 >
-                                    <View style={GlobalStyles.inpBox}>
-                                        <Text style={GlobalStyles.label}>Template Name <Text style={{ color: '#FA2C2C' }}>*</Text></Text>
-                                        <TextInput
-                                            placeholder="Enter Template Name"
-                                            style={GlobalStyles.input}
-                                            placeholderTextColor="#C2C2C2"
-                                        />
-                                    </View>
-                                    <View style={GlobalStyles.inpBox}>
-                                        <Text style={GlobalStyles.label}>Rate Type <Text style={{ color: '#FA2C2C' }}>*</Text></Text>
-                                        <View style={GlobalStyles.input}>
-                                            <Picker
-                                                selectedValue={tempCash}
-                                                onValueChange={value => setTempCash(value)}
-                                                dropdownIconColor="#C2C2C2"
-                                                style={{
-                                                    color: '#C2C2C2',
-                                                }}
-                                            >
-                                                <Picker.Item label="Select Type" value="" />
-                                                <Picker.Item label="Cash" value="partner" />
-                                                <Picker.Item label="UPI" value="report" />
-                                            </Picker>
-
-                                        </View>
-                                    </View>
-
+                                    {/* Toggle: Template Rate */}
                                     <View style={GlobalStyles.tempSwitch}>
                                         <Text style={GlobalStyles.switchLabel}>Template Rate</Text>
                                         <Switch
@@ -621,16 +806,157 @@ function Partner() {
                                         />
                                     </View>
 
-                                    <TouchableOpacity style={GlobalStyles.applyBtn}>
+                                    {isEnabled ? (
+                                        <>
+                                            {/* Template Creation Form */}
+                                            <View style={GlobalStyles.inpBox}>
+                                                <Text style={GlobalStyles.label}>
+                                                    Template Name <Text style={{ color: '#FA2C2C' }}>*</Text>
+                                                </Text>
+                                                <TextInput
+                                                    placeholder="Enter Template Name"
+                                                    style={GlobalStyles.input}
+                                                    placeholderTextColor="#C2C2C2"
+                                                    value={templateName}
+                                                    onChangeText={setTemplateName}
+                                                />
+                                            </View>
+
+                                            <View style={GlobalStyles.inpBox}>
+                                                <Text style={GlobalStyles.label}>
+                                                    Rate Type <Text style={{ color: '#FA2C2C' }}>*</Text>
+                                                </Text>
+                                                <View style={GlobalStyles.input}>
+                                                    <Picker
+                                                        selectedValue={rateType}
+                                                        onValueChange={(value) => setRateType(value)}
+                                                        dropdownIconColor="#C2C2C2"
+                                                        style={styles.picker}
+                                                    >
+                                                        <Picker.Item label="Select Type" value="" />
+                                                        <Picker.Item label="Amount" value="amount" />
+                                                        <Picker.Item label="Percent" value="percent" />
+                                                    </Picker>
+                                                </View>
+                                            </View>
+
+                                            <View style={GlobalStyles.inpBox}>
+                                                <Text style={GlobalStyles.label}>
+                                                    Status <Text style={{ color: '#FA2C2C' }}>*</Text>
+                                                </Text>
+                                                <View style={GlobalStyles.input}>
+                                                    <Picker
+                                                        selectedValue={status}
+                                                        onValueChange={(value) => setStatus(value)}
+                                                        dropdownIconColor="#C2C2C2"
+                                                        style={styles.picker}
+                                                    >
+                                                        <Picker.Item label="Select Status" value="" />
+                                                        <Picker.Item label="Active" value="1" />
+                                                        <Picker.Item label="Inactive" value="0" />
+                                                    </Picker>
+                                                </View>
+                                            </View>
+                                        </>
+                                    ) : (
+                                        <>
+                                            {/* Partner Rate Master Form */}
+                                            <View style={GlobalStyles.inpBox}>
+                                                <Text style={GlobalStyles.label}>
+                                                    Select Template <Text style={{ color: '#FA2C2C' }}>*</Text>
+                                                </Text>
+                                                <View style={GlobalStyles.input}>
+                                                    <Picker
+                                                        selectedValue={selectedTemplate}
+                                                        onValueChange={(value) => setSelectedTemplate(value)}
+                                                        dropdownIconColor="#C2C2C2"
+                                                        style={styles.picker}
+                                                    >
+                                                        <Picker.Item label="Select Template" value="" />
+                                                        {
+                                                            allTemplates.map((item) => (
+                                                                <Picker.Item label={item.template_name} value={item.id} />
+                                                            ))
+                                                        }
+                                                    </Picker>
+                                                </View>
+                                            </View>
+
+                                            <View style={GlobalStyles.inpBox}>
+                                                <Text style={GlobalStyles.label}>
+                                                    Select Partner <Text style={{ color: '#FA2C2C' }}>*</Text>
+                                                </Text>
+                                                <View style={GlobalStyles.input}>
+                                                    <Picker
+                                                        selectedValue={partnerName}
+                                                        onValueChange={(value) => setPartnerName(value)}
+                                                        dropdownIconColor="#C2C2C2"
+                                                        style={styles.picker}
+                                                    >
+                                                        <Picker.Item label="Select Partner" value="" />
+                                                        {allPartners.map((item) => (
+                                                            <Picker.Item key={item.id} label={item.partner_name} value={item.id} />
+                                                        ))}
+                                                    </Picker>
+                                                </View>
+
+                                            </View>
+
+                                            <View style={GlobalStyles.inpBox}>
+                                                <Text style={GlobalStyles.label}>
+                                                    Rate Type <Text style={{ color: '#FA2C2C' }}>*</Text>
+                                                </Text>
+                                                <View style={GlobalStyles.input}>
+                                                    <Picker
+                                                        selectedValue={rateType}
+                                                        onValueChange={(value) => setRateType(value)}
+                                                        dropdownIconColor="#C2C2C2"
+                                                        style={styles.picker}
+                                                    >
+                                                        <Picker.Item label="Select Type" value="" />
+                                                        <Picker.Item label="Amount" value="amount" />
+                                                        <Picker.Item label="Percent" value="percent" />
+                                                    </Picker>
+                                                </View>
+                                            </View>
+
+                                            <View style={GlobalStyles.inpBox}>
+                                                <Text style={GlobalStyles.label}>
+                                                    Status <Text style={{ color: '#FA2C2C' }}>*</Text>
+                                                </Text>
+                                                <View style={GlobalStyles.input}>
+                                                    <Picker
+                                                        selectedValue={status}
+                                                        onValueChange={(value) => setStatus(value)}
+                                                        dropdownIconColor="#C2C2C2"
+                                                        style={styles.picker}
+                                                    >
+                                                        <Picker.Item label="Select Status" value="" />
+                                                        <Picker.Item label="Active" value="1" />
+                                                        <Picker.Item label="Inactive" value="0" />
+                                                    </Picker>
+                                                </View>
+                                            </View>
+                                        </>
+                                    )}
+
+                                    <TouchableOpacity style={GlobalStyles.applyBtn} onPress={handleSave}>
                                         <Text style={GlobalStyles.applyBtnText}>Save</Text>
                                     </TouchableOpacity>
                                 </ScrollView>
                             </View>
                         </View>
+
                     </Modal>
 
                 )}
 
+                <AlertModal
+                    visible={modalVisible}
+                    type={alertType}
+                    message={alertMessage}
+                    onClose={() => setModalVisible(false)}
+                />
             </ScrollView>
         </SafeAreaView>
     )

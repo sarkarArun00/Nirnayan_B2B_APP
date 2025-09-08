@@ -16,6 +16,13 @@ const attachAuthInterceptor = (instance) => {
       if (token) config.headers.Authorization = `Bearer ${token}`;
       if (userId) config.headers.user_id = userId;
 
+      const keys = await AsyncStorage.getAllKeys();
+      const allItems = await AsyncStorage.multiGet(keys);
+      console.log("Full AsyncStorage:", allItems);
+
+
+      console.log("Full API URL:", config.baseURL + config.url);
+
       return config;
     },
     (error) => Promise.reject(error)
