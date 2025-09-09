@@ -2,11 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { Text, SafeAreaView, ScrollView, StyleSheet, ImageBackground, View, Image, TouchableOpacity, TextInput, Dimensions, Modal, Switch, Alert } from 'react-native'
 import Icon from 'react-native-vector-icons/Ionicons';
 import LinearGradient from 'react-native-linear-gradient';
-import { GlobalStyles } from '../../GlobalStyles';
+import { GlobalStyles } from '../../../GlobalStyles';
 import { useNavigation } from '@react-navigation/native';
 import { Picker } from '@react-native-picker/picker';
-import AlertModal from '../../componenets/AlertModal';
-import PartnerService from '../../services/partner_service'
+import AlertModal from '../../../componenets/AlertModal';
+import PartnerService from '../../../services/partner_service'
 
 const screenWidth = Dimensions.get('window').width;
 const cardWidth = (screenWidth - 48) / 3;
@@ -49,6 +49,8 @@ function Partner() {
     const [templateName, setTemplateName] = useState("");
     const [selectedTemplate, setSelectedTemplate] = useState("");
 
+    const [partnerRates, setPartnerRates] = useState([]);
+    const [templateRates, setTemplateRates] = useState([]);
 
     const showAlert = (message, type = 'success') => {
         setAlertMessage(message);
@@ -68,11 +70,12 @@ function Partner() {
             }
 
         }
-        
+
         const fetchTemplate = async () => {
             try {
                 const response = await PartnerService.getAllTemplateRate();
                 setTemplates(response.data)
+                setTemplateRates(response.data)
             } catch (error) {
                 console.log(error)
                 setTemplates([])
@@ -84,6 +87,7 @@ function Partner() {
                 const response = await PartnerService.getAllPartnerRateMaster();
                 console.log('pppppp rrrrrr', response.data)
                 setPartnerRateList(response.data)
+                setPartnerRates(response.data)
             } catch (error) {
                 console.log(error)
                 setPartnerRateList([])
@@ -101,9 +105,9 @@ function Partner() {
     }, []);
 
     const actions = [
-        { icon: require('../../../assets/qac1.png'), label: 'Add Partner' },
-        { icon: require('../../../assets/qac2.png'), label: 'Create Rate' },
-        { icon: require('../../../assets/qac3.png'), label: 'Download Rate' },
+        { icon: require('../../../../assets/qac1.png'), label: 'Add Partner' },
+        { icon: require('../../../../assets/qac2.png'), label: 'Create Rate' },
+        { icon: require('../../../../assets/qac3.png'), label: 'Download Rate' },
     ];
 
     const topPartners = [
@@ -154,28 +158,36 @@ function Partner() {
         ],
     };
 
+    // useEffect(() => {
+    //     if (activeTab === 'partner') {
+    //         fetchPartnerRates();
+    //     } else if (activeTab === 'template') {
+    //         fetchTemplateRates();
+    //     }
+    // }, [activeTab]);
+
     const tabActions = {
         partner: [
             {
-                icon: require('../../../assets/rupee.png'),
+                icon: require('../../../../assets/rupee.png'),
                 route: 'RupeeScreen',
             },
             {
-                icon: require('../../../assets/delete.png'),
+                icon: require('../../../../assets/delete.png'),
                 onPress: (item) => handleDelete(item),
             },
         ],
         template: [
             {
-                icon: require('../../../assets/edit.png'),
+                icon: require('../../../../assets/edit.png'),
                 route: 'EditTemplateScreen',
             },
             {
-                icon: require('../../../assets/setting.png'),
+                icon: require('../../../../assets/setting.png'),
                 route: 'TemplateSettingsScreen',
             },
             {
-                icon: require('../../../assets/delete.png'),
+                icon: require('../../../../assets/delete.png'),
                 onPress: (item) => handleDelete(item),
             },
         ],
@@ -206,7 +218,7 @@ function Partner() {
 
     const handleActionPress = (label) => {
         if (label === 'Download Rate') {
-            navigation.navigate('DownloadRates');
+            navigation.navigate('ViewAllRates');
         } else if (label === 'Add Partner' || label === 'Create Rate') {
             openModal();
             setActiveAction(label);
@@ -276,7 +288,7 @@ function Partner() {
         }
     };
 
-    const handleSave =  async () => {
+    const handleSave = async () => {
         let tempErrors = {};
 
         if (isEnabled) {
@@ -302,13 +314,13 @@ function Partner() {
 
         // Example API data payload
         const payload = isEnabled
-            ? { template_name: templateName, rate_type: rateType, status: status=="1"?1:0 }
-            : { templateId: selectedTemplate, partnerId: partnerName, rateTypeId: rateType, status:status=="1"?1:0 };
+            ? { template_name: templateName, rate_type: rateType, status: status == "1" ? 1 : 0 }
+            : { templateId: selectedTemplate, partnerId: partnerName, rateTypeId: rateType, status: status == "1" ? 1 : 0 };
 
-        if(isEnabled) {
+        if (isEnabled) {
             try {
                 const response = await PartnerService.creatTemplateRate(payload);
-                if(response.status==1) {
+                if (response.status == 1) {
                     showAlert("Template Created Successfully!", 'success');
                     refreshData();
                 }
@@ -318,7 +330,7 @@ function Partner() {
         } else {
             try {
                 const response = await PartnerService.creatPartnerRateMaster(payload);
-                if(response.status==1) {
+                if (response.status == 1) {
                     showAlert("Partner Rate Created Successfully!", 'success');
                     refreshData();
                 }
@@ -336,21 +348,21 @@ function Partner() {
         <SafeAreaView style={{ flex: 1, }}>
             <ScrollView style={{ flex: 1, }}>
                 <ImageBackground
-                    source={require('../../../assets/partnerbg.png')}
+                    source={require('../../../../assets/partnerbg.png')}
                     style={styles.background}
                     resizeMode="stretch">
                     <View style={styles.flexdv}>
                         <TouchableOpacity style={styles.leftArrow} onPress={handleGoBack}>
-                            <View style={styles.arrowBox}><Image source={require('../../../assets/arrow1.png')} /></View>
+                            <View style={styles.arrowBox}><Image source={require('../../../../assets/arrow1.png')} /></View>
                             <Text style={styles.titleText}>Partner Master</Text>
                         </TouchableOpacity>
                         <View style={styles.rightSection}>
                             <TouchableOpacity style={{ position: 'relative' }}>
-                                <Image source={require('../../../assets/notification.png')} />
+                                <Image source={require('../../../../assets/notification.png')} />
                                 <View style={styles.notiDot}></View>
                             </TouchableOpacity>
                             <TouchableOpacity>
-                                <Image source={require('../../../assets/menu-bar.png')} />
+                                <Image source={require('../../../../assets/menu-bar.png')} />
                             </TouchableOpacity>
                         </View>
                     </View>
@@ -373,11 +385,11 @@ function Partner() {
                 <View style={styles.partMain}>
                     <View style={styles.ptBox}>
                         <ImageBackground
-                            source={require('../../../assets/ptbg1.jpg')}
+                            source={require('../../../../assets/ptbg1.jpg')}
                             style={styles.partnerbg}
                             imageStyle={{ borderRadius: 10 }}
                             resizeMode="cover">
-                            <Image source={require('../../../assets/partner-icn1.png')} />
+                            <Image source={require('../../../../assets/partner-icn1.png')} />
                             <Text style={styles.number}>124</Text>
                             <Text style={styles.title}>Active Partners</Text>
                             <Text style={styles.SubTitle}>All Comparisons Past 7 Days</Text>
@@ -386,11 +398,11 @@ function Partner() {
                     </View>
                     <View style={styles.ptBox}>
                         <ImageBackground
-                            source={require('../../../assets/ptbg2.jpg')}
+                            source={require('../../../../assets/ptbg2.jpg')}
                             style={styles.partnerbg}
                             imageStyle={{ borderRadius: 10 }}
                             resizeMode="cover">
-                            <Image source={require('../../../assets/partner-icn2.png')} />
+                            <Image source={require('../../../../assets/partner-icn2.png')} />
                             <Text style={styles.number}>18</Text>
                             <Text style={styles.title}>Rate Templates</Text>
                             <Text style={styles.percentage}>▲ 12%</Text>
@@ -398,11 +410,11 @@ function Partner() {
                     </View>
                     <View style={styles.ptBox}>
                         <ImageBackground
-                            source={require('../../../assets/ptbg3.jpg')}
+                            source={require('../../../../assets/ptbg3.jpg')}
                             style={styles.partnerbg}
                             imageStyle={{ borderRadius: 10 }}
                             resizeMode="cover">
-                            <Image source={require('../../../assets/partner-icn3.png')} />
+                            <Image source={require('../../../../assets/partner-icn3.png')} />
                             <Text style={styles.number}>2,847</Text>
                             <Text style={styles.title}>Monthly Test</Text>
                             <Text style={styles.percentage}>▲ 12%</Text>
@@ -410,11 +422,11 @@ function Partner() {
                     </View>
                     <View style={styles.ptBox}>
                         <ImageBackground
-                            source={require('../../../assets/ptbg4.jpg')}
+                            source={require('../../../../assets/ptbg4.jpg')}
                             style={styles.partnerbg}
                             imageStyle={{ borderRadius: 10 }}
                             resizeMode="cover">
-                            <Image source={require('../../../assets/partner-icn4.png')} />
+                            <Image source={require('../../../../assets/partner-icn4.png')} />
                             <Text style={styles.number}>1,952</Text>
                             <Text style={styles.title}>Total Business</Text>
                             <Text style={styles.percentage}>▲ 12%</Text>
@@ -472,7 +484,7 @@ function Partner() {
 
                                 <View style={styles.infoRow}>
                                     <Image
-                                        source={require('../../../assets/phone.png')}
+                                        source={require('../../../../assets/phone.png')}
                                         style={styles.pefIcon}
                                     />
                                     <Text style={styles.infoText}>{partner.phone}</Text>
@@ -480,7 +492,7 @@ function Partner() {
 
                                 <View style={styles.infoRow}>
                                     <Image
-                                        source={require('../../../assets/location.png')}
+                                        source={require('../../../../assets/location.png')}
                                         style={styles.pefIcon}
                                     />
                                     <Text style={styles.infoText}>{partner.address}</Text>
@@ -490,13 +502,13 @@ function Partner() {
                             <View style={styles.actionIcons}>
                                 <TouchableOpacity>
                                     <Image
-                                        source={require('../../../assets/edit.png')}
+                                        source={require('../../../../assets/edit.png')}
                                         style={styles.actionIcon}
                                     />
                                 </TouchableOpacity>
                                 <TouchableOpacity>
                                     <Image
-                                        source={require('../../../assets/delete.png')}
+                                        source={require('../../../../assets/delete.png')}
                                         style={styles.actionIcon}
                                     />
                                 </TouchableOpacity>
@@ -511,7 +523,8 @@ function Partner() {
                     end={{ x: 0.5, y: 1 }}
                     style={styles.gradientBox}
                 >
-                    <View style={{ flexDirection: 'row', gap: 0, marginBottom: 12, }}>
+                    <View style={{ flexDirection: 'row', gap: 0, marginBottom: 12 }}>
+                        {/* Tabs */}
                         <TouchableOpacity
                             style={styles.tbButton}
                             onPress={() => setActiveTab('partner')}
@@ -523,9 +536,7 @@ function Partner() {
                                 ]}>
                                     Partner Rates
                                 </Text>
-                                {activeTab === 'partner' && (
-                                    <View style={styles.activeTabUnderline} />
-                                )}
+                                {activeTab === 'partner' && <View style={styles.activeTabUnderline} />}
                             </View>
                         </TouchableOpacity>
 
@@ -540,41 +551,44 @@ function Partner() {
                                 ]}>
                                     Template Rates
                                 </Text>
-                                {activeTab === 'template' && (
-                                    <View style={styles.activeTabUnderline} />
-                                )}
+                                {activeTab === 'template' && <View style={styles.activeTabUnderline} />}
                             </View>
                         </TouchableOpacity>
-
                     </View>
 
-                    {rateList[activeTab].map((item) => (
-                        <View key={item.id} style={[styles.tbBox,]}>
-                            <View style={{ flex: 1, }}>
-                                {/* Status Badge */}
+                    {/* Data Listing */}
+                    {(activeTab === 'partner' ? partnerRates : templateRates).map((item) => (
+                        <View key={item.id} style={styles.tbBox}>
+                            <View style={{ flex: 1 }}>
                                 <View
                                     style={[
                                         styles.statusBadge,
-                                        item.status == "active" ? styles.active : styles.inactive,
-                                        { marginBottom: 10 },
+                                        item.status == true ? styles.active : styles.inactive,
+                                        { marginBottom: 10 }
                                     ]}
                                 >
                                     <Text
                                         style={[
                                             styles.statusText,
-                                            item.status == "active" ? { color: '#00A651' } : { color: '#888' },
+                                            item.status == true ? { color: '#00A651' } : { color: '#888' }
                                         ]}
                                     >
-                                        {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
+                                        {item.status?'Active':'Inactive'}
                                     </Text>
                                 </View>
-                                <Text style={styles.pbTitle}>{item.title}</Text>
-                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, }}>
+
+                                <Text style={styles.pbTitle}>
+                                    {activeTab === 'partner' ? item.partner_name : item.template_name}
+                                </Text>
+
+                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                                     <Image
-                                        source={require('../../../assets/invicon.png')}
-                                        style={[styles.invIcon, { width: 11, height: 12, objectFit: 'contain', }]}
+                                        source={require('../../../../assets/invicon.png')}
+                                        style={[styles.invIcon, { width: 11, height: 12, objectFit: 'contain' }]}
                                     />
-                                    <Text style={styles.tbSubTitle}>{item.investigations} Investigation</Text>
+                                    <Text style={styles.tbSubTitle}>
+                                        {item.hasTestMappings ? "Yes" : "No"} Investigation
+                                    </Text>
                                 </View>
                             </View>
 
@@ -594,17 +608,16 @@ function Partner() {
                                     </TouchableOpacity>
                                 ))}
                             </View>
-
-
                         </View>
                     ))}
 
-                    <View style={{ alignItems: 'center', marginTop: 10, }}>
-                        <TouchableOpacity style={styles.pbViewAllBtn}>
+                    <View style={{ alignItems: 'center', marginTop: 10 }}>
+                        <TouchableOpacity style={styles.pbViewAllBtn} onPress={() => navigation.navigate('ViewAllRates')}>
                             <Text style={styles.pbViewAllText}>View All</Text>
                         </TouchableOpacity>
                     </View>
                 </LinearGradient>
+
 
                 {/* Filter Modal */}
                 <Modal

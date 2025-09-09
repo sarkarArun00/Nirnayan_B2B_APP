@@ -16,9 +16,9 @@ import Accounts from '../screens/Accounts/Accounts';
 import SliderScreens from '../screens/sliderScreens/sliderScreens'; // ✅ Capitalized for component
 import Login from '../screens/Login/Login';
 import ResetPassword from '../screens/ResetPassword/ResetPassword';
-import Partner from '../screens/Partner/Partner';
-import DownloadRates from '../screens/DownloadRates/DownloadRates';
-import PartnerRate from '../screens/PartnerRate/PartnerRate';
+import Partner from '../screens/Partners/Partner/Partner';
+import ViewAllRates from '../screens/Partners/DownloadRates/DownloadRates';
+import PartnerRate from '../screens/Partners/PartnerRate/PartnerRate';
 
 
 const Tab = createBottomTabNavigator();
@@ -120,7 +120,7 @@ const AppNavigator = () => {
       <Stack.Screen name="ResetPassword" component={ResetPassword} />
       <Stack.Screen name="Profile" component={ProfileScreen} />
       <Stack.Screen name="Partner" component={Partner} />
-      <Stack.Screen name="DownloadRates" component={DownloadRates} />
+      <Stack.Screen name="ViewAllRates" component={ViewAllRates} />
       <Stack.Screen name="PartnerRate" component={PartnerRate} />
     </Stack.Navigator>
   );
