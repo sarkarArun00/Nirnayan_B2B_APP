@@ -17,7 +17,7 @@ import SliderScreens from '../screens/sliderScreens/sliderScreens'; // ✅ Capit
 import Login from '../screens/Login/Login';
 import ResetPassword from '../screens/ResetPassword/ResetPassword';
 import Partner from '../screens/Partners/Partner/Partner';
-import ViewAllRates from '../screens/Partners/DownloadRates/DownloadRates';
+import ViewAllRates from '../screens/Partners/ViewAllRates/DownloadRates';
 import PartnerRate from '../screens/Partners/PartnerRate/PartnerRate';
 
 
