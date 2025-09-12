@@ -54,11 +54,6 @@ const PartnerRateAmountPage = () => {
         }
 
         fetPartnerRates();
-
-        // const interval = setInterval(() => {
-        //     setPlaceholderIndex((prevIndex) => (prevIndex + 1) % placeholderOptions.length);
-        // }, 2000);
-        // return () => clearInterval(interval);
     }, []);
 
 
@@ -80,7 +75,7 @@ const PartnerRateAmountPage = () => {
     };
 
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         const formattedPayload = {
             ...(activeTab == 'template'
                 ? { templateRateId: item.id }
@@ -102,11 +97,21 @@ const PartnerRateAmountPage = () => {
 
         console.log('Payload to submit:', formattedPayload);
 
+        const response = await PartnerService.createPartnerTestMapping(formattedPayload);
+        if(response.status==1) {
+            showAlert('Created Successfully!', 'Success')
+            setTimeout(() => {
+                navigation.navigate('Partner');
+            }, 1000);
+        } else {
+            showAlert(response.message, 'error')
+        }
+
     };
 
     return (
         <SafeAreaView style={{ flex: 1, }}>
-            <ScrollView style={{ flex: 1, }}>
+            <ScrollView style={{ flex: 1, }} contentContainerStyle={{ paddingBottom: 100 }}>
                 <ImageBackground
                     source={require('../../../../assets/partnerbg.png')}
                     style={styles.background}
@@ -114,7 +119,7 @@ const PartnerRateAmountPage = () => {
                     <View style={styles.flexdv}>
                         <TouchableOpacity style={styles.leftArrow} onPress={() => navigation.goBack()}>
                             <View style={styles.arrowBox}><Image source={require('../../../../assets/arrow1.png')} /></View>
-                            <Text style={styles.titleText}>Partner Rate Set - Amount</Text>
+                            <Text style={styles.titleText}>{activeTab=='partner'?'Partner':'Template'} Rate Set</Text>
                         </TouchableOpacity>
                         <View style={styles.rightSection}>
                             <TouchableOpacity style={{ position: 'relative' }}>
@@ -148,7 +153,7 @@ const PartnerRateAmountPage = () => {
                         const parsedInput = parseFloat(inputValue) || 0;
 
                         // Calculate partnerAmount based on rate_type
-                        const calculatedAmount =  parsedInput.toFixed(2);
+                        const calculatedAmount = parsedInput.toFixed(2);
 
                         const handleChange = (value) => {
                             const numericValue = parseFloat(value) || 0;
@@ -244,41 +249,9 @@ const PartnerRateAmountPage = () => {
                         );
                     })}
 
-
-
-                    {/* <View style={{ alignItems: 'center', marginVertical: 20 }}>
-                        <TouchableOpacity
-                            style={styles.pbViewAllBtn}
-                            onPress={handleSubmit}
-                        >
-                            <Text style={styles.pbViewAllText}>Save</Text>
-                        </TouchableOpacity>
-                    </View> */}
                     {/* { marginVertical: 20, paddingHorizontal: 16, } */}
-                    <View style={styles.styckysavebutton}>
-                        <TouchableOpacity
-                            style={{
-                                backgroundColor: '#28A745', // green color
-                                width: '100%', // full width
-                                paddingVertical: 14, // vertical padding
-                                borderRadius: 8, // rounded corners
-                                alignItems: 'center', // center text horizontally
-                                shadowColor: '#000',
-                                shadowOffset: { width: 0, height: 2 },
-                                shadowOpacity: 0.25,
-                                shadowRadius: 3.84,
-                                elevation: 5, // for Android shadow
-                            }}
-                            onPress={handleSubmit}
-                        >
-                            <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 16 }}>
-                                Save
-                            </Text>
-                        </TouchableOpacity>
-                    </View>
+
                 </>
-
-
 
 
                 {/* Filter Modal */}
@@ -411,6 +384,29 @@ const PartnerRateAmountPage = () => {
 
             </ScrollView>
 
+            <View style={styles.styckysavebutton}>
+                <TouchableOpacity
+                    style={{
+                        backgroundColor: '#28A745',
+                        width: '100%',
+                        paddingVertical: 14,
+                        borderRadius: 8,
+                        alignItems: 'center',
+                        shadowColor: '#000',
+                        shadowOffset: { width: 0, height: 2 },
+                        shadowOpacity: 0.25,
+                        shadowRadius: 3.84,
+                        elevation: 5,
+                        marginBottom: 25
+                    }}
+                    onPress={handleSubmit}
+                >
+                    <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 16 }}>
+                        Save
+                    </Text>
+                </TouchableOpacity>
+            </View>
+
             <AlertModal
                 visible={modalVisible}
                 type={alertType}
@@ -424,16 +420,16 @@ const PartnerRateAmountPage = () => {
 export default PartnerRateAmountPage;
 
 const styles = StyleSheet.create({
-    
-    styckysavebutton:{
+
+    styckysavebutton: {
         position: 'absolute',
         bottom: 0,
         left: 0,
         right: 0,
-        marginVertical: 0, 
+        marginVertical: 0,
         paddingHorizontal: 16,
     },
-    
+
     testItem: {
         flexDirection: 'row',
         alignItems: 'center',

@@ -54,11 +54,6 @@ function PartnerRate() {
         }
 
         fetPartnerRates();
-
-        // const interval = setInterval(() => {
-        //     setPlaceholderIndex((prevIndex) => (prevIndex + 1) % placeholderOptions.length);
-        // }, 2000);
-        // return () => clearInterval(interval);
     }, []);
 
 
@@ -117,7 +112,7 @@ function PartnerRate() {
 
     return (
         <SafeAreaView style={{ flex: 1, }}>
-            <ScrollView style={{ flex: 1, }}>
+            <ScrollView style={{ flex: 1, }} contentContainerStyle={{ paddingBottom: 100 }}>
                 <ImageBackground
                     source={require('../../../../assets/partnerbg.png')}
                     style={styles.background}
@@ -125,7 +120,7 @@ function PartnerRate() {
                     <View style={styles.flexdv}>
                         <TouchableOpacity style={styles.leftArrow} onPress={() => navigation.goBack()}>
                             <View style={styles.arrowBox}><Image source={require('../../../../assets/arrow1.png')} /></View>
-                            <Text style={styles.titleText}>Partner Rate Set - Percent</Text>
+                            <Text style={styles.titleText}>{activeTab=='partner'?'Partner':'Template'} Rate Set</Text>
                         </TouchableOpacity>
                         <View style={styles.rightSection}>
                             <TouchableOpacity style={{ position: 'relative' }}>
@@ -260,165 +255,160 @@ function PartnerRate() {
                         );
                     })}
 
-                    <View style={styles.styckysavebutton}>
-                        <TouchableOpacity
-                            style={{
-                                backgroundColor: '#28A745', // green color
-                                width: '100%', // full width
-                                paddingVertical: 14, // vertical padding
-                                borderRadius: 8, // rounded corners
-                                alignItems: 'center', // center text horizontally
-                                shadowColor: '#000',
-                                shadowOffset: { width: 0, height: 2 },
-                                shadowOpacity: 0.25,
-                                shadowRadius: 3.84,
-                                elevation: 5, // for Android shadow
-                            }}
-                            onPress={handleSubmit}
-                        >
-                            <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 16 }}>
-                                Save
-                            </Text>
-                        </TouchableOpacity>
-                    </View>
-
                 </>
-
-
-
-
-
-
-                {/* Filter Modal */}
-                <Modal
-                    transparent={true}
-                    visible={filterModalVisible}
-                    animationType="slide"
-                    onRequestClose={() => setFilterModalVisible(false)}
-                >
-                    <View style={GlobalStyles.modalOverlay}>
-                        <View style={GlobalStyles.modalContainer}>
-                            {/* Close Button */}
-                            <TouchableOpacity
-                                style={GlobalStyles.modalClose}
-                                onPress={() => setFilterModalVisible(false)}
-                            >
-                                <Text style={GlobalStyles.closeIcon}>✕</Text>
-                            </TouchableOpacity>
-                            <Text style={GlobalStyles.mdlTitle}>Filter</Text>
-                            <Text style={GlobalStyles.mdlSubTitle}>Short Subheading may be fit</Text>
-                            <ScrollView
-                                showsVerticalScrollIndicator={false}
-                                showsHorizontalScrollIndicator={false}
-                            >
-                                <View style={GlobalStyles.inpBox}>
-                                    <Text style={GlobalStyles.label}>From Date <Text style={{ color: '#FA2C2C' }}>*</Text></Text>
-                                    <TouchableOpacity style={GlobalStyles.inputContainer}>
-                                        <TextInput
-                                            placeholder="DD-MM-YY"
-                                            style={GlobalStyles.input}
-                                            value={fromDate}
-                                            onChangeText={setFromDate}
-                                            placeholderTextColor="#C2C2C2"
-                                        />
-                                    </TouchableOpacity>
-                                </View>
-                                <View style={GlobalStyles.inpBox}>
-                                    <Text style={GlobalStyles.label}>To Date <Text style={{ color: '#FA2C2C' }}>*</Text></Text>
-                                    <TouchableOpacity style={GlobalStyles.inputContainer}>
-                                        <TextInput
-                                            placeholder="DD-MM-YY"
-                                            style={GlobalStyles.input}
-                                            value={toDate}
-                                            onChangeText={setToDate}
-                                            placeholderTextColor="#C2C2C2"
-                                        />
-                                    </TouchableOpacity>
-                                </View>
-                                <View style={GlobalStyles.inpBox}>
-                                    <Text style={GlobalStyles.label}>Search Type <Text style={{ color: '#FA2C2C' }}>*</Text></Text>
-                                    <View style={GlobalStyles.inputContainer}>
-                                        <View style={GlobalStyles.input}>
-                                            <Picker
-                                                selectedValue={selectedType}
-                                                onValueChange={value => setSelectedType(value)}
-                                                dropdownIconColor='#C2C2C2'
-                                                style={{
-                                                    color: '#C2C2C2',
-                                                }}
-                                            >
-                                                <Picker.Item label="Select Type" value="" />
-                                                <Picker.Item label="Partner" value="partner" />
-                                                <Picker.Item label="Report" value="report" />
-                                            </Picker>
-                                        </View>
-                                    </View>
-                                </View>
-                                <TouchableOpacity style={GlobalStyles.applyBtn}>
-                                    <Text style={GlobalStyles.applyBtnText}>Apply</Text>
-                                </TouchableOpacity>
-                            </ScrollView>
-                        </View>
-                    </View>
-                </Modal>
-
-                {/* Test Modal  */}
-                <Modal
-                    transparent={true}
-                    visible={testDetailsModal}
-                    animationType="slide"
-                    onRequestClose={() => testDetasetTestDetailsModalilsModal(false)}
-                >
-                    <View style={GlobalStyles.modalOverlay}>
-                        <View style={GlobalStyles.modalContainer}>
-                            {/* Close Button */}
-                            <TouchableOpacity
-                                style={GlobalStyles.modalClose}
-                                onPress={() => setTestDetailsModal(false)}
-                            >
-                                <Text style={GlobalStyles.closeIcon}>✕</Text>
-                            </TouchableOpacity>
-                            <View style={styles.percentageImg}>
-                                <Image source={require('../../../../assets/testimg1.png')} />
-                            </View>
-                            <Text style={styles.mdlSubTitle}>{selectedTest?.test_name}</Text>
-                            <Text style={styles.mdlTitle}>Complete Blood Count</Text>
-                            <View style={styles.mdlFlexdvs}>
-                                <Text style={styles.catTitle}>Category: {selectedTest?.categoryName}</Text>
-                                <View style={styles.mdlDot}></View>
-                                <Text style={styles.catTitle}>{selectedTest?.dept_name}</Text>
-                            </View>
-
-                            <View style={styles.testcard}>
-                                <View style={styles.section}>
-                                    <Text style={styles.testcardlbl}>MRP Rate</Text>
-                                    <Text style={styles.testcardvalue}>₹{selectedTest?.mrpRateAmount}</Text>
-                                </View>
-
-                                <View style={styles.divider} />
-
-                                <View style={styles.section}>
-                                    <Text style={styles.testcardlbl}>Client Rate</Text>
-                                    <Text style={styles.testcardvalue}>₹{selectedTest?.client_rate}</Text>
-                                </View>
-
-                                <View style={styles.divider} />
-
-                                <View style={styles.section}>
-                                    <Text style={styles.testcardlbl}>Client Rate %</Text>
-                                    <Text style={styles.testcardvalue}>
-                                        {selectedTest?.mrpRateAmount
-                                            ? `${((selectedTest.client_rate / selectedTest.mrpRateAmount) * 100).toFixed(2)}%`
-                                            : 'N/A'}
-                                    </Text>
-                                </View>
-                            </View>
-                        </View>
-                    </View>
-                </Modal>
 
             </ScrollView>
 
+            {/* Filter Modal */}
+            <Modal
+                transparent={true}
+                visible={filterModalVisible}
+                animationType="slide"
+                onRequestClose={() => setFilterModalVisible(false)}
+            >
+                <View style={GlobalStyles.modalOverlay}>
+                    <View style={GlobalStyles.modalContainer}>
+                        {/* Close Button */}
+                        <TouchableOpacity
+                            style={GlobalStyles.modalClose}
+                            onPress={() => setFilterModalVisible(false)}
+                        >
+                            <Text style={GlobalStyles.closeIcon}>✕</Text>
+                        </TouchableOpacity>
+                        <Text style={GlobalStyles.mdlTitle}>Filter</Text>
+                        <Text style={GlobalStyles.mdlSubTitle}>Short Subheading may be fit</Text>
+                        <ScrollView
+                            showsVerticalScrollIndicator={false}
+                            showsHorizontalScrollIndicator={false}
+                        >
+                            <View style={GlobalStyles.inpBox}>
+                                <Text style={GlobalStyles.label}>From Date <Text style={{ color: '#FA2C2C' }}>*</Text></Text>
+                                <TouchableOpacity style={GlobalStyles.inputContainer}>
+                                    <TextInput
+                                        placeholder="DD-MM-YY"
+                                        style={GlobalStyles.input}
+                                        value={fromDate}
+                                        onChangeText={setFromDate}
+                                        placeholderTextColor="#C2C2C2"
+                                    />
+                                </TouchableOpacity>
+                            </View>
+                            <View style={GlobalStyles.inpBox}>
+                                <Text style={GlobalStyles.label}>To Date <Text style={{ color: '#FA2C2C' }}>*</Text></Text>
+                                <TouchableOpacity style={GlobalStyles.inputContainer}>
+                                    <TextInput
+                                        placeholder="DD-MM-YY"
+                                        style={GlobalStyles.input}
+                                        value={toDate}
+                                        onChangeText={setToDate}
+                                        placeholderTextColor="#C2C2C2"
+                                    />
+                                </TouchableOpacity>
+                            </View>
+                            <View style={GlobalStyles.inpBox}>
+                                <Text style={GlobalStyles.label}>Search Type <Text style={{ color: '#FA2C2C' }}>*</Text></Text>
+                                <View style={GlobalStyles.inputContainer}>
+                                    <View style={GlobalStyles.input}>
+                                        <Picker
+                                            selectedValue={selectedType}
+                                            onValueChange={value => setSelectedType(value)}
+                                            dropdownIconColor='#C2C2C2'
+                                            style={{
+                                                color: '#C2C2C2',
+                                            }}
+                                        >
+                                            <Picker.Item label="Select Type" value="" />
+                                            <Picker.Item label="Partner" value="partner" />
+                                            <Picker.Item label="Report" value="report" />
+                                        </Picker>
+                                    </View>
+                                </View>
+                            </View>
+                            <TouchableOpacity style={GlobalStyles.applyBtn}>
+                                <Text style={GlobalStyles.applyBtnText}>Apply</Text>
+                            </TouchableOpacity>
+                        </ScrollView>
+                    </View>
+                </View>
+            </Modal>
+
+            {/* Test Modal  */}
+            <Modal
+                transparent={true}
+                visible={testDetailsModal}
+                animationType="slide"
+                onRequestClose={() => testDetasetTestDetailsModalilsModal(false)}
+            >
+                <View style={GlobalStyles.modalOverlay}>
+                    <View style={GlobalStyles.modalContainer}>
+                        {/* Close Button */}
+                        <TouchableOpacity
+                            style={GlobalStyles.modalClose}
+                            onPress={() => setTestDetailsModal(false)}
+                        >
+                            <Text style={GlobalStyles.closeIcon}>✕</Text>
+                        </TouchableOpacity>
+                        <View style={styles.percentageImg}>
+                            <Image source={require('../../../../assets/testimg1.png')} />
+                        </View>
+                        <Text style={styles.mdlSubTitle}>{selectedTest?.test_name}</Text>
+                        <Text style={styles.mdlTitle}>Complete Blood Count</Text>
+                        <View style={styles.mdlFlexdvs}>
+                            <Text style={styles.catTitle}>Category: {selectedTest?.categoryName}</Text>
+                            <View style={styles.mdlDot}></View>
+                            <Text style={styles.catTitle}>{selectedTest?.dept_name}</Text>
+                        </View>
+
+                        <View style={styles.testcard}>
+                            <View style={styles.section}>
+                                <Text style={styles.testcardlbl}>MRP Rate</Text>
+                                <Text style={styles.testcardvalue}>₹{selectedTest?.mrpRateAmount}</Text>
+                            </View>
+
+                            <View style={styles.divider} />
+
+                            <View style={styles.section}>
+                                <Text style={styles.testcardlbl}>Client Rate</Text>
+                                <Text style={styles.testcardvalue}>₹{selectedTest?.client_rate}</Text>
+                            </View>
+
+                            <View style={styles.divider} />
+
+                            <View style={styles.section}>
+                                <Text style={styles.testcardlbl}>Client Rate %</Text>
+                                <Text style={styles.testcardvalue}>
+                                    {selectedTest?.mrpRateAmount
+                                        ? `${((selectedTest.client_rate / selectedTest.mrpRateAmount) * 100).toFixed(2)}%`
+                                        : 'N/A'}
+                                </Text>
+                            </View>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
+
+            <View style={styles.styckysavebutton}>
+                <TouchableOpacity
+                    style={{
+                        backgroundColor: '#28A745', // green color
+                        width: '100%', // full width
+                        paddingVertical: 14, // vertical padding
+                        borderRadius: 8, // rounded corners
+                        alignItems: 'center', // center text horizontally
+                        shadowColor: '#000',
+                        shadowOffset: { width: 0, height: 2 },
+                        shadowOpacity: 0.25,
+                        shadowRadius: 3.84,
+                        elevation: 5, // for Android shadow
+                        marginBottom: 25
+                    }}
+                    onPress={handleSubmit}
+                >
+                    <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 16 }}>
+                        Save
+                    </Text>
+                </TouchableOpacity>
+            </View>
             <AlertModal
                 visible={modalVisible}
                 type={alertType}
@@ -432,12 +422,12 @@ function PartnerRate() {
 export default PartnerRate
 
 const styles = StyleSheet.create({
-    styckysavebutton:{
+    styckysavebutton: {
         position: 'absolute',
         bottom: 0,
         left: 0,
         right: 0,
-        marginVertical: 0, 
+        marginVertical: 0,
         paddingHorizontal: 16,
     },
     testItem: {
