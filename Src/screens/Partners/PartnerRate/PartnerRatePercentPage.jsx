@@ -4,10 +4,13 @@ import { Text, SafeAreaView, ScrollView, StyleSheet, ImageBackground, View, Imag
 import { GlobalStyles } from '../../../GlobalStyles';
 import { Picker } from '@react-native-picker/picker';
 import { useNavigation } from '@react-navigation/native';
+import PartnerService from '../../../services/partner_service';
+import { useRoute } from '@react-navigation/native';
+import AlertModal from '../../../componenets/AlertModal';
 
 function PartnerRate() {
     const navigation = useNavigation();
-    const placeholderOptions = ['Search Partner', 'Search Blog', 'Search Report'];
+    // const placeholderOptions = ['Search Partner', 'Search Blog', 'Search Report'];
     const [placeholderIndex, setPlaceholderIndex] = useState(0);
     const [filterModalVisible, setFilterModalVisible] = useState(false);
     const [selectedType, setSelectedType] = useState('');
@@ -15,13 +18,102 @@ function PartnerRate() {
     const [toDate, setToDate] = useState('');
     const [testDetailsModal, setTestDetailsModal] = useState(false);
 
+    const [allTestList, setTestList] = useState([])
+    const [testInputs, setTestInputs] = useState({});
+    const [selectedPartnerRateId, setSelectedPartnerRateId] = useState('');
+
+    const openModal = () => setIsVisible(true);
+    const closeModal = () => setIsVisible(false);
+    const [modalVisible, setModalVisible] = useState(false);
+
+    const [alertMessage, setAlertMessage] = useState('');
+    const [alertType, setAlertType] = useState('success');  // 'success' | 'error' | 'warning'
+    const [errors, setErrors] = useState({});
+    const [selectedTest, setSelectedTest] = useState(null);
+
+    const route = useRoute();
+    const { item, rate_type, activeTab } = route.params || {};
+    const [debounceTimeouts, setDebounceTimeouts] = useState({});
+
+    const showAlert = (message, type = 'success') => {
+        setAlertMessage(message);
+        setAlertType(type);
+        setModalVisible(true);
+    };
 
     useEffect(() => {
-        const interval = setInterval(() => {
-            setPlaceholderIndex((prevIndex) => (prevIndex + 1) % placeholderOptions.length);
-        }, 2000);
-        return () => clearInterval(interval);
+        console.log('rate_type rate_type PartnerRatePercentPage: ', rate_type, activeTab)
+        const fetPartnerRates = async () => {
+            const response = await PartnerService.getTestRateList();
+            if (response.status == 1) {
+                setTestList(response.data)
+                console.log('gggggggg', allTestList)
+            } else {
+                setTestList([])
+            }
+        }
+
+        fetPartnerRates();
+
+        // const interval = setInterval(() => {
+        //     setPlaceholderIndex((prevIndex) => (prevIndex + 1) % placeholderOptions.length);
+        // }, 2000);
+        // return () => clearInterval(interval);
     }, []);
+
+
+    useEffect(() => {
+        const initialInputs = {};
+        allTestList.forEach((item) => {
+            initialInputs[item.id] = item.partnerAmount?.toString() ?? '';
+        });
+        setTestInputs(initialInputs);
+    }, [allTestList]);
+
+
+
+    const handleInputChange = (testId, value) => {
+        setTestInputs((prevInputs) => ({
+            ...prevInputs,
+            [testId]: value === '' ? '' : Number(value),  // Convert to number if not empty
+        }));
+    };
+
+
+
+
+
+    const handleSubmit = () => {
+        const formattedPayload = {
+            // Use correct key based on some condition (e.g., isTemplateMode)
+            ...(activeTab == 'template'
+                ? { templateRateId: item.id }
+                : { partnerRateId: item.id }),
+            tests: allTestList.map((item) => ({
+                testId: item.test_id,
+                testCode: item.test_code,
+                testName: item.test_name,
+                department: item.dept_name,
+                category: item.categoryName,
+                clientRate: item.client_rate,
+                mrp: item.mrpRateAmount,
+                partnerAmount:
+                    typeof testInputs[item.test_id] === 'number'
+                        ? testInputs[item.test_id]
+                        : Number(testInputs[item.test_id]) || 0, // Existing value fallback
+            })),
+        };
+
+        console.log('Payload to submit:', formattedPayload);
+
+        // Example API call
+        // apiClient.post('/save-partner-or-template-rates', formattedPayload)
+        //   .then(response => showAlert('Saved successfully!', 'success'))
+        //   .catch(error => showAlert('Failed to save rates', 'error'));
+    };
+
+
+
 
     return (
         <SafeAreaView style={{ flex: 1, }}>
@@ -33,7 +125,7 @@ function PartnerRate() {
                     <View style={styles.flexdv}>
                         <TouchableOpacity style={styles.leftArrow} onPress={() => navigation.goBack()}>
                             <View style={styles.arrowBox}><Image source={require('../../../../assets/arrow1.png')} /></View>
-                            <Text style={styles.titleText}>Partner Rate Set</Text>
+                            <Text style={styles.titleText}>Partner Rate Set - Percent</Text>
                         </TouchableOpacity>
                         <View style={styles.rightSection}>
                             <TouchableOpacity style={{ position: 'relative' }}>
@@ -51,7 +143,7 @@ function PartnerRate() {
                     <View style={styles.searchBox}>
                         <Icon name="search" size={20} color="#aaa" style={styles.searchIcon} />
                         <TextInput
-                            placeholder={placeholderOptions[placeholderIndex]}
+                            placeholder="Search Invistigations"
                             placeholderTextColor="#999"
                             style={styles.input}
                         />
@@ -61,29 +153,140 @@ function PartnerRate() {
                     </TouchableOpacity>
                 </View>
 
-                <TouchableOpacity style={styles.testItem} onPress={() => setTestDetailsModal(true)}>
-                    <View style={styles.leftBlock}>
-                        <View style={styles.testIcon}>
-                            <Image source={require('../../../../assets/testIcon.png')} style={styles.iconImg} />
-                        </View>
-                        <View style={styles.testTextblock}>
-                            <Text style={styles.testTitle}>Complete Blood Count</Text>
-                            <View style={styles.testRate}>
-                                <Text style={styles.testRateTest}>₹500</Text>
-                                <View style={styles.dot}></View>
-                                <Text style={styles.testRateTest}>50%</Text>
-                            </View>
-                        </View>
+                <>
+                    {allTestList?.map((item) => {
+                        const inputValue = testInputs[item.test_id] ?? '';
+                        const parsedPercent = parseFloat(inputValue) || 0;
+
+                        // Calculate partnerAmount from percentage input
+                        const calculatedAmount = (
+                            item.mrpRateAmount - (item.mrpRateAmount * parsedPercent) / 100
+                        ).toFixed(2);
+
+                        const hasError =
+                            calculatedAmount < item.client_rate ||
+                            calculatedAmount > item.mrpRateAmount;
+
+                        const handleChange = (value) => {
+                            const numericPercent = parseFloat(value) || 0;
+
+                            if (debounceTimeouts[item.test_id]) {
+                                clearTimeout(debounceTimeouts[item.test_id]);
+                            }
+
+                            handleInputChange(item.test_id, value);
+
+                            const timeoutId = setTimeout(() => {
+                                const computedAmount = (
+                                    item.mrpRateAmount - (item.mrpRateAmount * numericPercent) / 100
+                                ).toFixed(2);
+
+                                if (numericPercent && (computedAmount < item.client_rate || computedAmount > item.mrpRateAmount)) {
+                                    showAlert(`Partner amount must be between ₹${item.client_rate} and ₹${item.mrpRateAmount}.`, 'warning');
+                                    resetInput(item.test_id);
+                                }
+                            }, 1000);
+
+                            setDebounceTimeouts((prev) => ({
+                                ...prev,
+                                [item.test_id]: timeoutId,
+                            }));
+                        };
+
+                        const calculatePartnerRatePercent = (partnerAmount, mrpRateAmount) => {
+                            if (mrpRateAmount <= 0) return '0.00';
+
+                            const percent = (parseFloat(partnerAmount) / mrpRateAmount) * 100;
+                            return percent.toFixed(2);
+                        };
+
+
+                        const resetInput = (testId) => {
+                            setTestInputs((prevInputs) => ({
+                                ...prevInputs,
+                                [testId]: '',
+                            }));
+                        };
+
+                        return (
+                            <TouchableOpacity
+                                key={item.test_id}
+                                style={styles.testItem}
+                                onPress={() => {
+                                    setSelectedTest(item);
+                                    setTestDetailsModal(true);
+                                }}
+                            >
+                                <View style={styles.leftBlock}>
+                                    <View style={styles.testIcon}>
+                                        <Image
+                                            source={require('../../../../assets/testIcon.png')}
+                                            style={styles.iconImg}
+                                        />
+                                    </View>
+                                    <View style={styles.testTextblock}>
+                                        <Text style={styles.testTitle}>{item.test_name}</Text>
+                                        <View style={styles.testRate}>
+                                            <Text style={styles.testRateTest}>
+                                                {item?.mrpRateAmount
+                                                    ? `${((item.client_rate / item.mrpRateAmount) * 100).toFixed(2)}%`
+                                                    : 'N/A'}
+                                            </Text>
+                                        </View>
+                                    </View>
+                                </View>
+
+                                <View style={styles.rightBlock}>
+                                    <TextInput
+                                        style={styles.testInput}
+                                        placeholder="0%"
+                                        placeholderTextColor="#000"
+                                        keyboardType="numeric"
+                                        value={inputValue}
+                                        onChangeText={handleChange}
+                                    />
+                                    {/* <Text style={styles.rightText}>%</Text> */}
+
+                                    {inputValue ? (
+                                        <View style={{ marginTop: 5 }}>
+                                            <Text style={styles.rightText}>
+                                                ₹{calculatedAmount}
+                                            </Text>
+                                        </View>
+                                    ) : null}
+
+                                </View>
+                            </TouchableOpacity>
+                        );
+                    })}
+
+                    <View style={styles.styckysavebutton}>
+                        <TouchableOpacity
+                            style={{
+                                backgroundColor: '#28A745', // green color
+                                width: '100%', // full width
+                                paddingVertical: 14, // vertical padding
+                                borderRadius: 8, // rounded corners
+                                alignItems: 'center', // center text horizontally
+                                shadowColor: '#000',
+                                shadowOffset: { width: 0, height: 2 },
+                                shadowOpacity: 0.25,
+                                shadowRadius: 3.84,
+                                elevation: 5, // for Android shadow
+                            }}
+                            onPress={handleSubmit}
+                        >
+                            <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 16 }}>
+                                Save
+                            </Text>
+                        </TouchableOpacity>
                     </View>
-                    <View style={styles.rightBlock}>
-                        <TextInput
-                            style={styles.testInput}
-                            placeholder="0"
-                            placeholderTextColor={'#000'}
-                        />
-                        <Text style={styles.rightText}>50%</Text>
-                    </View>
-                </TouchableOpacity>
+
+                </>
+
+
+
+
 
 
                 {/* Filter Modal */}
@@ -178,32 +381,36 @@ function PartnerRate() {
                             <View style={styles.percentageImg}>
                                 <Image source={require('../../../../assets/testimg1.png')} />
                             </View>
-                            <Text style={styles.mdlSubTitle}>CBC</Text>
+                            <Text style={styles.mdlSubTitle}>{selectedTest?.test_name}</Text>
                             <Text style={styles.mdlTitle}>Complete Blood Count</Text>
                             <View style={styles.mdlFlexdvs}>
-                                <Text style={styles.catTitle}>Category: C1</Text>
+                                <Text style={styles.catTitle}>Category: {selectedTest?.categoryName}</Text>
                                 <View style={styles.mdlDot}></View>
-                                <Text style={styles.catTitle}>Hematology</Text>
+                                <Text style={styles.catTitle}>{selectedTest?.dept_name}</Text>
                             </View>
 
                             <View style={styles.testcard}>
                                 <View style={styles.section}>
                                     <Text style={styles.testcardlbl}>MRP Rate</Text>
-                                    <Text style={styles.testcardvalue}>₹500</Text>
+                                    <Text style={styles.testcardvalue}>₹{selectedTest?.mrpRateAmount}</Text>
                                 </View>
 
                                 <View style={styles.divider} />
 
                                 <View style={styles.section}>
                                     <Text style={styles.testcardlbl}>Client Rate</Text>
-                                    <Text style={styles.testcardvalue}>₹500</Text>
+                                    <Text style={styles.testcardvalue}>₹{selectedTest?.client_rate}</Text>
                                 </View>
 
                                 <View style={styles.divider} />
 
                                 <View style={styles.section}>
                                     <Text style={styles.testcardlbl}>Client Rate %</Text>
-                                    <Text style={styles.testcardvalue}>10%</Text>
+                                    <Text style={styles.testcardvalue}>
+                                        {selectedTest?.mrpRateAmount
+                                            ? `${((selectedTest.client_rate / selectedTest.mrpRateAmount) * 100).toFixed(2)}%`
+                                            : 'N/A'}
+                                    </Text>
                                 </View>
                             </View>
                         </View>
@@ -211,6 +418,13 @@ function PartnerRate() {
                 </Modal>
 
             </ScrollView>
+
+            <AlertModal
+                visible={modalVisible}
+                type={alertType}
+                message={alertMessage}
+                onClose={() => setModalVisible(false)}
+            />
         </SafeAreaView>
     )
 }
@@ -218,6 +432,14 @@ function PartnerRate() {
 export default PartnerRate
 
 const styles = StyleSheet.create({
+    styckysavebutton:{
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        marginVertical: 0, 
+        paddingHorizontal: 16,
+    },
     testItem: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -293,43 +515,43 @@ const styles = StyleSheet.create({
         paddingTop: 5,
     },
     // Modal Css Start
-    percentageImg:{
-        marginBottom:20,
-        alignSelf:'center',
+    percentageImg: {
+        marginBottom: 20,
+        alignSelf: 'center',
         // flex:1,
     },
-    mdlSubTitle:{
+    mdlSubTitle: {
         fontFamily: 'Poppins-Regular',
         fontSize: 12,
         lineHeight: 14,
         color: '#171717',
         alignSelf: 'flex-start',
-        borderWidth:1,
-        borderColor:'#D0D0D0',
-        borderRadius:20,
-        paddingVertical:5,
-        paddingHorizontal:10,
-        marginBottom:10,
+        borderWidth: 1,
+        borderColor: '#D0D0D0',
+        borderRadius: 20,
+        paddingVertical: 5,
+        paddingHorizontal: 10,
+        marginBottom: 10,
     },
-    mdlTitle:{
+    mdlTitle: {
         fontFamily: 'Poppins-SemiBold',
-        fontSize:24,
-        lineHeight:26,
+        fontSize: 24,
+        lineHeight: 26,
         color: '#171717',
-        marginBottom:5,
+        marginBottom: 5,
     },
-    mdlFlexdvs:{
-        flexDirection:'row',
-        alignItems:'center',
-        gap:5,
+    mdlFlexdvs: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 5,
     },
-    catTitle:{
+    catTitle: {
         fontFamily: 'Poppins-Regular',
-        fontSize:12,
-        lineHeight:14,
+        fontSize: 12,
+        lineHeight: 14,
         color: '#171717',
     },
-    mdlDot:{
+    mdlDot: {
         width: 5,
         height: 5,
         backgroundColor: '#00A635',
@@ -345,24 +567,24 @@ const styles = StyleSheet.create({
         // paddingHorizontal: 10,
         alignItems: 'center',
         justifyContent: 'space-between',
-        marginTop:25,
+        marginTop: 25,
     },
     section: {
         flex: 1,
         // alignItems: 'center',
-        paddingLeft:12,
+        paddingLeft: 12,
     },
     testcardlbl: {
         fontFamily: 'Poppins-Regular',
         fontSize: 12,
-        lineHeight:14,
+        lineHeight: 14,
         color: '#4E4E4E',
-        marginBottom:5,
+        marginBottom: 5,
     },
     testcardvalue: {
         fontFamily: 'Poppins-SemiBold',
         fontSize: 12,
-        lineHeight:14,
+        lineHeight: 14,
         color: '#000',
     },
     divider: {

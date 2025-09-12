@@ -41,7 +41,7 @@ function Partner() {
     const [errors, setErrors] = useState({});
     const [allPartners, setPartners] = useState([])
     const [allTemplates, setTemplates] = useState([])
-    const [allPartnerRate, setPartnerRateList] = useState([])
+
 
 
     const [rateType, setRateType] = useState("");
@@ -51,6 +51,8 @@ function Partner() {
 
     const [partnerRates, setPartnerRates] = useState([]);
     const [templateRates, setTemplateRates] = useState([]);
+    const [activePartner, setActivePartners] = useState([]);
+    const [activeTemplates, setActiveTemplates] = useState([]);
 
     const showAlert = (message, type = 'success') => {
         setAlertMessage(message);
@@ -63,7 +65,8 @@ function Partner() {
             try {
                 const response = await PartnerService.getAllPartners();
                 if (response.status == 1) {
-                    setPartners(response.data)
+                    const active = response.data.filter(item => item.status === true);
+                    setPartners(active)
                 }
             } catch (error) {
                 setPartners([])
@@ -75,10 +78,13 @@ function Partner() {
             try {
                 const response = await PartnerService.getAllTemplateRate();
                 setTemplates(response.data)
-                setTemplateRates(response.data)
+                setTemplateRates(response.data.slice(0, 3))
+                const active = response.data.filter(item => item.status === true);
+                setActiveTemplates(active)
             } catch (error) {
                 console.log(error)
                 setTemplates([])
+                setTemplateRates([])
             }
         }
 
@@ -86,11 +92,12 @@ function Partner() {
             try {
                 const response = await PartnerService.getAllPartnerRateMaster();
                 console.log('pppppp rrrrrr', response.data)
-                setPartnerRateList(response.data)
-                setPartnerRates(response.data)
+                const active = response.data.filter(item => item.status === true);
+                setActivePartners(active)
+                setPartnerRates(response.data.slice(0, 3))
             } catch (error) {
                 console.log(error)
-                setPartnerRateList([])
+                setPartnerRates([])
             }
         }
 
@@ -127,36 +134,6 @@ function Partner() {
         },
     ];
 
-    const rateList = {
-        partner: [
-            {
-                id: 1,
-                title: 'NAPP - Beldanga',
-                investigations: 12,
-                status: 'active',
-            },
-            {
-                id: 2,
-                title: 'NAPP - Beldanga',
-                investigations: 12,
-                status: 'inactive',
-            },
-        ],
-        template: [
-            {
-                id: 3,
-                title: 'Template - XYZ',
-                investigations: 8,
-                status: 'active',
-            },
-            {
-                id: 4,
-                title: 'Template - ABC',
-                investigations: 5,
-                status: 'inactive',
-            },
-        ],
-    };
 
     // useEffect(() => {
     //     if (activeTab === 'partner') {
@@ -170,7 +147,7 @@ function Partner() {
         partner: [
             {
                 icon: require('../../../../assets/rupee.png'),
-                route: 'RupeeScreen',
+                route: 'PartnerRate',
             },
             {
                 icon: require('../../../../assets/delete.png'),
@@ -180,11 +157,11 @@ function Partner() {
         template: [
             {
                 icon: require('../../../../assets/edit.png'),
-                route: 'EditTemplateScreen',
+                route: '',
             },
             {
                 icon: require('../../../../assets/setting.png'),
-                route: 'TemplateSettingsScreen',
+                route: 'PartnerRate',
             },
             {
                 icon: require('../../../../assets/delete.png'),
@@ -390,7 +367,7 @@ function Partner() {
                             imageStyle={{ borderRadius: 10 }}
                             resizeMode="cover">
                             <Image source={require('../../../../assets/partner-icn1.png')} />
-                            <Text style={styles.number}>124</Text>
+                            <Text style={styles.number}>{String(activePartner?.length || 0).padStart(2, '0')}</Text>
                             <Text style={styles.title}>Active Partners</Text>
                             <Text style={styles.SubTitle}>All Comparisons Past 7 Days</Text>
                             <Text style={styles.percentage}>▲ 12%</Text>
@@ -403,7 +380,7 @@ function Partner() {
                             imageStyle={{ borderRadius: 10 }}
                             resizeMode="cover">
                             <Image source={require('../../../../assets/partner-icn2.png')} />
-                            <Text style={styles.number}>18</Text>
+                            <Text style={styles.number}>{String(activeTemplates?.length || 0).padStart(2, '0')}</Text>
                             <Text style={styles.title}>Rate Templates</Text>
                             <Text style={styles.percentage}>▲ 12%</Text>
                         </ImageBackground>
@@ -573,7 +550,7 @@ function Partner() {
                                             item.status == true ? { color: '#00A651' } : { color: '#888' }
                                         ]}
                                     >
-                                        {item.status?'Active':'Inactive'}
+                                        {item.status ? 'Active' : 'Inactive'}
                                     </Text>
                                 </View>
 
@@ -587,7 +564,7 @@ function Partner() {
                                         style={[styles.invIcon, { width: 11, height: 12, objectFit: 'contain' }]}
                                     />
                                     <Text style={styles.tbSubTitle}>
-                                        {item.hasTestMappings ? "Yes" : "No"} Investigation
+                                        {item.hasTestMappings ? item.testCount : "No"} Investigation
                                     </Text>
                                 </View>
                             </View>
@@ -597,8 +574,28 @@ function Partner() {
                                     <TouchableOpacity
                                         key={index}
                                         onPress={() => {
-                                            if (action.route) {
-                                                navigation.navigate(action.route, { item });
+                                            if (action.route) { 
+                                                let targetRoute = '';
+
+                                                if (activeTab === 'partner') {
+                                                    targetRoute =
+                                                        item.rate_type_id?.toLowerCase() === 'amount'
+                                                            ? 'PartnerRateAmountPage'
+                                                            : 'PartnerRate';
+                                                } else {
+                                                    targetRoute =
+                                                        item.rate_type?.toLowerCase() === 'amount'
+                                                            ? 'PartnerRateAmountPage'
+                                                            : 'PartnerRate';
+                                                }
+
+                                                console.log('Navigating to:', targetRoute, activeTab);
+
+                                                navigation.navigate(targetRoute, {
+                                                    item,
+                                                    rate_type: activeTab === 'partner' ? item.rate_type_id : item.rate_type,
+                                                    activeTab,
+                                                });
                                             } else if (action.onPress) {
                                                 action.onPress(item);
                                             }
@@ -608,6 +605,7 @@ function Partner() {
                                     </TouchableOpacity>
                                 ))}
                             </View>
+
                         </View>
                     ))}
 
@@ -847,8 +845,8 @@ function Partner() {
                                                         style={styles.picker}
                                                     >
                                                         <Picker.Item label="Select Type" value="" />
-                                                        <Picker.Item label="Amount" value="amount" />
-                                                        <Picker.Item label="Percent" value="percent" />
+                                                        <Picker.Item label="Amount" value="Amount" />
+                                                        <Picker.Item label="Percent" value="Percent" />
                                                     </Picker>
                                                 </View>
                                             </View>
@@ -927,8 +925,8 @@ function Partner() {
                                                         style={styles.picker}
                                                     >
                                                         <Picker.Item label="Select Type" value="" />
-                                                        <Picker.Item label="Amount" value="amount" />
-                                                        <Picker.Item label="Percent" value="percent" />
+                                                        <Picker.Item label="Amount" value="Amount" />
+                                                        <Picker.Item label="Percent" value="Percent" />
                                                     </Picker>
                                                 </View>
                                             </View>

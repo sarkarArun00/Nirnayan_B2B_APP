@@ -18,7 +18,8 @@ import Login from '../screens/Login/Login';
 import ResetPassword from '../screens/ResetPassword/ResetPassword';
 import Partner from '../screens/Partners/Partner/Partner';
 import ViewAllRates from '../screens/Partners/ViewAllRates/DownloadRates';
-import PartnerRate from '../screens/Partners/PartnerRate/PartnerRate';
+import PartnerRate from '../screens/Partners/PartnerRate/PartnerRatePercentPage';
+import PartnerRateAmountPage from '../screens/Partners/PartnerRate/PartnerRateAmountPage';
 
 
 const Tab = createBottomTabNavigator();
@@ -122,6 +123,7 @@ const AppNavigator = () => {
       <Stack.Screen name="Partner" component={Partner} />
       <Stack.Screen name="ViewAllRates" component={ViewAllRates} />
       <Stack.Screen name="PartnerRate" component={PartnerRate} />
+      <Stack.Screen name="PartnerRateAmountPage" component={PartnerRateAmountPage} />
     </Stack.Navigator>
   );
 };

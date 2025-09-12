@@ -8,7 +8,7 @@ const AuthService = {
 
   empLogin: async (data) => {
     try {
-      const response = await apiClient.post('/auth/partnerLogin', data);
+      const response = await apiClient.post('auth/partnerLogin', data);
       return response.data
     } catch (error) {
       console.log("empLogin error response:", error.response?.data);

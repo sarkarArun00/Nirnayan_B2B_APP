@@ -5,6 +5,9 @@ import { GlobalStyles } from '../../../GlobalStyles';
 import { Picker } from '@react-native-picker/picker';
 import { useNavigation } from '@react-navigation/native';
 
+import AlertModal from '../../../componenets/AlertModal';
+import PartnerService from '../../../services/partner_service'
+
 function ViewAllRates() {
     const navigation = useNavigation();
     const placeholderOptions = ['Search Partner', 'Search Blog', 'Search Report'];
@@ -16,49 +19,93 @@ function ViewAllRates() {
     const [activeTab, setActiveTab] = useState('partner');
 
 
+
+    const openModal = () => setIsVisible(true);
+    const closeModal = () => setIsVisible(false);
+    const [modalVisible, setModalVisible] = useState(false);
+
+    const [alertMessage, setAlertMessage] = useState('');
+    const [alertType, setAlertType] = useState('success');  // 'success' | 'error' | 'warning'
+    const [errors, setErrors] = useState({});
+    const [allPartners, setPartners] = useState([])
+    const [allTemplates, setTemplates] = useState([])
+
+
+
+    const [rateType, setRateType] = useState("");
+    const [status, setStatus] = useState("");
+    const [templateName, setTemplateName] = useState("");
+    const [selectedTemplate, setSelectedTemplate] = useState("");
+
+    const [partnerRates, setPartnerRates] = useState([]);
+    const [templateRates, setTemplateRates] = useState([]);
+    const [activePartner, setActivePartners] = useState([]);
+    const [activeTemplates, setActiveTemplates] = useState([]);
+
+    const showAlert = (message, type = 'success') => {
+        setAlertMessage(message);
+        setAlertType(type);
+        setModalVisible(true);
+    };
+
+
     useEffect(() => {
+        const fetchPartner = async () => {
+            try {
+                const response = await PartnerService.getAllPartners();
+                if (response.status == 1) {
+                    const active = response.data.filter(item => item.status === true);
+                    setPartners(active)
+                }
+            } catch (error) {
+                setPartners([])
+            }
+
+        }
+
+        const fetchTemplate = async () => {
+            try {
+                const response = await PartnerService.getAllTemplateRate();
+                setTemplates(response.data)
+                setTemplateRates(response.data)
+                const active = response.data.filter(item => item.status === true);
+                setActiveTemplates(active)
+            } catch (error) {
+                console.log(error)
+                setTemplates([])
+                setTemplateRates([])
+            }
+        }
+
+        const fetchPartnerRateMaster = async () => {
+            try {
+                const response = await PartnerService.getAllPartnerRateMaster();
+                console.log('pppppp rrrrrr', response.data)
+                const active = response.data.filter(item => item.status === true);
+                setActivePartners(active)
+                setPartnerRates(response.data)
+            } catch (error) {
+                console.log(error)
+                setPartnerRates([])
+            }
+        }
+
+        fetchPartner();
+        fetchTemplate();
+        fetchPartnerRateMaster();
+
         const interval = setInterval(() => {
             setPlaceholderIndex((prevIndex) => (prevIndex + 1) % placeholderOptions.length);
         }, 2000);
         return () => clearInterval(interval);
     }, []);
 
-    const rateList = {
-        partner: [
-            {
-                id: 1,
-                title: 'NAPP - Beldanga',
-                investigations: 12,
-                status: 'active',
-            },
-            {
-                id: 2,
-                title: 'NAPP - Beldanga',
-                investigations: 12,
-                status: 'inactive',
-            },
-        ],
-        template: [
-            {
-                id: 3,
-                title: 'Template - XYZ',
-                investigations: 8,
-                status: 'active',
-            },
-            {
-                id: 4,
-                title: 'Template - ABC',
-                investigations: 5,
-                status: 'inactive',
-            },
-        ],
-    };
 
     const tabActions = {
         partner: [
             {
                 icon: require('../../../../assets/rupee.png'),
-                route: 'RupeeScreen',
+                route: 'PartnerRate',
             },
             {
                 icon: require('../../../../assets/delete.png'),
@@ -68,11 +115,11 @@ function ViewAllRates() {
         template: [
             {
                 icon: require('../../../../assets/edit.png'),
-                route: 'EditTemplateScreen',
+                route: '',
             },
             {
                 icon: require('../../../../assets/setting.png'),
-                route: 'TemplateSettingsScreen',
+                route: 'PartnerRate',
             },
             {
                 icon: require('../../../../assets/delete.png'),
@@ -177,33 +224,42 @@ function ViewAllRates() {
 
                     </View>
 
-                    {rateList[activeTab].map((item) => (
-                        <View key={item.id} style={[styles.tbBox,]}>
-                            <View style={{ flex: 1, }}>
-                                {/* Status Badge */}
+                    {(activeTab === 'partner' ? partnerRates : templateRates).map((item) => (
+                        <View key={item.id} style={styles.tbBox}>
+                            <View style={{ flex: 1 }}>
                                 <View
                                     style={[
                                         styles.statusBadge,
-                                        item.status === 'active' ? styles.active : styles.inactive,
-                                        { marginBottom: 10 },
+                                        item.status == true ? styles.active : styles.inactive,
+                                        { marginBottom: 10 }
                                     ]}
                                 >
                                     <Text
                                         style={[
                                             styles.statusText,
-                                            item.status === 'active' ? { color: '#00A651' } : { color: '#888' },
+                                            item.status == true ? { color: '#00A651' } : { color: '#888' }
                                         ]}
                                     >
-                                        {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
+                                        {item.status ? 'Active' : 'Inactive'}
                                     </Text>
                                 </View>
-                                <Text style={styles.pbTitle}>{item.title}</Text>
-                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, }}>
+
+                                <Text style={styles.pbTitle}>
+                                    {activeTab === 'partner' ? item.partner_name : item.template_name}
+                                </Text>
+
+                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                                     <Image
                                         source={require('../../../../assets/invicon.png')}
-                                        style={[styles.invIcon, { width: 11, height: 12, objectFit: 'contain', }]}
+                                        style={[styles.invIcon, { width: 11, height: 12, objectFit: 'contain' }]}
                                     />
-                                    <Text style={styles.tbSubTitle}>{item.investigations} Investigation</Text>
+                                    <Text style={styles.tbSubTitle}>
+                                        {item.hasTestMappings ? item.testCount : "No"} Investigation
+                                    </Text>
+                                    <Text style={styles.tbSubTitle}>
+                                        {item.rate_type}
+                                        {item.rate_type_id}
+                                    </Text>
                                 </View>
                             </View>
 
@@ -213,16 +269,39 @@ function ViewAllRates() {
                                         key={index}
                                         onPress={() => {
                                             if (action.route) {
-                                                navigation.navigate(action.route, { item });
+                                                let targetRoute = '';
+
+                                                if (activeTab === 'partner') {
+                                                    targetRoute =
+                                                        item.rate_type_id?.toLowerCase() === 'amount'
+                                                            ? 'PartnerRateAmountPage'
+                                                            : 'PartnerRate';
+                                                } else {
+                                                    targetRoute =
+                                                        item.rate_type?.toLowerCase() === 'amount'
+                                                            ? 'PartnerRateAmountPage'
+                                                            : 'PartnerRate';
+                                                }
+
+                                                console.log('Navigating to:', targetRoute, activeTab);
+
+                                                navigation.navigate(targetRoute, {
+                                                    item,
+                                                    rate_type: activeTab === 'partner' ? item.rate_type_id : item.rate_type,
+                                                    activeTab,
+                                                });
+
                                             } else if (action.onPress) {
                                                 action.onPress(item);
                                             }
                                         }}
+
                                     >
                                         <Image source={action.icon} />
                                     </TouchableOpacity>
                                 ))}
                             </View>
+
                         </View>
                     ))}
                 </View>
@@ -300,6 +379,12 @@ function ViewAllRates() {
                     </View>
                 </Modal>
 
+                <AlertModal
+                    visible={modalVisible}
+                    type={alertType}
+                    message={alertMessage}
+                    onClose={() => setModalVisible(false)}
+                />
             </ScrollView>
         </SafeAreaView>
     )

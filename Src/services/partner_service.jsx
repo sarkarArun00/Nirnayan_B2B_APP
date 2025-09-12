@@ -63,6 +63,16 @@ const AuthService = {
       console.log("empLogin error response:", error.response?.data);
       throw error;  // re-throw original error
     }
+  },
+
+  getTestRateList: async () => {
+    try {
+      const response = await apiClient.get('client/partner-rate/getTestRateList');
+      return response.data
+    } catch (error) {
+      console.log("empLogin error response:", error.response?.data);
+      throw error;  // re-throw original error
+    }
   }
 
 
