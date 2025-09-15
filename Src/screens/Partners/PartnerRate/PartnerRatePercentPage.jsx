@@ -32,7 +32,7 @@ function PartnerRate() {
     const [selectedTest, setSelectedTest] = useState(null);
 
     const route = useRoute();
-    const { item, rate_type, activeTab } = route.params || {};
+    const { item, rate_type, activeTab, hasTestMappings } = route.params || {};
     const [debounceTimeouts, setDebounceTimeouts] = useState({});
 
     const showAlert = (message, type = 'success') => {
@@ -42,14 +42,48 @@ function PartnerRate() {
     };
 
     useEffect(() => {
-        console.log('rate_type rate_type PartnerRatePercentPage: ', rate_type, activeTab)
+        console.log('rate_type rate_type PartnerRatePercentPage: ', item, rate_type, activeTab)
         const fetPartnerRates = async () => {
-            const response = await PartnerService.getTestRateList();
-            if (response.status == 1) {
-                setTestList(response.data)
-                console.log('gggggggg', allTestList)
+            if(!item.hasTestMappings) {
+                const response = await PartnerService.getTestRateList();
+                if (response.status == 1) {
+                    setTestList(response.data)
+                    console.log('test list response', allTestList)
+                } else {
+                    setTestList([])
+                }
             } else {
-                setTestList([])
+                let request = {};
+                if(activeTab=='template') {
+                    request = {
+                        templateRateId: item.id
+                    }
+                } else {
+                    request = {
+                        partnerRateId: item.id
+                    }
+                }
+
+                console.log('helloooooooo', request);
+                // return
+                const response = await PartnerService.findByPartnerAndTemplateRateId({request});
+                console.log('parter test list response', response)
+                if (response.status == 1) {
+                    const transformedData = response.data.map((test) => ({
+                        test_id: test.testId,
+                        test_code: test.testCode,
+                        test_name: test.testName,
+                        dept_name: test.department,
+                        category: test.category,
+                        client_rate: test.clientRate,
+                        mrpRateAmount: test.mrp,
+                        templateAmount: test.templateAmount, // If available
+                        partnerAmount: test.partnerAmount,   // If available
+                    }));
+                    setTestList(transformedData)
+                } else {
+                    setTestList([])
+                }
             }
         }
 
@@ -78,10 +112,9 @@ function PartnerRate() {
 
 
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         const formattedPayload = {
-            // Use correct key based on some condition (e.g., isTemplateMode)
-            ...(activeTab == 'template'
+            ...(activeTab === 'template'
                 ? { templateRateId: item.id }
                 : { partnerRateId: item.id }),
             tests: allTestList.map((item) => ({
@@ -92,19 +125,76 @@ function PartnerRate() {
                 category: item.categoryName,
                 clientRate: item.client_rate,
                 mrp: item.mrpRateAmount,
-                partnerAmount:
-                    typeof testInputs[item.test_id] === 'number'
-                        ? testInputs[item.test_id]
-                        : Number(testInputs[item.test_id]) || 0, // Existing value fallback
+                ...(activeTab === 'template'
+                    ? {
+                          templateAmount:
+                              typeof testInputs[item.test_id] === 'number'
+                                  ? testInputs[item.test_id]
+                                  : Number(testInputs[item.test_id]) || 0,
+                      }
+                    : {
+                          partnerAmount:
+                              typeof testInputs[item.test_id] === 'number'
+                                  ? testInputs[item.test_id]
+                                  : Number(testInputs[item.test_id]) || 0,
+                      }),
             })),
         };
 
         console.log('Payload to submit:', formattedPayload);
 
-        // Example API call
-        // apiClient.post('/save-partner-or-template-rates', formattedPayload)
-        //   .then(response => showAlert('Saved successfully!', 'success'))
-        //   .catch(error => showAlert('Failed to save rates', 'error'));
+        const response = await PartnerService.createPartnerTestMapping(formattedPayload);
+        if (response.status == 1) {
+            showAlert('Created Successfully!', 'success')
+            setTimeout(() => {
+                navigation.navigate('Partner');
+            }, 1000);
+        } else {
+            showAlert(response.message, 'error')
+        }
+    };
+
+    const updateSubmit = async () => {
+        const formattedPayload = {
+            ...(activeTab === 'template'
+                ? { templateRateId: item.id }
+                : { partnerRateId: item.id }),
+            tests: allTestList.map((item) => ({
+                testId: item.test_id,
+                testCode: item.test_code,
+                testName: item.test_name,
+                department: item.dept_name,
+                category: item.category,
+                clientRate: item.client_rate,
+                mrp: item.mrpRateAmount,
+                ...(activeTab === 'template'
+                    ? {
+                          templateAmount:
+                              typeof testInputs[item.test_id] === 'number'
+                                  ? testInputs[item.test_id]
+                                  : Number(testInputs[item.test_id]) || item.templateAmount || 0,
+                      }
+                    : {
+                          partnerAmount:
+                              testInputs[item.test_id] && testInputs[item.test_id] !== ''
+                                  ? Number(testInputs[item.test_id])
+                                  : Number(item.templateAmount) || item.partnerAmount || 0,
+                      }),
+            })),
+        };
+    
+        console.log('Payload to update:', formattedPayload);
+        
+        // return
+        const response = await PartnerService.updatePartnerTestMapping(formattedPayload);
+        if (response.status == 1) {
+            showAlert('Updated Successfully!', 'success');
+            setTimeout(() => {
+                navigation.navigate('Partner');
+            }, 1000);
+        } else {
+            showAlert(response.message, 'error');
+        }
     };
 
 
@@ -149,7 +239,7 @@ function PartnerRate() {
                 </View>
 
                 <>
-                    {allTestList?.map((item) => {
+                    {allTestList?.map((item, index) => {
                         const inputValue = testInputs[item.test_id] ?? '';
                         const parsedPercent = parseFloat(inputValue) || 0;
 
@@ -205,7 +295,7 @@ function PartnerRate() {
 
                         return (
                             <TouchableOpacity
-                                key={item.test_id}
+                            key={`${item.test_id}-${index}`}
                                 style={styles.testItem}
                                 onPress={() => {
                                     setSelectedTest(item);
@@ -234,7 +324,13 @@ function PartnerRate() {
                                 <View style={styles.rightBlock}>
                                     <TextInput
                                         style={styles.testInput}
-                                        placeholder="0%"
+                                        placeholder={
+                                            item.templateAmount
+                                                ? `${((item.templateAmount / item.mrpRateAmount) * 100).toFixed(2)}%`
+                                                : item.partnerAmount
+                                                ? `${((item.partnerAmount / item.mrpRateAmount) * 100).toFixed(2)}%`
+                                                : '0.00%'
+                                        }
                                         placeholderTextColor="#000"
                                         keyboardType="numeric"
                                         value={inputValue}
@@ -388,24 +484,27 @@ function PartnerRate() {
             </Modal>
 
             <View style={styles.styckysavebutton}>
-                <TouchableOpacity
+            <TouchableOpacity
                     style={{
-                        backgroundColor: '#28A745', // green color
-                        width: '100%', // full width
-                        paddingVertical: 14, // vertical padding
-                        borderRadius: 8, // rounded corners
-                        alignItems: 'center', // center text horizontally
+                        backgroundColor: '#28A745',
+                        width: '100%',
+                        paddingVertical: 14,
+                        borderRadius: 8,
+                        alignItems: 'center',
                         shadowColor: '#000',
                         shadowOffset: { width: 0, height: 2 },
                         shadowOpacity: 0.25,
                         shadowRadius: 3.84,
-                        elevation: 5, // for Android shadow
+                        elevation: 5,
                         marginBottom: 25
                     }}
-                    onPress={handleSubmit}
+                    onPress={!item.hasTestMappings?handleSubmit:updateSubmit}
                 >
                     <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 16 }}>
-                        Save
+                        
+                        {
+                            !item.hasTestMappings?'Save':'Update'
+                        }
                     </Text>
                 </TouchableOpacity>
             </View>

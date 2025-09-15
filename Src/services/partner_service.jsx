@@ -74,10 +74,28 @@ const AuthService = {
       throw error;  // re-throw original error
     }
   },
+  findByPartnerAndTemplateRateId: async (data) => {
+    try {
+      const response = await apiClient.post('client/partner-rate-test-mapping/findByPartnerAndTemplateRateId', data);
+      return response.data
+    } catch (error) {
+      console.log("empLogin error response:", error.response?.data);
+      throw error;  // re-throw original error
+    }
+  },
 
   createPartnerTestMapping: async (data) => {
     try {
       const response = await apiClient.post('client/partner-rate-test-mapping/createPartnerTestMapping', data);
+      return response.data
+    } catch (error) {
+      console.log("empLogin error response:", error.response?.data);
+      throw error;  // re-throw original error
+    }
+  },
+  updatePartnerTestMapping: async (data) => {
+    try {
+      const response = await apiClient.post('client/partner-rate-test-mapping/updatePartnerTestMapping', data);
       return response.data
     } catch (error) {
       console.log("empLogin error response:", error.response?.data);
