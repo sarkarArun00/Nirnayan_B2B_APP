@@ -88,7 +88,7 @@ const ProfileScreen = () => {
               <Image style={styles.menuImg} source={require('../../assets/menu2.png')} />
               <Text style={styles.menuText}>Register Investigation</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.menuItem}>
+            <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('PatientReceipts')}>
               <Image style={styles.menuImg} source={require('../../assets/menu3.png')} />
               <Text style={styles.menuText}>Patient receipts</Text>
             </TouchableOpacity>
