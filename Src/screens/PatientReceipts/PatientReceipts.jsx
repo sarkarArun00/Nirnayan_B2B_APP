@@ -5,7 +5,7 @@ import { GlobalStyles } from '../../GlobalStyles';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { Picker } from '@react-native-picker/picker';
 import LinearGradient from 'react-native-linear-gradient';
-
+ 
 function billReceipt() {
     const navigation = useNavigation();
     const [filterModalVisible, setFilterModalVisible] = useState(false);
@@ -15,14 +15,13 @@ function billReceipt() {
 
     const labels = ['Net Amount', 'Total Price', 'Final Cost'];
     const prices = ['₹ 1,350', '₹ 1,650', '₹ 1,359'];
-    const [currentPriceIndex, setCurrentPriceIndex] = useState(0);
-    const [currentIndex, setCurrentIndex] = useState(0);
-
+    
     const handlePress = () => {
         setCurrentPriceIndex((prevIndex) => (prevIndex + 1) % prices.length);
         setCurrentIndex((prevIndex) => (prevIndex + 1) % labels.length);
     };
-
+    const [currentPriceIndex, setCurrentPriceIndex] = useState(0);
+    const [currentIndex, setCurrentIndex] = useState(0);
 
 
     return (
@@ -261,10 +260,9 @@ function billReceipt() {
                         </LinearGradient>
                     </View>
 
-
                 </View>
-
-
+                
+                
 
                 {/* Filter Modal */}
                 <Modal
@@ -313,7 +311,57 @@ function billReceipt() {
                                     </TouchableOpacity>
                                 </View>
                                 <View style={GlobalStyles.inpBox}>
-                                    <Text style={GlobalStyles.label}>Search Type <Text style={{ color: '#FA2C2C' }}>*</Text></Text>
+                                    <Text style={GlobalStyles.label}>Sample IDs</Text>
+                                    <TouchableOpacity style={GlobalStyles.inputContainer}>
+                                        <TextInput
+                                            placeholder="Search Here"
+                                            style={GlobalStyles.input}
+                                            placeholderTextColor="#C2C2C2"
+                                        />
+                                    </TouchableOpacity>
+                                </View>
+                                <View style={GlobalStyles.inpBox}>
+                                    <Text style={GlobalStyles.label}>Patient Information</Text>
+                                    <TouchableOpacity style={GlobalStyles.inputContainer}>
+                                        <TextInput
+                                            placeholder="Search Here"
+                                            style={GlobalStyles.input}
+                                            placeholderTextColor="#C2C2C2"
+                                        />
+                                    </TouchableOpacity>
+                                </View>
+                                <View style={GlobalStyles.inpBox}>
+                                    <Text style={GlobalStyles.label}>Mobile Number</Text>
+                                    <TouchableOpacity style={GlobalStyles.inputContainer}>
+                                        <TextInput
+                                            placeholder="Enter Number"
+                                            style={GlobalStyles.input}
+                                            placeholderTextColor="#C2C2C2"
+                                        />
+                                    </TouchableOpacity>
+                                </View>
+                                <View style={GlobalStyles.inpBox}>
+                                    <Text style={GlobalStyles.label}>Partner</Text>
+                                    <TouchableOpacity style={GlobalStyles.inputContainer}>
+                                        <TextInput
+                                            placeholder="Search Here"
+                                            style={GlobalStyles.input}
+                                            placeholderTextColor="#C2C2C2"
+                                        />
+                                    </TouchableOpacity>
+                                </View>
+                                <View style={GlobalStyles.inpBox}>
+                                    <Text style={GlobalStyles.label}>Doctor</Text>
+                                    <TouchableOpacity style={GlobalStyles.inputContainer}>
+                                        <TextInput
+                                            placeholder="Search Here"
+                                            style={GlobalStyles.input}
+                                            placeholderTextColor="#C2C2C2"
+                                        />
+                                    </TouchableOpacity>
+                                </View>
+                                <View style={GlobalStyles.inpBox}>
+                                    <Text style={GlobalStyles.label}>Status</Text>
                                     <View style={GlobalStyles.inputContainer}>
                                         <View style={GlobalStyles.input}>
                                             <Picker
@@ -324,9 +372,9 @@ function billReceipt() {
                                                     color: '#C2C2C2',
                                                 }}
                                             >
-                                                <Picker.Item label="Select Type" value="" />
-                                                <Picker.Item label="Partner" value="partner" />
-                                                <Picker.Item label="Report" value="report" />
+                                                <Picker.Item label="Select" value="" />
+                                                <Picker.Item label="Active" value="Active" />
+                                                <Picker.Item label="Inactive" value="Inactive" />
                                             </Picker>
                                         </View>
                                     </View>
