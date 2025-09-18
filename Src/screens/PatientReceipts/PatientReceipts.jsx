@@ -42,6 +42,7 @@ function billReceipt() {
     const [selectedDocType, setSelectedDocType] = useState(null);
     const [showDocTypePicker, setShowDocTypePicker] = useState(false);
 
+
     // open phone camera
     const openCamera = () => {
         setShowImagePicker(false);
@@ -126,11 +127,12 @@ function billReceipt() {
                 <Icon name="document-text-outline" size={22} color="#555" />
                 <View style={{ flex: 1 }}>
                     <Text style={styles.fileName}>{item.fileName}</Text>
-                    <Text style={styles.progressText}>
-                        {item.progress < 100
-                            ? `Uploading... ${item.progress}%`
-                            : 'Uploaded'}
-                    </Text>
+                    {item.progress < 100 && (
+                        <Text style={styles.progressText}>
+                            <Text>Uploading...</Text>
+                            {` ${item.progress}% | . ${Math.ceil(((100 - item.progress) / 10) * 0.5)}s remaining`}
+                        </Text>
+                    )}
                     <Text style={styles.statusMsg}>
                         {(item.fileSize / 1024).toFixed(2)} KB
                     </Text>
