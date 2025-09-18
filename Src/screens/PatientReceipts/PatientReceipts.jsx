@@ -1,21 +1,34 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, SafeAreaView, ScrollView, ImageBackground, Image, TouchableOpacity, Text, View, TextInput, Modal } from 'react-native';
+import { StyleSheet, SafeAreaView, ScrollView, ImageBackground, Image, TouchableOpacity, Text, View, TextInput, Modal, FlatList, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { GlobalStyles } from '../../GlobalStyles';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { Picker } from '@react-native-picker/picker';
 import LinearGradient from 'react-native-linear-gradient';
- 
+import * as ImagePicker from 'react-native-image-picker';
+
+const documentTypes = [
+    { id: 'bill', name: 'Medical Bill', required: true },
+    { id: 'prescription', name: 'Prescription', required: true },
+    { id: 'lab_report', name: 'Lab Report', required: false },
+    { id: 'insurance', name: 'Insurance Card', required: false },
+    { id: 'aadhar', name: 'Aadhaar Card', required: false },
+    { id: 'pan', name: 'PAN Card', required: false },
+    { id: 'receipt', name: 'Payment Receipt', required: false },
+    { id: 'discharge', name: 'Discharge Summary', required: false }
+];
+
 function billReceipt() {
     const navigation = useNavigation();
     const [filterModalVisible, setFilterModalVisible] = useState(false);
     const [selectedType, setSelectedType] = useState('');
     const [fromDate, setFromDate] = useState('');
     const [toDate, setToDate] = useState('');
+    const [uploadMdl, setUploadMdl] = useState(false);
 
     const labels = ['Net Amount', 'Total Price', 'Final Cost'];
     const prices = ['₹ 1,350', '₹ 1,650', '₹ 1,359'];
-    
+
     const handlePress = () => {
         setCurrentPriceIndex((prevIndex) => (prevIndex + 1) % prices.length);
         setCurrentIndex((prevIndex) => (prevIndex + 1) % labels.length);
@@ -23,7 +36,113 @@ function billReceipt() {
     const [currentPriceIndex, setCurrentPriceIndex] = useState(0);
     const [currentIndex, setCurrentIndex] = useState(0);
 
+    ////////////////////
+    const [uploads, setUploads] = useState([]);
+    const [showImagePicker, setShowImagePicker] = useState(false);
+    const [selectedDocType, setSelectedDocType] = useState(null);
+    const [showDocTypePicker, setShowDocTypePicker] = useState(false);
 
+    // open phone camera
+    const openCamera = () => {
+        setShowImagePicker(false);
+        ImagePicker.launchCamera({ mediaType: 'photo' }, response => {
+            if (response.assets && response.assets.length > 0) {
+                const asset = response.assets[0];
+                addFile(asset.uri, asset.fileName, asset.type, asset.fileSize);
+            }
+        });
+    };
+
+    // open phone gallery
+    const openGallery = () => {
+        setShowImagePicker(false);
+        ImagePicker.launchImageLibrary({ mediaType: 'photo', selectionLimit: 5 }, response => {
+            if (response.assets && response.assets.length > 0) {
+                response.assets.forEach(asset =>
+                    addFile(asset.uri, asset.fileName, asset.type, asset.fileSize)
+                );
+            }
+        });
+    };
+
+    // add new file (max 5 files)
+    const addFile = (uri, fileName, fileType, fileSize) => {
+        if (uploads.length >= 5) {
+            Alert.alert('Limit Reached', 'You can only upload up to 5 files.');
+            return;
+        }
+
+        const newFile = {
+            id: Date.now().toString(),
+            uri,
+            fileName: fileName || `file_${uploads.length + 1}`,
+            fileType: fileType || 'unknown',
+            fileSize: fileSize || 0, // ✅ store the size
+            progress: 0,
+        };
+
+        setUploads((prev) => [...prev, newFile]);
+        simulateUpload(newFile.id);
+    };
+
+    // simulate file upload progress
+    const simulateUpload = (fileId) => {
+        let progress = 0;
+        const interval = setInterval(() => {
+            progress += 10;
+            setUploads(prev =>
+                prev.map(file =>
+                    file.id === fileId ? { ...file, progress: progress > 100 ? 100 : progress } : file
+                )
+            );
+            if (progress >= 100) clearInterval(interval);
+        }, 500);
+    };
+
+    // delete file
+    const deleteFile = (fileId) => {
+        setUploads(prev => prev.filter(file => file.id !== fileId));
+    };
+
+    // handle submit
+    const handleSubmit = () => {
+        if (!selectedDocType) {
+            Alert.alert('Error', 'Please select a document type before submitting.');
+            return;
+        }
+        if (uploads.length === 0) {
+            Alert.alert('Error', 'Please upload at least one file before submitting.');
+            return;
+        }
+        Alert.alert(
+            'Success',
+            `Submitted ${uploads.length} files under "${selectedDocType.name}"`
+        );
+    };
+
+    const renderItem = ({ item }) => {
+        return (
+            <View style={styles.fileRow}>
+                <Icon name="document-text-outline" size={22} color="#555" />
+                <View style={{ flex: 1 }}>
+                    <Text style={styles.fileName}>{item.fileName}</Text>
+                    <Text style={styles.progressText}>
+                        {item.progress < 100
+                            ? `Uploading... ${item.progress}%`
+                            : 'Uploaded'}
+                    </Text>
+                    <Text style={styles.statusMsg}>
+                        {(item.fileSize / 1024).toFixed(2)} KB
+                    </Text>
+                </View>
+                <TouchableOpacity onPress={() => deleteFile(item.id)}>
+                    <Icon name="trash-outline" size={20} color="red" />
+                </TouchableOpacity>
+            </View>
+        );
+    };
+
+    ////////////////////
     return (
         <SafeAreaView style={{ flex: 1, }}>
             <ScrollView style={{ flex: 1, }}>
@@ -122,7 +241,7 @@ function billReceipt() {
                                 <TouchableOpacity style={styles.editBtn}>
                                     <Text style={styles.editBtnText}>Edit</Text>
                                 </TouchableOpacity>
-                                <TouchableOpacity style={styles.uploadBtn}>
+                                <TouchableOpacity style={styles.uploadBtn} onPress={() => setUploadMdl(true)}>
                                     <Text style={styles.uploadBtnText}>Upload</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity style={styles.downBtn}>
@@ -261,8 +380,133 @@ function billReceipt() {
                     </View>
 
                 </View>
-                
-                
+
+                {/* Upload Section */}
+                <Modal
+                    transparent={true}
+                    visible={uploadMdl}
+                    animationType="slide"
+                    onRequestClose={() => setUploadMdl(false)}
+                >
+                    <View style={GlobalStyles.modalOverlay}>
+                        <View style={GlobalStyles.modalContainer}>
+                            <TouchableOpacity
+                                style={GlobalStyles.modalClose}
+                                onPress={() => setUploadMdl(false)}
+                            >
+                                <Text style={GlobalStyles.closeIcon}>✕</Text>
+                            </TouchableOpacity>
+
+                            <Text style={GlobalStyles.mdlTitle}>Upload Documents</Text>
+                            <Text style={GlobalStyles.mdlSubTitle}>Add your documents here, and you can upload up to 5 files max
+                            </Text>
+
+                            <ScrollView
+                                showsVerticalScrollIndicator={false}
+                                showsHorizontalScrollIndicator={false}
+                            >
+                                {/* Select Document Type */}
+                                <TouchableOpacity
+                                    style={styles.selectDocType}
+                                    onPress={() => setShowDocTypePicker(true)}
+                                >
+                                    <Text style={{ fontSize: 16, color: selectedDocType ? '#000' : '#999' }}>
+                                        {selectedDocType ? selectedDocType.name : 'Select Document Type'}
+                                    </Text>
+                                    <Icon name="chevron-down" size={20} color="#666" />
+                                </TouchableOpacity>
+
+                                {/* File List */}
+                                <FlatList
+                                    data={uploads}
+                                    renderItem={renderItem}
+                                    keyExtractor={item => item.id}
+                                    contentContainerStyle={{ paddingBottom: 20 }}
+                                />
+
+                                {/* Add Files Button (disabled until doc type chosen) */}
+                                {uploads.length < 5 && (
+                                    <TouchableOpacity
+                                        style={[
+                                            styles.addButton,
+                                            { backgroundColor: selectedDocType ? '#00A635' : '#ccc' }
+                                        ]}
+                                        onPress={() => {
+                                            if (!selectedDocType) {
+                                                Alert.alert('Select Document Type', 'Please select a document type first.');
+                                                return;
+                                            }
+                                            setShowImagePicker(true);
+                                        }}
+                                    >
+                                        <Text style={styles.btnText}>Add Files</Text>
+                                    </TouchableOpacity>
+                                )}
+
+                                {/* Submit Button */}
+                                <TouchableOpacity
+                                    style={[GlobalStyles.applyBtn, { opacity: uploads.length === 0 ? 0.5 : 1 }]}
+                                    disabled={uploads.length === 0}
+                                    onPress={handleSubmit}
+                                >
+                                    <Text style={GlobalStyles.applyBtnText}>Submit</Text>
+                                </TouchableOpacity>
+                            </ScrollView>
+                        </View>
+                    </View>
+                </Modal>
+
+                {/* Document Type Picker Modal */}
+                <Modal visible={showDocTypePicker} transparent animationType="slide">
+                    <View style={styles.modalOverlay}>
+                        <View style={styles.pickerModal}>
+                            <Text style={styles.modalTitle}>Select Document Type</Text>
+                            {documentTypes.map(doc => (
+                                <TouchableOpacity
+                                    key={doc.id}
+                                    style={styles.optionBtn}
+                                    onPress={() => {
+                                        setSelectedDocType(doc);
+                                        setShowDocTypePicker(false);
+                                    }}
+                                >
+                                    <Text style={styles.optionText}>{doc.name}</Text>
+                                    {doc.required && <Text style={{ color: 'red', fontSize: 12 }}>Required</Text>}
+                                </TouchableOpacity>
+                            ))}
+                            <TouchableOpacity
+                                style={[styles.optionBtn, { backgroundColor: '#eee' }]}
+                                onPress={() => setShowDocTypePicker(false)}
+                            >
+                                <Text style={{ color: 'red', fontWeight: 'bold' }}>Cancel</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </Modal>
+
+                {/* Image Picker Modal */}
+                <Modal visible={showImagePicker} transparent animationType="slide">
+                    <View style={styles.modalOverlay}>
+                        <View style={styles.pickerModal}>
+                            <Text style={styles.modalTitle}>Choose Source</Text>
+                            <TouchableOpacity style={styles.optionBtn} onPress={openCamera}>
+                                <Icon name="camera" size={20} color="#333" />
+                                <Text style={styles.optionText}>Camera</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.optionBtn} onPress={openGallery}>
+                                <Icon name="image" size={20} color="#333" />
+                                <Text style={styles.optionText}>Gallery</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={[styles.optionBtn, { backgroundColor: '#eee' }]}
+                                onPress={() => setShowImagePicker(false)}
+                            >
+                                <Text style={{ color: 'red', fontWeight: 'bold' }}>Cancel</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </Modal>
+                {/* Upload Section */}
 
                 {/* Filter Modal */}
                 <Modal
@@ -387,10 +631,10 @@ function billReceipt() {
                     </View>
                 </Modal>
 
+
+
             </ScrollView>
         </SafeAreaView>
-
-
     )
 }
 
@@ -596,7 +840,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     // Search Bar
-
 
 
 
