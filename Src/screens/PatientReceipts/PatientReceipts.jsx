@@ -39,7 +39,8 @@ function billReceipt() {
     const [showImagePicker, setShowImagePicker] = useState(false);
     const [selectedDocType, setSelectedDocType] = useState(null);
     const [showDocTypePicker, setShowDocTypePicker] = useState(false);
-
+    const completedCount = uploads.filter(f => f.progress === 100).length;
+    const remainingCount = 5 - completedCount
 
     // open phone camera
     const openCamera = () => {
@@ -126,10 +127,18 @@ function billReceipt() {
                 <View style={{ flex: 1 }}>
                     <Text style={styles.fileName}>{item.fileName}</Text>
                     {item.progress < 100 && (
-                        <Text style={styles.progressText}>
-                            <Text>Uploading...</Text>
-                            {` ${item.progress}% | . ${Math.ceil(((100 - item.progress) / 10) * 0.5)}s remaining`}
-                        </Text>
+                        <>
+                            <Text style={styles.progressText}>
+                                Uploading... {item.progress}% | ~{Math.ceil(((100 - item.progress) / 10) * 0.5)}s remaining
+                            </Text>
+                            {uploads.length > 0 && (
+                                <Text style={styles.statusMsg}>
+                                    {completedCount > 0
+                                        ? `Great! ${completedCount} ${completedCount > 1 ? 'files' : 'file'} uploaded — ${remainingCount} more to go.`
+                                        : `You can upload up to 5 files.`}
+                                </Text>
+                            )}
+                        </>
                     )}
                     {item.progress === 100 && (
                         <Text style={styles.statusMsg}>
