@@ -8,8 +8,6 @@ import LinearGradient from 'react-native-linear-gradient';
 import * as ImagePicker from 'react-native-image-picker';
 
 const documentTypes = [
-    { id: 'bill', name: 'Medical Bill', required: true },
-    { id: 'prescription', name: 'Prescription', required: true },
     { id: 'lab_report', name: 'Lab Report', required: false },
     { id: 'insurance', name: 'Insurance Card', required: false },
     { id: 'aadhar', name: 'Aadhaar Card', required: false },
@@ -133,9 +131,12 @@ function billReceipt() {
                             {` ${item.progress}% | . ${Math.ceil(((100 - item.progress) / 10) * 0.5)}s remaining`}
                         </Text>
                     )}
-                    <Text style={styles.statusMsg}>
-                        {(item.fileSize / 1024).toFixed(2)} KB
-                    </Text>
+                    {item.progress === 100 && (
+                        <Text style={styles.statusMsg}>
+                            {(item.fileSize / 1024).toFixed(2)} KB
+                        </Text>
+                    )}
+
                 </View>
                 <TouchableOpacity onPress={() => deleteFile(item.id)}>
                     <Icon name="trash-outline" size={20} color="red" />
@@ -398,7 +399,7 @@ function billReceipt() {
                             >
                                 <Text style={GlobalStyles.closeIcon}>✕</Text>
                             </TouchableOpacity>
-
+                            <Image source={require('../../../assets/upload-frame.png')} style={{ width: 151, height: 151, resizeMode: 'contain', alignSelf: 'center', marginBottom: 25, }} />
                             <Text style={GlobalStyles.mdlTitle}>Upload Documents</Text>
                             <Text style={GlobalStyles.mdlSubTitle}>Add your documents here, and you can upload up to 5 files max
                             </Text>
@@ -477,10 +478,10 @@ function billReceipt() {
                                 </TouchableOpacity>
                             ))}
                             <TouchableOpacity
-                                style={[styles.optionBtn, { backgroundColor: '#eee' }]}
+                                style={[styles.optionBtn, { backgroundColor: '#eee', justifyContent: 'center', }]}
                                 onPress={() => setShowDocTypePicker(false)}
                             >
-                                <Text style={{ color: 'red', fontWeight: 'bold' }}>Cancel</Text>
+                                <Text style={{ fontFamily: 'Poppins-Medium', color: 'red', }}>Cancel</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
@@ -492,18 +493,18 @@ function billReceipt() {
                         <View style={styles.pickerModal}>
                             <Text style={styles.modalTitle}>Choose Source</Text>
                             <TouchableOpacity style={styles.optionBtn} onPress={openCamera}>
-                                <Icon name="camera" size={20} color="#333" />
+                                <Icon name="camera" size={23} color="#333" />
                                 <Text style={styles.optionText}>Camera</Text>
                             </TouchableOpacity>
                             <TouchableOpacity style={styles.optionBtn} onPress={openGallery}>
-                                <Icon name="image" size={20} color="#333" />
+                                <Icon name="image" size={23} color="#333" />
                                 <Text style={styles.optionText}>Gallery</Text>
                             </TouchableOpacity>
                             <TouchableOpacity
-                                style={[styles.optionBtn, { backgroundColor: '#eee' }]}
+                                style={[styles.optionBtn, { backgroundColor: '#eee', justifyContent: 'center' }]}
                                 onPress={() => setShowImagePicker(false)}
                             >
-                                <Text style={{ color: 'red', fontWeight: 'bold' }}>Cancel</Text>
+                                <Text style={{ fontFamily: 'Poppins-Medium', color: 'red', }}>Cancel</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
@@ -843,8 +844,51 @@ const styles = StyleSheet.create({
     },
     // Search Bar
 
-
-
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    pickerModal: {
+        width: '85%',
+        backgroundColor: '#fff',
+        borderRadius: 15,
+        paddingVertical: 20,
+        paddingHorizontal: 15,
+        alignItems: 'stretch',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5,
+    },
+    modalTitle: {
+        fontFamily: 'Poppins-SemiBold',
+        fontSize: 16,
+        color: '#000',
+        marginBottom: 15,
+        textAlign: 'center',
+    },
+    optionBtn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        // justifyContent: 'space-between',
+        paddingVertical: 12,
+        paddingHorizontal: 0,
+        borderBottomWidth: 0.5,
+        borderBottomColor: '#ccc',
+        backgroundColor: '#fff',
+        borderRadius: 8,
+        marginBottom: 0,
+    },
+    optionText: {
+        fontFamily: 'Poppins-Medium',
+        fontSize: 14,
+        lineHeight: 16,
+        color: '#333',
+        paddingLeft: 10,
+    },
 
 
 
