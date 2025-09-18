@@ -127,7 +127,6 @@ function billReceipt() {
                 <View style={{ flexDirection: 'row', alignItems: 'flex-start', flex: 1, paddingRight: 10, }}>
                     <Icon name="document-text-outline" size={25} color="#555" style={{ paddingTop: 2, }} />
                     <View style={{ flex: 1, paddingLeft: 8, }}>
-
                         {item.progress < 100 && (
                             <>
                                 <Text style={{ fontFamily: 'Poppins-SemiBold', fontSize: 13, lineHeight: 15, color: '#000', paddingBottom: 5, }}>Uploading...</Text>
@@ -159,12 +158,10 @@ function billReceipt() {
                                 </Text>
                             </>
                         )}
-
-
                     </View>
                 </View>
-                <TouchableOpacity onPress={() => deleteFile(item.id)}>
-                    <Icon name="trash-outline" size={20} color="red" />
+                <TouchableOpacity onPress={() => deleteFile(item.id)} style={{ marginTop: 8, width: 20, height: 20, borderRadius: 10, borderWidth: 1, borderColor: '#FF3636', backgroundColor: 'rgba(255,54,54,0.2)', justifyContent: 'center', alignItems: 'center', }}>
+                    <Icon name="close" size={14} color="#FF3636" />
                 </TouchableOpacity>
             </View>
         );
