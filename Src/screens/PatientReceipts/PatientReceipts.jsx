@@ -77,8 +77,9 @@ function billReceipt() {
             uri,
             fileName: fileName || `file_${uploads.length + 1}`,
             fileType: fileType || 'unknown',
-            fileSize: fileSize || 0, // ✅ store the size
+            fileSize: fileSize || 0,
             progress: 0,
+            docType: selectedDocType ? selectedDocType.name : 'Unknown',
         };
 
         setUploads((prev) => [...prev, newFile]);
@@ -122,30 +123,45 @@ function billReceipt() {
 
     const renderItem = ({ item }) => {
         return (
-            <View style={styles.fileRow}>
-                <Icon name="document-text-outline" size={22} color="#555" />
-                <View style={{ flex: 1 }}>
-                    <Text style={styles.fileName}>{item.fileName}</Text>
-                    {item.progress < 100 && (
-                        <>
-                            <Text style={styles.progressText}>
-                                Uploading... {item.progress}% | ~{Math.ceil(((100 - item.progress) / 10) * 0.5)}s remaining
-                            </Text>
-                            {uploads.length > 0 && (
-                                <Text style={styles.statusMsg}>
-                                    {completedCount > 0
-                                        ? `Great! ${completedCount} ${completedCount > 1 ? 'files' : 'file'} uploaded — ${remainingCount} more to go.`
-                                        : `You can upload up to 5 files.`}
-                                </Text>
-                            )}
-                        </>
-                    )}
-                    {item.progress === 100 && (
-                        <Text style={styles.statusMsg}>
-                            {(item.fileSize / 1024).toFixed(2)} KB
-                        </Text>
-                    )}
+            <View style={{ flexDirection: 'row', borderWidth: 1, borderColor: '#E7E7E7', borderRadius: 6, padding: 15, marginBottom: 10, }}>
+                <View style={{ flexDirection: 'row', alignItems: 'flex-start', flex: 1, paddingRight: 10, }}>
+                    <Icon name="document-text-outline" size={25} color="#555" style={{ paddingTop: 2, }} />
+                    <View style={{ flex: 1, paddingLeft: 8, }}>
 
+                        {item.progress < 100 && (
+                            <>
+                                <Text style={{ fontFamily: 'Poppins-SemiBold', fontSize: 13, lineHeight: 15, color: '#000', paddingBottom: 5, }}>Uploading...</Text>
+                                <Text style={{ fontFamily: 'Poppins-Medium', fontSize: 12, lineHeight: 14, color: '#6D6D6D', paddingBottom: 5, }}>
+                                    {item.progress}% | ~{Math.ceil(((100 - item.progress) / 10) * 0.5)}s remaining
+                                </Text>
+                                <View style={styles.progressBarContainer}>
+                                    <View style={[styles.progressBarFill, { width: `${item.progress}%` }]} />
+                                </View>
+                                {uploads.length > 0 && (
+                                    <Text style={{ fontFamily: 'Poppins-Medium', fontSize: 12, lineHeight: 14, color: '#6D6D6D', }}>
+                                        {completedCount > 0
+                                            ? `Great! ${completedCount} ${completedCount > 1 ? 'files' : 'file'} uploaded — ${remainingCount} more to go.`
+                                            : `You can upload up to 5 files.`}
+                                    </Text>
+                                )}
+                            </>
+                        )}
+                        {item.progress === 100 && (
+                            <>
+                                <Text style={{ fontFamily: 'Poppins-SemiBold', fontSize: 11, lineHeight: 13, color: '#000' }}>
+                                    {item.docType}
+                                </Text>
+                                <Text style={{ fontFamily: 'Poppins-Medium', fontSize: 11, lineHeight: 13, color: '#6D6D6D', paddingBottom: 3 }}>
+                                    {item.fileName}
+                                </Text>
+                                <Text style={{ fontFamily: 'Poppins-Medium', fontSize: 11, lineHeight: 13, color: '#6D6D6D' }}>
+                                    {(item.fileSize / 1024).toFixed(2)} KB
+                                </Text>
+                            </>
+                        )}
+
+
+                    </View>
                 </View>
                 <TouchableOpacity onPress={() => deleteFile(item.id)}>
                     <Icon name="trash-outline" size={20} color="red" />
@@ -852,7 +868,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     // Search Bar
-
+    // Upload Documents Start
     modalOverlay: {
         flex: 1,
         backgroundColor: 'rgba(0,0,0,0.5)',
@@ -882,7 +898,6 @@ const styles = StyleSheet.create({
     optionBtn: {
         flexDirection: 'row',
         alignItems: 'center',
-        // justifyContent: 'space-between',
         paddingVertical: 12,
         paddingHorizontal: 0,
         borderBottomWidth: 0.5,
@@ -898,6 +913,19 @@ const styles = StyleSheet.create({
         color: '#333',
         paddingLeft: 10,
     },
+    progressBarContainer: {
+        height: 6,
+        width: '100%',
+        backgroundColor: '#E0E0E0',
+        borderRadius: 3,
+        marginBottom: 5,
+    },
+    progressBarFill: {
+        height: '100%',
+        backgroundColor: '#00A635',
+        borderRadius: 3,
+    },
+    // Upload Documents End
 
 
 
