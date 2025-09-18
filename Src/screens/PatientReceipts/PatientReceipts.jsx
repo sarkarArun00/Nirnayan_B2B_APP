@@ -123,7 +123,7 @@ function billReceipt() {
 
     const renderItem = ({ item }) => {
         return (
-            <View style={{ flexDirection: 'row', borderWidth: 1, borderColor: '#E7E7E7', borderRadius: 6, padding: 15, marginBottom: 10, }}>
+            <View style={{ flexDirection: 'row', borderWidth: 1, borderColor: '#E7E7E7', borderRadius: 6, padding: 15, marginTop: 10, }}>
                 <View style={{ flexDirection: 'row', alignItems: 'flex-start', flex: 1, paddingRight: 10, }}>
                     <Icon name="document-text-outline" size={25} color="#555" style={{ paddingTop: 2, }} />
                     <View style={{ flex: 1, paddingLeft: 8, }}>
@@ -432,21 +432,23 @@ function billReceipt() {
                             >
                                 {/* Select Document Type */}
                                 <TouchableOpacity
-                                    style={styles.selectDocType}
+                                    style={{ position:'relative', borderWidth:1, borderColor:'#C2C2C2', borderRadius:6, paddingVertical:15, paddingRight:12, paddingLeft:40, }}
                                     onPress={() => setShowDocTypePicker(true)}
                                 >
-                                    <Text style={{ fontSize: 16, color: selectedDocType ? '#000' : '#999' }}>
+                                    <Text style={{ fontFamily:'Poppins-Regular', fontSize: 14, lineHeight:16, color: selectedDocType ? '#000' : '#999' }}>
                                         {selectedDocType ? selectedDocType.name : 'Select Document Type'}
                                     </Text>
-                                    <Icon name="chevron-down" size={20} color="#666" />
+                                    <Icon name="chevron-down" size={20} color="#666" style={{position:'absolute', right:15, top:15, }} />
+                                    <Image source={require('../../../assets/selectUpload.png')} style={{position:'absolute', left:12, top:14, width:18, height:18, resizeMode:'contain',  }} />
                                 </TouchableOpacity>
+                                <Text style={{ fontFamily: 'Poppins-Medium', fontSize: 12, lineHeight: 14, color: '#6D6D6D', paddingTop:8, }}>Only support .jpg, .png and .pdf .doc files</Text>
 
                                 {/* File List */}
                                 <FlatList
                                     data={uploads}
                                     renderItem={renderItem}
                                     keyExtractor={item => item.id}
-                                    contentContainerStyle={{ paddingBottom: 20 }}
+                                    contentContainerStyle={{ paddingBottom:18, }}
                                 />
 
                                 {/* Add Files Button (disabled until doc type chosen) */}
@@ -454,7 +456,7 @@ function billReceipt() {
                                     <TouchableOpacity
                                         style={[
                                             styles.addButton,
-                                            { backgroundColor: selectedDocType ? '#00A635' : '#ccc' }
+                                            { borderWidth:1, borderColor:'#00A635', borderRadius:6, paddingVertical:15,  }
                                         ]}
                                         onPress={() => {
                                             if (!selectedDocType) {
@@ -464,17 +466,17 @@ function billReceipt() {
                                             setShowImagePicker(true);
                                         }}
                                     >
-                                        <Text style={styles.btnText}>Add Files</Text>
+                                        <Text style={{ fontFamily: 'Poppins-SemiBold', fontSize: 14, lineHeight: 16, color: '#000', textAlign:'center', }}>Add Files</Text>
                                     </TouchableOpacity>
                                 )}
 
                                 {/* Submit Button */}
                                 <TouchableOpacity
-                                    style={[GlobalStyles.applyBtn, { opacity: uploads.length === 0 ? 0.5 : 1 }]}
+                                    style={[GlobalStyles.applyBtnNew, { opacity: uploads.length === 0 ? 0.5 : 1 }]}
                                     disabled={uploads.length === 0}
                                     onPress={handleSubmit}
                                 >
-                                    <Text style={GlobalStyles.applyBtnText}>Submit</Text>
+                                    <Text style={GlobalStyles.applyBtnTextNew}>Submit</Text>
                                 </TouchableOpacity>
                             </ScrollView>
                         </View>

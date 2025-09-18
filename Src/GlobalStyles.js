@@ -112,11 +112,25 @@ export const GlobalStyles = StyleSheet.create({
     paddingHorizontal: 38,
     marginTop: 10,
   },
+  applyBtnNew: {
+    backgroundColor: '#00A651',
+    borderRadius: 6,
+    paddingVertical: 13,
+    paddingHorizontal: 38,
+    marginTop: 10,
+  },
   applyBtnText: {
     fontFamily: 'Poppins-Medium',
     fontSize: 13,
     lineHeight: 15,
     color: '#fff',
+  },
+  applyBtnTextNew: {
+    fontFamily: 'Poppins-Medium',
+    fontSize: 13,
+    lineHeight: 15,
+    color: '#fff',
+    textAlign:'center',
   },
   tempSwitch: {
     flexDirection: 'row',
