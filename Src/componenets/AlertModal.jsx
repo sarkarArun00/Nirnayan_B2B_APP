@@ -1,5 +1,6 @@
 import React from 'react';
-import { Modal, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { Modal, View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
 
 const AlertModal = ({ visible, type, message, onClose }) => {
 
@@ -15,13 +16,40 @@ const AlertModal = ({ visible, type, message, onClose }) => {
 
   const getColor = () => {
     switch (type) {
-      case 'success': return '#28a745'; // Green
-      case 'error': return '#dc3545';   // Red
-      case 'warning': return '#ffc107'; // Yellow/Orange
-      case 'delete': return '#dc3545'; // Yellow/Orange
+      case 'success': return '#00A635'; // Green
+      case 'error': return '#D84242';   // Red
+      case 'warning': return '#DFCD00'; // Yellow/Orange
+      case 'delete': return '#D84242'; // Yellow/Orange
       default: return '#28a745';
     }
   };
+
+  const getGradientColors = () => {
+    switch (type) {
+      case 'success':
+        return ['#CCFFDC', '#ffffff'];
+      case 'error':
+        return ['#FFC2C3', '#ffffff'];
+      case 'warning':
+        return ['#FFEBCC', '#ffffff'];
+      case 'delete':
+        return ['#FFCCCC', '#ffffff'];
+      default:
+        return ['#CCFFDC', '#ffffff'];
+    }
+  };
+
+  const getImage = () => {
+    switch (type) {
+      case 'success': return require('../../assets/success.gif');
+      case 'error': return require('../../assets/error2.gif');
+      case 'warning': return require('../../assets/warning.gif');
+      case 'delete': return require('../../assets/delete.gif');
+      default: return require('../../assets/success.gif');
+    }
+  };
+
+
 
   const color = getColor();
 
@@ -33,13 +61,29 @@ const AlertModal = ({ visible, type, message, onClose }) => {
       onRequestClose={onClose}
     >
       <View style={styles.overlay}>
-        <View style={styles.modalContainer}>
-          <Text style={[styles.title, { color }]}>{getTitle()}</Text>
-          <Text style={[styles.message, { color }]}>{message}</Text>
 
-          <TouchableOpacity style={[styles.okButton, { backgroundColor: color }]} onPress={onClose}>
-            <Text style={styles.okButtonText}>OK</Text>
-          </TouchableOpacity>
+        <View style={styles.modalContainer}>
+          <LinearGradient
+            colors={getGradientColors()}
+            style={{ width: '100%', padding: 40, }}
+          >
+            <Image source={getImage()} style={{alignSelf:'center', }} />
+            <Text style={[styles.title,]}>{getTitle()}</Text>
+            <Text style={[styles.message,]}>{message}</Text>
+
+            <TouchableOpacity style={[styles.okButton, { backgroundColor: color }]} onPress={onClose}>
+              <Text style={styles.okButtonText}>{type != 'delete' ? 'OK' : 'Yes, Delete'}</Text>
+            </TouchableOpacity>
+            {type === 'delete' && (
+              <TouchableOpacity
+                onPress={onClose}
+              >
+                <Text style={{ fontFamily: 'Poppins-SemiBold', fontSize: 13, color: '#989898', textAlign: 'center', paddingTop: 15, }}>Cancel</Text>
+              </TouchableOpacity>
+            )}
+
+
+          </LinearGradient>
         </View>
       </View>
     </Modal>
@@ -48,39 +92,45 @@ const AlertModal = ({ visible, type, message, onClose }) => {
 export default AlertModal;
 
 const styles = StyleSheet.create({
-    overlay: {
-      flex: 1,
-      backgroundColor: 'rgba(0,0,0,0.5)',
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    modalContainer: {
-      width: '80%',
-      backgroundColor: '#ffffff',
-      padding: 20,
-      borderRadius: 10,
-      alignItems: 'center',
-    },
-    title: {
-      fontSize: 20,
-      fontWeight: 'bold',
-      marginBottom: 10,
-    },
-    message: {
-      fontSize: 16,
-      textAlign: 'center',
-      marginBottom: 20,
-    },
-    okButton: {
-      paddingVertical: 10,
-      paddingHorizontal: 25,
-      borderRadius: 5,
-    },
-    okButtonText: {
-      color: 'white',
-      fontSize: 16,
-      fontWeight: 'bold',
-    },
-  });
-  
-  
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContainer: {
+    width: '80%',
+    backgroundColor: '#ffffff',
+    borderRadius: 40,
+    overflow: 'hidden',
+    alignItems: 'center',
+  },
+  title: {
+    fontFamily: 'Poppins-SemiBold',
+    fontSize: 18,
+    lineHeight: 20,
+    color: '#3D3D3D',
+    textAlign: 'center',
+    marginBottom: 5,
+  },
+  message: {
+    fontFamily: 'Poppins-Regular',
+    fontSize: 13,
+    color: '#3D3D3D',
+    textAlign: 'center',
+    marginBottom: 12,
+  },
+  okButton: {
+    paddingVertical: 13,
+    paddingHorizontal: 30,
+    borderRadius: 25,
+    alignSelf: 'center',
+  },
+  okButtonText: {
+    fontFamily: 'Poppins-SemiBold',
+    color: '#ffffff',
+    fontSize: 13,
+    textAlign: 'center',
+  },
+});
+

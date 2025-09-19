@@ -186,25 +186,25 @@ function ViewAllRates() {
 
             
                         <TouchableOpacity
-                        onPress={() => showAlert('jhasjdhajshd', 'success')}
+                        onPress={() => showAlert('lorem ipsum dolor sit', 'success')}
                         >
                             <Text>Success</Text>
                         </TouchableOpacity>
 
                         <TouchableOpacity
-                        onPress={() => showAlert('jhasjdhajshd', 'warning')}
+                        onPress={() => showAlert('lorem ipsum dolor sit', 'warning')}
                         >
                             <Text>Warning</Text>
                         </TouchableOpacity>
 
                         <TouchableOpacity
-                        onPress={() => showAlert('jhasjdhajshd', 'error')}
+                        onPress={() => showAlert('lorem ipsum dolor sit a', 'error')}
                         >
                             <Text>Error</Text>
                         </TouchableOpacity>
 
                         <TouchableOpacity
-                        onPress={() => showAlert('jhasjdhajshd', 'delete')}
+                        onPress={() => showAlert('Are you sure you want to delete your account?', 'delete')}
                         >
                             <Text>Delete</Text>
                         </TouchableOpacity>
