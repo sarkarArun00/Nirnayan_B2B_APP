@@ -24,6 +24,7 @@ function Partner() {
     const [tempCash, setTempCash] = useState('');
     const [isEnabled, setIsEnabled] = useState(false);
     // const toggleSwitch = () => setIsEnabled(previousState => !previousState);
+    const [editPartnerModal, setEditPartnerModal] = useState(false);
 
     const [isVisible, setIsVisible] = useState(false);
 
@@ -477,7 +478,7 @@ function Partner() {
                             </View>
 
                             <View style={styles.actionIcons}>
-                                <TouchableOpacity>
+                                <TouchableOpacity onPress={() => setEditPartnerModal(true)}>
                                     <Image
                                         source={require('../../../../assets/edit.png')}
                                         style={styles.actionIcon}
@@ -574,7 +575,7 @@ function Partner() {
                                     <TouchableOpacity
                                         key={index}
                                         onPress={() => {
-                                            if (action.route) { 
+                                            if (action.route) {
                                                 let targetRoute = '';
 
                                                 if (activeTab === 'partner') {
@@ -968,6 +969,47 @@ function Partner() {
                     message={alertMessage}
                     onClose={() => setModalVisible(false)}
                 />
+                {/* Edit Partner Modal */}
+                <Modal
+                    transparent={true}
+                    visible={editPartnerModal}
+                    animationType="slide"
+                    onRequestClose={() => setEditPartnerModal(false)}
+                >
+                    <View style={GlobalStyles.modalOverlay}>
+                        <View style={GlobalStyles.modalContainer}>
+                            {/* Close Button */}
+                            <TouchableOpacity
+                                style={GlobalStyles.modalClose}
+                                onPress={() => setEditPartnerModal(false)}
+                            >
+                                <Text style={GlobalStyles.closeIcon}>✕</Text>
+                            </TouchableOpacity>
+                            <Text style={GlobalStyles.mdlTitle}>Edit Template</Text>
+                            <Text style={GlobalStyles.mdlSubTitle}>Short Subheading may be fit</Text>
+                            <ScrollView
+                                showsVerticalScrollIndicator={false}
+                                showsHorizontalScrollIndicator={false}
+                            >
+                                <View style={GlobalStyles.inpBox}>
+                                        <Text style={GlobalStyles.label}>
+                                            Template Name
+                                        </Text>
+                                        <TextInput
+                                            placeholder="Name Here"
+                                            style={GlobalStyles.input}
+                                            placeholderTextColor="#C2C2C2"
+                                        />
+                                    </View>
+                                <TouchableOpacity style={GlobalStyles.applyBtn}>
+                                    <Text style={GlobalStyles.applyBtnText}>Apply</Text>
+                                </TouchableOpacity>
+                            </ScrollView>
+                        </View>
+                    </View>
+                </Modal>
+
+                {/* Edit Partner Modal */}
             </ScrollView>
         </SafeAreaView>
     )
