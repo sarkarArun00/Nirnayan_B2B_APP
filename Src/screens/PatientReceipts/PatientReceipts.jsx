@@ -431,6 +431,7 @@ function billReceipt() {
                                 showsHorizontalScrollIndicator={false}
                             >
                                 {/* Select Document Type */}
+                                <Text style={GlobalStyles.label}>Document Type</Text>
                                 <TouchableOpacity
                                     style={{ position:'relative', borderWidth:1, borderColor:'#C2C2C2', borderRadius:6, paddingVertical:15, paddingRight:12, paddingLeft:40, }}
                                     onPress={() => setShowDocTypePicker(true)}
@@ -449,6 +450,7 @@ function billReceipt() {
                                     renderItem={renderItem}
                                     keyExtractor={item => item.id}
                                     contentContainerStyle={{ paddingBottom:18, }}
+                                    scrollEnabled={false}
                                 />
 
                                 {/* Add Files Button (disabled until doc type chosen) */}
