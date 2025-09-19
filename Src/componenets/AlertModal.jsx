@@ -41,11 +41,11 @@ const AlertModal = ({ visible, type, message, onClose }) => {
 
   const getImage = () => {
     switch (type) {
-      case 'success': return require('../../assets/success.gif');
-      case 'error': return require('../../assets/error2.gif');
-      case 'warning': return require('../../assets/warning.gif');
-      case 'delete': return require('../../assets/delete.gif');
-      default: return require('../../assets/success.gif');
+      case 'success': return require('../../assets/success.png');
+      case 'error': return require('../../assets/error.png');
+      case 'warning': return require('../../assets/warning2.png');
+      case 'delete': return require('../../assets/delete2.png');
+      default: return require('../../assets/success.png');
     }
   };
 
@@ -67,7 +67,7 @@ const AlertModal = ({ visible, type, message, onClose }) => {
             colors={getGradientColors()}
             style={{ width: '100%', padding: 40, }}
           >
-            <Image source={getImage()} style={{alignSelf:'center', }} />
+            <Image source={getImage()} style={{ width:'50', height:50, resizeMode:'contain', alignSelf:'center', marginBottom:20, }} />
             <Text style={[styles.title,]}>{getTitle()}</Text>
             <Text style={[styles.message,]}>{message}</Text>
 
