@@ -184,6 +184,25 @@ function ViewAllRates() {
                     </TouchableOpacity>
                 </View>
 
+            
+                        <TouchableOpacity
+                        onPress={() => showAlert('jhasjdhajshd', 'success')}
+                        >
+                            <Text>Success</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                        onPress={() => showAlert('jhasjdhajshd', 'warning')}
+                        >
+                            <Text>Warning</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                        onPress={() => showAlert('jhasjdhajshd', 'error')}
+                        >
+                            <Text>Error</Text>
+                        </TouchableOpacity>
+                 
                 <View
                     style={styles.gradientBox}
                 >
@@ -304,7 +323,11 @@ function ViewAllRates() {
 
                         </View>
                     ))}
+
+
                 </View>
+
+                
 
                 {/* Filter Modal */}
                 <Modal
