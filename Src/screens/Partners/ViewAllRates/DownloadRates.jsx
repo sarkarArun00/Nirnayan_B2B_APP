@@ -202,6 +202,12 @@ function ViewAllRates() {
                         >
                             <Text>Error</Text>
                         </TouchableOpacity>
+
+                        <TouchableOpacity
+                        onPress={() => showAlert('jhasjdhajshd', 'delete')}
+                        >
+                            <Text>Delete</Text>
+                        </TouchableOpacity>
                  
                 <View
                     style={styles.gradientBox}

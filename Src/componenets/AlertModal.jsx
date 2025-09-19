@@ -8,6 +8,7 @@ const AlertModal = ({ visible, type, message, onClose }) => {
       case 'success': return 'Success';
       case 'error': return 'Error';
       case 'warning': return 'Warning';
+      case 'delete': return 'Confirm Delete';
       default: return 'Notice';
     }
   };
@@ -17,6 +18,7 @@ const AlertModal = ({ visible, type, message, onClose }) => {
       case 'success': return '#28a745'; // Green
       case 'error': return '#dc3545';   // Red
       case 'warning': return '#ffc107'; // Yellow/Orange
+      case 'delete': return '#dc3545'; // Yellow/Orange
       default: return '#28a745';
     }
   };
