@@ -44,7 +44,7 @@ function PartnerRate() {
     useEffect(() => {
         console.log('rate_type rate_type PartnerRatePercentPage: ', item, rate_type, activeTab)
         const fetPartnerRates = async () => {
-            if(!item.hasTestMappings) {
+            if (!item.hasTestMappings) {
                 const response = await PartnerService.getTestRateList();
                 if (response.status == 1) {
                     setTestList(response.data)
@@ -54,7 +54,7 @@ function PartnerRate() {
                 }
             } else {
                 let request = {};
-                if(activeTab=='template') {
+                if (activeTab == 'template') {
                     request = {
                         templateRateId: item.id
                     }
@@ -66,7 +66,7 @@ function PartnerRate() {
 
                 console.log('helloooooooo', request);
                 // return
-                const response = await PartnerService.findByPartnerAndTemplateRateId({request});
+                const response = await PartnerService.findByPartnerAndTemplateRateId({ request });
                 console.log('parter test list response', response)
                 if (response.status == 1) {
                     const transformedData = response.data.map((test) => ({
@@ -127,17 +127,21 @@ function PartnerRate() {
                 mrp: item.mrpRateAmount,
                 ...(activeTab === 'template'
                     ? {
-                          templateAmount:
-                              typeof testInputs[item.test_id] === 'number'
-                                  ? testInputs[item.test_id]
-                                  : Number(testInputs[item.test_id]) || 0,
-                      }
+                        templateAmount:
+                            typeof testInputs[item.test_id] === 'number'
+                                ? testInputs[item.test_id]
+                                : Number(testInputs[item.test_id]) || 0,
+                    }
                     : {
-                          partnerAmount:
-                              typeof testInputs[item.test_id] === 'number'
-                                  ? testInputs[item.test_id]
-                                  : Number(testInputs[item.test_id]) || 0,
-                      }),
+                        partnerAmount:
+                            typeof testInputs[item.test_id] === 'number'
+                                ? testInputs[item.test_id]
+                                : Number(testInputs[item.test_id]) || 0,
+
+                                
+                        templateAmount: Number(item.templateAmount) || 0
+
+                    }),
             })),
         };
 
@@ -169,22 +173,24 @@ function PartnerRate() {
                 mrp: item.mrpRateAmount,
                 ...(activeTab === 'template'
                     ? {
-                          templateAmount:
-                              typeof testInputs[item.test_id] === 'number'
-                                  ? testInputs[item.test_id]
-                                  : Number(testInputs[item.test_id]) || item.templateAmount || 0,
-                      }
+                        templateAmount:
+                            typeof testInputs[item.test_id] === 'number'
+                                ? testInputs[item.test_id]
+                                : Number(testInputs[item.test_id]) || item.templateAmount || 0,
+                    }
                     : {
-                          partnerAmount:
-                              testInputs[item.test_id] && testInputs[item.test_id] !== ''
-                                  ? Number(testInputs[item.test_id])
-                                  : Number(item.templateAmount) || item.partnerAmount || 0,
-                      }),
+                        partnerAmount:
+                            testInputs[item.test_id] && testInputs[item.test_id] !== ''
+                                ? Number(testInputs[item.test_id])
+                                : Number(item.templateAmount) || item.partnerAmount || 0,
+
+                        templateAmount: Number(item.templateAmount) || 0
+                    }),
             })),
         };
-    
+
         console.log('Payload to update:', formattedPayload);
-        
+
         // return
         const response = await PartnerService.updatePartnerTestMapping(formattedPayload);
         if (response.status == 1) {
@@ -210,7 +216,7 @@ function PartnerRate() {
                     <View style={styles.flexdv}>
                         <TouchableOpacity style={styles.leftArrow} onPress={() => navigation.goBack()}>
                             <View style={styles.arrowBox}><Image source={require('../../../../assets/arrow1.png')} /></View>
-                            <Text style={styles.titleText}>{activeTab=='partner'?'Partner':'Template'} Rate Set</Text>
+                            <Text style={styles.titleText}>{activeTab == 'partner' ? 'Partner' : 'Template'} Rate Set</Text>
                         </TouchableOpacity>
                         <View style={styles.rightSection}>
                             <TouchableOpacity style={{ position: 'relative' }}>
@@ -295,7 +301,7 @@ function PartnerRate() {
 
                         return (
                             <TouchableOpacity
-                            key={`${item.test_id}-${index}`}
+                                key={`${item.test_id}-${index}`}
                                 style={styles.testItem}
                                 onPress={() => {
                                     setSelectedTest(item);
@@ -328,8 +334,8 @@ function PartnerRate() {
                                             item.templateAmount
                                                 ? `${((item.templateAmount / item.mrpRateAmount) * 100).toFixed(2)}%`
                                                 : item.partnerAmount
-                                                ? `${((item.partnerAmount / item.mrpRateAmount) * 100).toFixed(2)}%`
-                                                : '0.00%'
+                                                    ? `${((item.partnerAmount / item.mrpRateAmount) * 100).toFixed(2)}%`
+                                                    : '0.00%'
                                         }
                                         placeholderTextColor="#000"
                                         keyboardType="numeric"
@@ -484,7 +490,7 @@ function PartnerRate() {
             </Modal>
 
             <View style={styles.styckysavebutton}>
-            <TouchableOpacity
+                <TouchableOpacity
                     style={{
                         backgroundColor: '#28A745',
                         width: '100%',
@@ -498,12 +504,12 @@ function PartnerRate() {
                         elevation: 5,
                         marginBottom: 25
                     }}
-                    onPress={!item.hasTestMappings?handleSubmit:updateSubmit}
+                    onPress={!item.hasTestMappings ? handleSubmit : updateSubmit}
                 >
                     <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 16 }}>
-                        
+
                         {
-                            !item.hasTestMappings?'Save':'Update'
+                            !item.hasTestMappings ? 'Save' : 'Update'
                         }
                     </Text>
                 </TouchableOpacity>

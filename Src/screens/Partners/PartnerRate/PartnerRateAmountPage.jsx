@@ -42,9 +42,9 @@ const PartnerRateAmountPage = () => {
     };
 
     useEffect(() => {
-        console.log('rate_type rate_type PartnerRateAmountPage: ',item, rate_type, activeTab)
+        console.log('rate_type rate_type PartnerRateAmountPage: ', item, rate_type, activeTab)
         const fetPartnerRates = async () => {
-            if(!item.hasTestMappings) {
+            if (!item.hasTestMappings) {
                 const response = await PartnerService.getTestRateList();
                 if (response.status == 1) {
                     setTestList(response.data)
@@ -52,10 +52,10 @@ const PartnerRateAmountPage = () => {
                 } else {
                     setTestList([])
                 }
-              
+
             } else {
                 let request = {};
-                if(activeTab=='template') {
+                if (activeTab == 'template') {
                     request = {
                         templateRateId: item.id
                     }
@@ -122,23 +122,22 @@ const PartnerRateAmountPage = () => {
                 mrp: item.mrpRateAmount,
                 ...(activeTab === 'template'
                     ? {
-                          templateAmount:
-                              typeof testInputs[item.test_id] === 'number'
-                                  ? testInputs[item.test_id]
-                                  : Number(testInputs[item.test_id]) || 0,
-                      }
+                        templateAmount:
+                            typeof testInputs[item.test_id] === 'number'
+                                ? testInputs[item.test_id]
+                                : Number(testInputs[item.test_id]) || 0,
+                    }
                     : {
-                          partnerAmount:
-                              testInputs[item.test_id] && testInputs[item.test_id] !== ''
-                                  ? Number(testInputs[item.test_id])
-                                  : Number(item.templateAmount) || 0,
-                      }),
+                        partnerAmount:
+                            testInputs[item.test_id] && testInputs[item.test_id] !== ''
+                                ? Number(testInputs[item.test_id])
+                                : Number(item.templateAmount) || 0,
+
+                        templateAmount: Number(item.templateAmount) || 0
+                    }),
             })),
         };
-    
-        console.log('Payload to submit:', formattedPayload);
-        
-        // return
+
         const response = await PartnerService.createPartnerTestMapping(formattedPayload);
         if (response.status == 1) {
             showAlert('Created Successfully!', 'success');
@@ -165,23 +164,23 @@ const PartnerRateAmountPage = () => {
                 mrp: item.mrpRateAmount,
                 ...(activeTab === 'template'
                     ? {
-                          templateAmount:
-                              typeof testInputs[item.test_id] === 'number'
-                                  ? testInputs[item.test_id]
-                                  : Number(testInputs[item.test_id]) || item.templateAmount || 0,
-                      }
+                        templateAmount:
+                            typeof testInputs[item.test_id] === 'number'
+                                ? testInputs[item.test_id]
+                                : Number(testInputs[item.test_id]) || item.templateAmount || 0,
+                    }
                     : {
-                          partnerAmount:
-                              testInputs[item.test_id] && testInputs[item.test_id] !== ''
-                                  ? Number(testInputs[item.test_id])
-                                  : Number(item.templateAmount) || item.partnerAmount || 0,
-                      }),
+                        partnerAmount:
+                            testInputs[item.test_id] && testInputs[item.test_id] !== ''
+                                ? Number(testInputs[item.test_id])
+                                : Number(item.templateAmount) || item.partnerAmount || 0,
+
+                        templateAmount: Number(item.templateAmount) || 0
+                    }),
             })),
         };
-    
+
         console.log('Payload to update:', formattedPayload);
-        
-        // return
         const response = await PartnerService.updatePartnerTestMapping(formattedPayload);
         if (response.status == 1) {
             showAlert('Updated Successfully!', 'success');
@@ -192,7 +191,7 @@ const PartnerRateAmountPage = () => {
             showAlert(response.message, 'error');
         }
     };
-    
+
 
     return (
         <SafeAreaView style={{ flex: 1, }}>
@@ -314,7 +313,7 @@ const PartnerRateAmountPage = () => {
                                 <View style={styles.rightBlock}>
                                     <TextInput
                                         style={styles.testInput}
-                                        placeholder={item.templateAmount? `₹${item.templateAmount}` : `₹${item.partnerAmount}` || 0}
+                                        placeholder={item.partnerAmount ? `₹${item.partnerAmount}` : `₹${item.templateAmount}` || 0}
                                         placeholderTextColor="#000"
                                         keyboardType="numeric"
                                         value={testInputs[item.test_id] ?? ''}
@@ -484,12 +483,12 @@ const PartnerRateAmountPage = () => {
                         elevation: 5,
                         marginBottom: 25
                     }}
-                    onPress={!item.hasTestMappings?handleSubmit:updateSubmit}
+                    onPress={!item.hasTestMappings ? handleSubmit : updateSubmit}
                 >
                     <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 16 }}>
-                        
+
                         {
-                            !item.hasTestMappings?'Save':'Update'
+                            !item.hasTestMappings ? 'Save' : 'Update'
                         }
                     </Text>
                 </TouchableOpacity>
