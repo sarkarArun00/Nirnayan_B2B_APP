@@ -102,6 +102,36 @@ const AuthService = {
       throw error;  // re-throw original error
     }
   },
+
+  deletePartnerRateMaster: async (data) => {
+    try {
+      const response = await apiClient.post('client/partnerRate/deletePartnerRateMaster', data);
+      return response.data
+    } catch (error) {
+      console.log("empLogin error response:", error.response?.data);
+      throw error;  // re-throw original error
+    }
+  },
+  
+  deleteTemplate: async (data) => {
+    try {
+      const response = await apiClient.post('client/templateRate/deleteTemplate', data);
+      return response.data
+    } catch (error) {
+      console.log("empLogin error response:", error.response?.data);
+      throw error;  // re-throw original error
+    }
+  },
+  
+  updateTemplateRate: async (data) => {
+    try {
+      const response = await apiClient.post('client/templateRate/updateTemplateRate', data);
+      return response.data
+    } catch (error) {
+      console.log("empLogin error response:", error.response?.data);
+      throw error;  // re-throw original error
+    }
+  },
   
 };
 

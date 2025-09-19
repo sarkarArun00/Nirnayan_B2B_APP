@@ -313,7 +313,7 @@ const PartnerRateAmountPage = () => {
                                 <View style={styles.rightBlock}>
                                     <TextInput
                                         style={styles.testInput}
-                                        placeholder={item.partnerAmount ? `₹${item.partnerAmount}` : `₹${item.templateAmount}` || 0}
+                                        placeholder={item.partnerAmount ? `₹${item.partnerAmount}` : `₹${item.templateAmount || 0}` || 0}
                                         placeholderTextColor="#000"
                                         keyboardType="numeric"
                                         value={testInputs[item.test_id] ?? ''}

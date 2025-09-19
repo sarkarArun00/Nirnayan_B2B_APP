@@ -10,7 +10,7 @@ import PartnerService from '../../../services/partner_service'
 
 function ViewAllRates() {
     const navigation = useNavigation();
-    const placeholderOptions = ['Search Partner', 'Search Blog', 'Search Report'];
+    // const placeholderOptions = [''];
     const [placeholderIndex, setPlaceholderIndex] = useState(0);
     const [filterModalVisible, setFilterModalVisible] = useState(false);
     const [selectedType, setSelectedType] = useState('');
@@ -30,7 +30,7 @@ function ViewAllRates() {
     const [allPartners, setPartners] = useState([])
     const [allTemplates, setTemplates] = useState([])
 
-
+    const [editPartnerModal, setEditPartnerModal] = useState(false);
 
     const [rateType, setRateType] = useState("");
     const [status, setStatus] = useState("");
@@ -41,6 +41,10 @@ function ViewAllRates() {
     const [templateRates, setTemplateRates] = useState([]);
     const [activePartner, setActivePartners] = useState([]);
     const [activeTemplates, setActiveTemplates] = useState([]);
+    const [deleteId, setDeleteItemId] = useState(null);
+
+    const [editItem, setEditItem] = useState(null);
+    const [newTempName, setTempName] = useState('');
 
     const showAlert = (message, type = 'success') => {
         setAlertMessage(message);
@@ -50,55 +54,56 @@ function ViewAllRates() {
 
 
     useEffect(() => {
-        const fetchPartner = async () => {
-            try {
-                const response = await PartnerService.getAllPartners();
-                if (response.status == 1) {
-                    const active = response.data.filter(item => item.status === true);
-                    setPartners(active)
-                }
-            } catch (error) {
-                setPartners([])
-            }
-
+        fetchAllData();
+      
+        // const interval = setInterval(() => {
+        //   setPlaceholderIndex((prevIndex) => (prevIndex + 1) % placeholderOptions.length);
+        // }, 2000);
+        // return () => clearInterval(interval);
+      }, []);
+      
+      const fetchAllData = async () => {
+        await fetchPartner();
+        await fetchTemplate();
+        await fetchPartnerRateMaster();
+      };
+      
+      const fetchPartner = async () => {
+        try {
+          const response = await PartnerService.getAllPartners();
+          if (response.status == 1) {
+            const active = response.data.filter(item => item.status === true);
+            setPartners(active);
+          }
+        } catch {
+          setPartners([]);
         }
-
-        const fetchTemplate = async () => {
-            try {
-                const response = await PartnerService.getAllTemplateRate();
-                setTemplates(response.data)
-                setTemplateRates(response.data)
-                const active = response.data.filter(item => item.status === true);
-                setActiveTemplates(active)
-            } catch (error) {
-                console.log(error)
-                setTemplates([])
-                setTemplateRates([])
-            }
+      };
+      
+      const fetchTemplate = async () => {
+        try {
+          const response = await PartnerService.getAllTemplateRate();
+          setTemplates(response.data);
+          setTemplateRates(response.data);
+          const active = response.data.filter(item => item.status === true);
+          setActiveTemplates(active);
+        } catch {
+          setTemplates([]);
+          setTemplateRates([]);
         }
-
-        const fetchPartnerRateMaster = async () => {
-            try {
-                const response = await PartnerService.getAllPartnerRateMaster();
-                console.log('pppppp rrrrrr', response.data)
-                const active = response.data.filter(item => item.status === true);
-                setActivePartners(active)
-                setPartnerRates(response.data)
-            } catch (error) {
-                console.log(error)
-                setPartnerRates([])
-            }
+      };
+      
+      const fetchPartnerRateMaster = async () => {
+        try {
+          const response = await PartnerService.getAllPartnerRateMaster();
+          const active = response.data.filter(item => item.status === true);
+          setActivePartners(active);
+          setPartnerRates(response.data);
+        } catch {
+          setPartnerRates([]);
         }
-
-        fetchPartner();
-        fetchTemplate();
-        fetchPartnerRateMaster();
-
-        const interval = setInterval(() => {
-            setPlaceholderIndex((prevIndex) => (prevIndex + 1) % placeholderOptions.length);
-        }, 2000);
-        return () => clearInterval(interval);
-    }, []);
+      };
+      
 
 
     const tabActions = {
@@ -109,13 +114,13 @@ function ViewAllRates() {
             },
             {
                 icon: require('../../../../assets/delete.png'),
-                onPress: (item) => handleDelete(item),
+                onPress: (item) => handleDeleteClick(item),
             },
         ],
         template: [
             {
                 icon: require('../../../../assets/edit.png'),
-                route: '',
+                onPress: (item) => handleEditClick(item),
             },
             {
                 icon: require('../../../../assets/setting.png'),
@@ -123,27 +128,70 @@ function ViewAllRates() {
             },
             {
                 icon: require('../../../../assets/delete.png'),
-                onPress: (item) => handleDelete(item),
+                onPress: (item) => handleDeleteClick(item),
             },
         ],
     };
 
-    const handleDelete = (item) => {
-        Alert.alert(
-            'Confirm Delete',
-            `Are you sure you want to delete "${item.title}"?`,
-            [
-                { text: 'Cancel', style: 'cancel' },
-                {
-                    text: 'Delete',
-                    onPress: () => {
-                        console.log('Deleting item:', item.id);
-                    },
-                    style: 'destructive',
-                },
-            ]
-        );
-    };
+    const handleDeleteClick = (item) => {
+        setDeleteItemId(item.id)
+        showAlert('Are you sure, you want to delete ?', 'delete')
+      };
+
+      const handleDelete = async (confirmed) => {
+        setModalVisible(false);
+        if (confirmed) {
+            if(activeTab == 'partner') {
+                const response = await PartnerService.deletePartnerRateMaster({ id: deleteId });
+                if (response.status == 1) {
+                  showAlert("Deleted successfully!", "success");
+                  fetchAllData();
+                } else {
+                  showAlert(response.message || "Delete failed", "error");
+                }
+            } else {
+                const response = await PartnerService.deleteTemplate({ id: deleteId });
+                if (response.status == 1) {
+                  showAlert("Deleted successfully!", "success");
+                  fetchAllData();
+                } else {
+                  showAlert(response.message || "Delete failed", "error");
+                }
+            }
+        } else {
+          console.log("❌ User cancelled delete");
+        }
+      };
+      
+
+      const handleEditClick = (item) => {
+        console.log("Editing:", item);  
+        setEditItem(item);          
+        setTempName(item.template_name)     
+        setEditPartnerModal(true);      
+      };
+
+      const onTemplateUpdate = async () => {
+        if(newTempName == '') {
+            showAlert("Please enter new Template Name!", "warning");
+            return;
+        }
+        const requestBody = {
+            "id": editItem.id,
+            "template_name": newTempName,
+            "rate_type": editItem.rate_type,
+            "status": editItem.status
+        }
+
+        const response = await PartnerService.updateTemplateRate(requestBody);
+        if(response.status==1) {
+            setEditPartnerModal(false);
+            showAlert("Template updated successfully!", "success");
+            fetchAllData();
+        } else {
+            showAlert("Failed to update template", "error");
+        }
+      }
 
     return (
         <SafeAreaView style={{ flex: 1, }}>
@@ -174,7 +222,7 @@ function ViewAllRates() {
                     <View style={styles.searchBox}>
                         <Icon name="search" size={20} color="#aaa" style={styles.searchIcon} />
                         <TextInput
-                            placeholder={placeholderOptions[placeholderIndex]}
+                            placeholder='Search Investigations'
                             placeholderTextColor="#999"
                             style={styles.input}
                         />
@@ -183,31 +231,6 @@ function ViewAllRates() {
                         <Icon name="options-outline" size={24} color="#fff" />
                     </TouchableOpacity>
                 </View>
-
-            
-                        <TouchableOpacity
-                        onPress={() => showAlert('lorem ipsum dolor sit', 'success')}
-                        >
-                            <Text>Success</Text>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity
-                        onPress={() => showAlert('lorem ipsum dolor sit', 'warning')}
-                        >
-                            <Text>Warning</Text>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity
-                        onPress={() => showAlert('lorem ipsum dolor sit a', 'error')}
-                        >
-                            <Text>Error</Text>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity
-                        onPress={() => showAlert('Are you sure you want to delete your account?', 'delete')}
-                        >
-                            <Text>Delete</Text>
-                        </TouchableOpacity>
                  
                 <View
                     style={styles.gradientBox}
@@ -407,12 +430,55 @@ function ViewAllRates() {
                         </View>
                     </View>
                 </Modal>
+                
+                {/* Template Name edit */}
+                <Modal
+                    transparent={true}
+                    visible={editPartnerModal}
+                    animationType="slide"
+                    onRequestClose={() => setEditPartnerModal(false)}
+                >
+                    <View style={GlobalStyles.modalOverlay}>
+                        <View style={GlobalStyles.modalContainer}>
+                            {/* Close Button */}
+                            <TouchableOpacity
+                                style={GlobalStyles.modalClose}
+                                onPress={() => setEditPartnerModal(false)}
+                            >
+                                <Text style={GlobalStyles.closeIcon}>✕</Text>
+                            </TouchableOpacity>
+                            <Text style={GlobalStyles.mdlTitle}>Edit Template</Text>
+                            <Text style={GlobalStyles.mdlSubTitle}>Short Subheading may be fit</Text>
+                            <ScrollView
+                                showsVerticalScrollIndicator={false}
+                                showsHorizontalScrollIndicator={false}
+                            >
+                                <View style={GlobalStyles.inpBox}>
+                                        <Text style={GlobalStyles.label}>
+                                            Template Name
+                                        </Text>
+                                        <TextInput
+                                            placeholder="Name Here"
+                                            style={GlobalStyles.input}
+                                            placeholderTextColor="#C2C2C2"
+                                            value={newTempName}
+                                            onChangeText={text => setTempName(text)}
+                                        />
+                                    </View>
+                                <TouchableOpacity style={GlobalStyles.applyBtn} onPress={onTemplateUpdate}>
+                                    <Text style={GlobalStyles.applyBtnText}>Apply</Text>
+                                </TouchableOpacity>
+                            </ScrollView>
+                        </View>
+                    </View>
+                </Modal>
 
                 <AlertModal
                     visible={modalVisible}
                     type={alertType}
                     message={alertMessage}
                     onClose={() => setModalVisible(false)}
+                    onConfirm={handleDelete}
                 />
             </ScrollView>
         </SafeAreaView>

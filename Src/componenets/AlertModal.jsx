@@ -2,7 +2,7 @@ import React from 'react';
 import { Modal, View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 
-const AlertModal = ({ visible, type, message, onClose }) => {
+const AlertModal = ({ visible, type, message, onClose, onConfirm }) => {
 
   const getTitle = () => {
     switch (type) {
@@ -67,21 +67,31 @@ const AlertModal = ({ visible, type, message, onClose }) => {
             colors={getGradientColors()}
             style={{ width: '100%', padding: 40, }}
           >
-            <Image source={getImage()} style={{ width:'50', height:50, resizeMode:'contain', alignSelf:'center', marginBottom:20, }} />
-            <Text style={[styles.title,]}>{getTitle()}</Text>
-            <Text style={[styles.message,]}>{message}</Text>
+            <Image source={getImage()} style={{ width: '50', height: 50, resizeMode: 'contain', alignSelf: 'center', marginBottom: 20, }} />
+            <Text style={[styles.title]}>{getTitle()}</Text>
+            <Text style={[styles.message]}>{message}</Text>
 
-            <TouchableOpacity style={[styles.okButton, { backgroundColor: color }]} onPress={onClose}>
-              <Text style={styles.okButtonText}>{type != 'delete' ? 'OK' : 'Yes, Delete'}</Text>
-            </TouchableOpacity>
-            {type === 'delete' && (
+            {type === 'delete' ? (
+              <>
+                <TouchableOpacity
+                  style={[styles.okButton, { backgroundColor: color }]}
+                  onPress={() => onConfirm?.(true)} 
+                >
+                  <Text style={styles.okButtonText}>Yes, Delete</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity onPress={() => onConfirm?.(false)}>  
+                  <Text style={{ fontFamily: 'Poppins-SemiBold', fontSize: 13, color: '#989898', textAlign: 'center', paddingTop: 15, }}>Cancel</Text>
+                </TouchableOpacity>
+              </>
+            ) : (
               <TouchableOpacity
+                style={[styles.okButton, { backgroundColor: color }]}
                 onPress={onClose}
               >
-                <Text style={{ fontFamily: 'Poppins-SemiBold', fontSize: 13, color: '#989898', textAlign: 'center', paddingTop: 15, }}>Cancel</Text>
+                <Text style={styles.okButtonText}>OK</Text>
               </TouchableOpacity>
             )}
-
 
           </LinearGradient>
         </View>
