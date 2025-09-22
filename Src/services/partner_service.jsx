@@ -65,9 +65,9 @@ const AuthService = {
     }
   },
 
-  getTestRateList: async () => {
+  getTestRateList: async (data) => {
     try {
-      const response = await apiClient.get('client/partner-rate/getTestRateList');
+      const response = await apiClient.post('client/partner-rate/getTestRateList',data);
       return response.data
     } catch (error) {
       console.log("empLogin error response:", error.response?.data);

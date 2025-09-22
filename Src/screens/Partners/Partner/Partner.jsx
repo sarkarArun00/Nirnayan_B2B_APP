@@ -57,6 +57,7 @@ function Partner() {
     const [deleteId, setDeleteItemId] = useState(null);
     const [editItem, setEditItem] = useState(null);
     const [newTempName, setTempName] = useState('');
+    
 
     const showAlert = (message, type = 'success') => {
         setAlertMessage(message);
@@ -66,7 +67,7 @@ function Partner() {
 
     useEffect(() => {
         fetchAllData();
-        
+
         const interval = setInterval(() => {
             setPlaceholderIndex((prevIndex) => (prevIndex + 1) % placeholderOptions.length);
         }, 2000);
@@ -77,9 +78,9 @@ function Partner() {
         await fetchPartner();
         await fetchTemplate();
         await fetchPartnerRateMaster();
-      };
+    };
 
-      const fetchPartner = async () => {
+    const fetchPartner = async () => {
         try {
             const response = await PartnerService.getAllPartners();
             if (response.status == 1) {
@@ -109,7 +110,6 @@ function Partner() {
     const fetchPartnerRateMaster = async () => {
         try {
             const response = await PartnerService.getAllPartnerRateMaster();
-            console.log('pppppp rrrrrr', response.data)
             const active = response.data.filter(item => item.status === true);
             setActivePartners(active)
             setPartnerRates(response.data.slice(0, 3))
@@ -255,7 +255,7 @@ function Partner() {
         if (Object.keys(tempErrors).length > 0) {
             setErrors(tempErrors);
             return;
-        }
+          }
 
         setErrors({});
 
@@ -293,42 +293,42 @@ function Partner() {
     const handleDeleteClick = (item) => {
         setDeleteItemId(item.id)
         showAlert('Are you sure, you want to delete ?', 'delete')
-      };
+    };
 
-      const handleDelete = async (confirmed) => {
+    const handleDelete = async (confirmed) => {
         setModalVisible(false);
         if (confirmed) {
-            if(activeTab == 'partner') {
+            if (activeTab == 'partner') {
                 const response = await PartnerService.deletePartnerRateMaster({ id: deleteId });
                 if (response.status == 1) {
-                  showAlert("Deleted successfully!", "success");
-                  fetchAllData(); 
+                    showAlert("Deleted successfully!", "success");
+                    fetchAllData();
                 } else {
-                  showAlert(response.message || "Delete failed", "error");
+                    showAlert(response.message || "Delete failed", "error");
                 }
             } else {
                 const response = await PartnerService.deleteTemplate({ id: deleteId });
                 if (response.status == 1) {
-                  showAlert("Deleted successfully!", "success");
-                  fetchAllData();  
+                    showAlert("Deleted successfully!", "success");
+                    fetchAllData();
                 } else {
-                  showAlert(response.message || "Delete failed", "error");
+                    showAlert(response.message || "Delete failed", "error");
                 }
             }
         } else {
-          console.log("❌ User cancelled delete");
+            console.log("❌ User cancelled delete");
         }
-      };
+    };
 
-      const handleEditClick = (item) => {
-        console.log("Editing:", item);  
-        setEditItem(item);          
-        setTempName(item.template_name)     
-        setEditPartnerModal(true);      
-      };
+    const handleEditClick = (item) => {
+        console.log("Editing:", item);
+        setEditItem(item);
+        setTempName(item.template_name)
+        setEditPartnerModal(true);
+    };
 
-      const onTemplateUpdate = async () => {
-        if(newTempName == '') {
+    const onTemplateUpdate = async () => {
+        if (newTempName == '') {
             showAlert("Please enter new Template Name!", "warning");
             return;
         }
@@ -340,14 +340,14 @@ function Partner() {
         }
 
         const response = await PartnerService.updateTemplateRate(requestBody);
-        if(response.status==1) {
+        if (response.status == 1) {
             setEditPartnerModal(false);
             showAlert("Template updated successfully!", "success");
             fetchAllData();
         } else {
             showAlert("Failed to update template", "error");
         }
-      }
+    }
 
     return (
         <SafeAreaView style={{ flex: 1, }}>
@@ -626,7 +626,7 @@ function Partner() {
                                                 });
                                             } else if (action.onPress) {
                                                 action.onPress(item);
-                                                
+
                                             }
                                         }}
                                     >
@@ -737,7 +737,7 @@ function Partner() {
                                 </TouchableOpacity>
 
                                 <Text style={GlobalStyles.mdlTitle}>Add Partner</Text>
-                                <Text style={GlobalStyles.mdlSubTitle}>Short Subheading may be fit</Text>
+                                <Text style={GlobalStyles.mdlSubTitle}>You can add here Partners</Text>
 
                                 <ScrollView showsVerticalScrollIndicator={false}>
                                     {/* Partner Name */}
@@ -828,7 +828,7 @@ function Partner() {
                                 </TouchableOpacity>
 
                                 <Text style={GlobalStyles.mdlTitle}>Create Rate</Text>
-                                <Text style={GlobalStyles.mdlSubTitle}>Short Subheading may be fit</Text>
+                                <Text style={GlobalStyles.mdlSubTitle}>Create Partners or Templates</Text>
 
                                 <ScrollView
                                     showsVerticalScrollIndicator={false}
@@ -991,7 +991,7 @@ function Partner() {
 
                 )}
 
-                
+
                 {/* Edit Partner Modal */}
                 <Modal
                     transparent={true}
@@ -1015,17 +1015,17 @@ function Partner() {
                                 showsHorizontalScrollIndicator={false}
                             >
                                 <View style={GlobalStyles.inpBox}>
-                                        <Text style={GlobalStyles.label}>
-                                            Template Name
-                                        </Text>
-                                        <TextInput
-                                            placeholder="Name Here"
-                                            style={GlobalStyles.input}
-                                            placeholderTextColor="#C2C2C2"
-                                            value={newTempName}
-                                            onChangeText={text => setTempName(text)}
-                                        />
-                                    </View>
+                                    <Text style={GlobalStyles.label}>
+                                        Template Name
+                                    </Text>
+                                    <TextInput
+                                        placeholder="Name Here"
+                                        style={GlobalStyles.input}
+                                        placeholderTextColor="#C2C2C2"
+                                        value={newTempName}
+                                        onChangeText={text => setTempName(text)}
+                                    />
+                                </View>
                                 <TouchableOpacity style={GlobalStyles.applyBtn} onPress={onTemplateUpdate}>
                                     <Text style={GlobalStyles.applyBtnText}>Apply</Text>
                                 </TouchableOpacity>

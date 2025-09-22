@@ -42,10 +42,11 @@ const PartnerRateAmountPage = () => {
     };
 
     useEffect(() => {
-        console.log('rate_type rate_type PartnerRateAmountPage: ', item, rate_type, activeTab)
+
         const fetPartnerRates = async () => {
+            console.log('ttttttttt', item)
             if (!item.hasTestMappings) {
-                const response = await PartnerService.getTestRateList();
+                const response = await PartnerService.getTestRateList({templateId: item.template_id});
                 if (response.status == 1) {
                     setTestList(response.data)
                     console.log('test list response', allTestList)
