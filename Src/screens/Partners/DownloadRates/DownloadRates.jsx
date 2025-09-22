@@ -51,7 +51,7 @@ function DownloadRates() {
 
                 <View style={styles.tabContainer}>
                     <TouchableOpacity
-                        style={[styles.tabButton, activeTab === "partner" && styles.activeTabButton]}
+                        style={styles.tabButton}
                         onPress={() => setActiveTab("partner")}
                     >
                         <Text
@@ -62,10 +62,11 @@ function DownloadRates() {
                         >
                             Partner Rates
                         </Text>
+                        {activeTab === "partner" && <View style={styles.activeTabIndicator} />}
                     </TouchableOpacity>
 
                     <TouchableOpacity
-                        style={[styles.tabButton, activeTab === "template" && styles.activeTabButton]}
+                        style={styles.tabButton}
                         onPress={() => setActiveTab("template")}
                     >
                         <Text
@@ -76,9 +77,11 @@ function DownloadRates() {
                         >
                             Template Rates
                         </Text>
+                        {activeTab === "template" && <View style={styles.activeTabIndicator} />}
                     </TouchableOpacity>
                 </View>
-                <View style={{ paddingHorizontal: 16, paddingTop:10, }}>
+
+                <View style={{ paddingHorizontal: 16, paddingTop: 10, }}>
                     {activeTab === "partner" && (
                         <>
                             <View style={styles.card}>
@@ -101,7 +104,7 @@ function DownloadRates() {
                                     </TouchableOpacity>
                                 </View>
                             </View>
-                            
+
                             <View style={styles.card}>
                                 <View style={{ flex: 1 }}>
                                     <View style={styles.badge}>
@@ -147,7 +150,6 @@ function DownloadRates() {
                                     </TouchableOpacity>
                                 </View>
                             </View>
-                            
                         </>
                     )}
                 </View>
@@ -200,16 +202,21 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
     },
     tabButton: {
-        // flex:1,
+        flex: 1,
+        position: 'relative',
         alignItems: 'center',
         paddingBottom: 14,
         paddingHorizontal: 24,
     },
-    activeTabButton: {
-        borderBottomWidth: 2,
-        borderBottomColor: '#72B183',
-        borderTopLeftRadius: 5,
-        borderTopRightRadius: 5,
+    activeTabIndicator: {
+        position: "absolute",
+        bottom: 0,
+        left: 0,
+        right: 0,
+        height: 3,
+        backgroundColor: "#00A651",
+        borderTopLeftRadius: 3,
+        borderTopRightRadius: 3,
     },
     tabText: {
         fontFamily: 'Poppins-SemiBold',
@@ -225,7 +232,7 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         backgroundColor: "#fff",
         borderRadius: 12,
-        padding:14,
+        padding: 14,
         marginBottom: 10,
         alignItems: "center",
         // Shadow
@@ -275,7 +282,7 @@ const styles = StyleSheet.create({
     iconWrapper: {
         width: 26,
         height: 26,
-        resizeMode:'contain',
+        resizeMode: 'contain',
     },
 
     // Header
