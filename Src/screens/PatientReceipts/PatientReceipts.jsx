@@ -630,8 +630,6 @@ function billReceipt() {
                     </View>
                 </Modal>
 
-
-
             </ScrollView>
         </SafeAreaView>
     )
