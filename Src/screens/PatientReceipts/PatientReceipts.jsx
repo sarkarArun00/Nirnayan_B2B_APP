@@ -584,36 +584,6 @@ function billReceipt() {
                                     </TouchableOpacity>
                                 </View>
                                 <View style={GlobalStyles.inpBox}>
-                                    <Text style={GlobalStyles.label}>Sample IDs</Text>
-                                    <TouchableOpacity style={GlobalStyles.inputContainer}>
-                                        <TextInput
-                                            placeholder="Search Here"
-                                            style={GlobalStyles.input}
-                                            placeholderTextColor="#C2C2C2"
-                                        />
-                                    </TouchableOpacity>
-                                </View>
-                                <View style={GlobalStyles.inpBox}>
-                                    <Text style={GlobalStyles.label}>Patient Information</Text>
-                                    <TouchableOpacity style={GlobalStyles.inputContainer}>
-                                        <TextInput
-                                            placeholder="Search Here"
-                                            style={GlobalStyles.input}
-                                            placeholderTextColor="#C2C2C2"
-                                        />
-                                    </TouchableOpacity>
-                                </View>
-                                <View style={GlobalStyles.inpBox}>
-                                    <Text style={GlobalStyles.label}>Mobile Number</Text>
-                                    <TouchableOpacity style={GlobalStyles.inputContainer}>
-                                        <TextInput
-                                            placeholder="Enter Number"
-                                            style={GlobalStyles.input}
-                                            placeholderTextColor="#C2C2C2"
-                                        />
-                                    </TouchableOpacity>
-                                </View>
-                                <View style={GlobalStyles.inpBox}>
                                     <Text style={GlobalStyles.label}>Partner</Text>
                                     <TouchableOpacity style={GlobalStyles.inputContainer}>
                                         <TextInput
@@ -634,7 +604,7 @@ function billReceipt() {
                                     </TouchableOpacity>
                                 </View>
                                 <View style={GlobalStyles.inpBox}>
-                                    <Text style={GlobalStyles.label}>Status</Text>
+                                    <Text style={GlobalStyles.label}>Payment Status</Text>
                                     <View style={GlobalStyles.inputContainer}>
                                         <View style={GlobalStyles.input}>
                                             <Picker
@@ -659,8 +629,6 @@ function billReceipt() {
                         </View>
                     </View>
                 </Modal>
-
-
 
             </ScrollView>
         </SafeAreaView>
