@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { Text, SafeAreaView, ScrollView, StyleSheet, ImageBackground, View, Image, TouchableOpacity, TextInput, Modal, } from 'react-native'
+import { Text, SafeAreaView, ScrollView, StyleSheet, FlatList, ImageBackground, View, Image, TouchableOpacity, TextInput, Modal, } from 'react-native'
 import { GlobalStyles } from '../../../GlobalStyles';
 import { Picker } from '@react-native-picker/picker';
 import { useNavigation } from '@react-navigation/native';
@@ -18,7 +18,8 @@ const PartnerRateAmountPage = () => {
     const [toDate, setToDate] = useState('');
     const [testDetailsModal, setTestDetailsModal] = useState(false);
 
-    const [allTestList, setTestList] = useState([])
+    const [allTestList, setTestList] = useState([]);
+    const [allCLientTestList, setAllClientTestList] = useState([]);
     const [testInputs, setTestInputs] = useState({});
     const [selectedPartnerRateId, setSelectedPartnerRateId] = useState('');
 
@@ -34,6 +35,7 @@ const PartnerRateAmountPage = () => {
     const route = useRoute();
     const { item, rate_type, activeTab } = route.params || {};
     const [debounceTimeouts, setDebounceTimeouts] = useState({});
+    const [activeTab1, setActiveTab1] = useState("mapped");
 
     const showAlert = (message, type = 'success') => {
         setAlertMessage(message);
@@ -41,32 +43,29 @@ const PartnerRateAmountPage = () => {
         setModalVisible(true);
     };
 
-    useEffect(() => {
-
-        const fetPartnerRates = async () => {
-            console.log('ttttttttt', item)
-            if (!item.hasTestMappings) {
-                const response = await PartnerService.getTestRateList({templateId: item.template_id});
-                if (response.status == 1) {
-                    setTestList(response.data)
-                    console.log('test list response', allTestList)
+    const fetchPartnerRates = async () => {
+        try {
+            if (!item.hasTestMappings ) {
+                // Case: No test mappings yet → fetch template tests
+                const response = await PartnerService.getTestRateList({ templateId: item.template_id });
+                if (response.status === 1) {
+                    setTestList(response.data);
+                    console.log('test list response', response.data);
                 } else {
-                    setTestList([])
+                    setTestList([]);
                 }
-
+    
             } else {
+                // Case: Has mappings → fetch mapped tests
                 let request = {};
-                if (activeTab == 'template') {
-                    request = {
-                        templateRateId: item.id
-                    }
+                if (activeTab === 'template') {
+                    request = { templateRateId: item.id };
                 } else {
-                    request = {
-                        partnerRateId: item.id
-                    }
+                    request = { partnerRateId: item.id };
                 }
+    
                 const response = await PartnerService.findByPartnerAndTemplateRateId(request);
-                if (response.status == 1) {
+                if (response.status === 1) {
                     const transformedData = response.data.map((test) => ({
                         test_id: test.testId,
                         test_code: test.testCode,
@@ -75,20 +74,27 @@ const PartnerRateAmountPage = () => {
                         category: test.category,
                         client_rate: test.clientRate,
                         mrpRateAmount: test.mrp,
-                        templateAmount: test.templateAmount, // If available
-                        partnerAmount: test.partnerAmount,   // If available
+                        templateAmount: test.templateAmount,
+                        partnerAmount: test.partnerAmount,
                     }));
-                    setTestList(transformedData)
-                    console.log('parter test list response', allTestList)
+                    setTestList(transformedData);
+                    console.log('transformedData list response', transformedData);
                 } else {
-                    setTestList([])
+                    setTestList([]);
                 }
+    
             }
+        } catch (error) {
+            console.error("Error fetching partner rates:", error);
+            setTestList([]);
+            setAllClientTestList([]);
         }
-
-        fetPartnerRates();
+    };
+    
+    useEffect(() => {
+        fetchPartnerRates();
     }, []);
-
+    
 
     useEffect(() => {
         const initialInputs = {};
@@ -97,6 +103,14 @@ const PartnerRateAmountPage = () => {
         });
         setTestInputs(initialInputs);
     }, [allTestList]);
+
+    useEffect(() => {
+        const initialInputs2 = {};
+        allCLientTestList.forEach((item) => {
+            initialInputs2[item.id] = item.partnerAmount?.toString() ?? '';
+        });
+        setTestInputs(initialInputs2);
+    }, [allCLientTestList]);
 
 
 
@@ -107,6 +121,21 @@ const PartnerRateAmountPage = () => {
         }));
     };
 
+    const onClickTab = async (type) => {
+        console.log('bbbbbbbbbbbbb', type)
+        setActiveTab1(type);
+        if(type == 'unmapped') {
+            const response = await PartnerService.getClietTestRateList();
+            if (response.status === 1) {
+                setAllClientTestList(response.data);
+                console.log('client test list response', response.data);
+            } else {
+                setAllClientTestList([]);
+            }
+        } else {
+            fetchPartnerRates();
+        }
+    }
 
     const handleSubmit = async () => {
         const formattedPayload = {
@@ -193,6 +222,56 @@ const PartnerRateAmountPage = () => {
         }
     };
 
+    const addMoreTests = async () => {
+        const selectedTests = allCLientTestList.filter(
+            (test) => {
+                const val = Number(testInputs[test.test_id] || test.partnerAmount || 0);
+                return val > 0;
+            }
+        );
+    
+        if (selectedTests.length === 0) {
+            showAlert("Please enter at least one Partner Amount before submitting.", "error");
+            return;
+        }
+        const formattedPayload = {
+            ...(activeTab === 'template'
+                ? { templateRateId: item.id }
+                : { partnerRateId: item.id }),
+            tests: selectedTests.map((item) => ({
+                testId: item.test_id,
+                testCode: item.test_code,
+                testName: item.test_name,
+                department: item.dept_name,
+                category: item.categoryName ?? item.category,
+                clientRate: item.client_rate,
+                mrp: item.mrpRateAmount,
+                ...(activeTab === 'template'
+                    ? {
+                        templateAmount: Number(testInputs[item.test_id]) || item.templateAmount || 0,
+                    }
+                    : {
+                        partnerAmount: Number(testInputs[item.test_id]) || item.partnerAmount || 0,
+                        templateAmount: 0,
+                    }),
+            })),
+        };
+    
+        console.log("Payload to add more:", formattedPayload);
+        const response = await PartnerService.updatePartnerTestMapping(formattedPayload);
+        if (response.status == 1) {
+            showAlert('Added Successfully!', 'success');
+            setTimeout(() => {
+                setActiveTab1('mapped');
+                fetchPartnerRates();
+            }, 1000);
+        } else {
+            showAlert(response.message, 'error');
+        }
+    };
+    
+
+
 
     return (
         <SafeAreaView style={{ flex: 1, }}>
@@ -231,241 +310,240 @@ const PartnerRateAmountPage = () => {
                         <Icon name="options-outline" size={24} color="#fff" />
                     </TouchableOpacity>
                 </View>
-
                 <>
-                    {allTestList?.map((item) => {
-                        const inputValue = testInputs[item.test_id] ?? '';
-                        const parsedInput = parseFloat(inputValue) || 0;
+                    <View style={styles.tabContainer}>
+                        <TouchableOpacity
+                            style={[styles.tab, activeTab1 === "mapped" && styles.activeTab]}
+                            onPress={() => onClickTab("mapped")}
+                        >
+                            <Text style={[styles.tabText, activeTab1 === "mapped" && styles.activeTabText]}>
+                                Mapped
+                            </Text>
+                            {activeTab1 === "mapped" && <View style={styles.activeTabIndicator} />}
+                        </TouchableOpacity>
 
-                        // Calculate partnerAmount based on rate_type
-                        const calculatedAmount = parsedInput.toFixed(2);
+                        <TouchableOpacity
+                            style={[styles.tab, activeTab1 === "unmapped" && styles.activeTab]}
+                            onPress={() => onClickTab("unmapped")}
+                        >
+                            <Text style={[styles.tabText, activeTab1 === "unmapped" && styles.activeTabText]}>
+                                Unmapped
+                            </Text>
+                            {activeTab1 === "unmapped" && <View style={styles.activeTabIndicator} />}
+                        </TouchableOpacity>
+                    </View>
 
-                        const handleChange = (value) => {
-                            const numericValue = parseFloat(value) || 0;
+                    {/* Content */}
+                    <View style={styles.content}>
+                        {activeTab1 === "mapped" ? (
+                            <>
+                                {allTestList?.map((item) => {
+                                    const inputValue = testInputs[item.test_id] ?? '';
+                                    const parsedInput = parseFloat(inputValue) || 0;
 
-                            if (debounceTimeouts[item.test_id]) {
-                                clearTimeout(debounceTimeouts[item.test_id]);
-                            }
+                                    // Calculate partnerAmount based on rate_type
+                                    const calculatedAmount = parsedInput.toFixed(2);
 
-                            handleInputChange(item.test_id, value);
+                                    const handleChange = (value) => {
+                                        const numericValue = parseFloat(value) || 0;
 
-                            const timeoutId = setTimeout(() => {
-                                const computedAmount =
-                                    rate_type === "percent"
-                                        ? (item.mrpRateAmount - (item.mrpRateAmount * numericValue) / 100).toFixed(2)
-                                        : numericValue.toFixed(2);
+                                        if (debounceTimeouts[item.test_id]) {
+                                            clearTimeout(debounceTimeouts[item.test_id]);
+                                        }
 
-                                if (numericValue && (computedAmount < item.client_rate || computedAmount > item.mrpRateAmount)) {
-                                    showAlert(`Partner amount must be between ₹${item.client_rate} and ₹${item.mrpRateAmount}.`, 'warning');
-                                    resetInput(item.test_id);
-                                }
-                            }, 1000);
+                                        handleInputChange(item.test_id, value);
 
-                            // Save the timeout ID
-                            setDebounceTimeouts((prev) => ({
-                                ...prev,
-                                [item.test_id]: timeoutId,
-                            }));
-                        };
+                                        const timeoutId = setTimeout(() => {
+                                            const computedAmount =
+                                                rate_type === "percent"
+                                                    ? (item.mrpRateAmount - (item.mrpRateAmount * numericValue) / 100).toFixed(2)
+                                                    : numericValue.toFixed(2);
 
-                        const calculatePartnerRatePercent = (partnerAmount, mrpRateAmount) => {
-                            if (mrpRateAmount <= 0) return '0.00';  // Avoid division by zero
+                                            if (numericValue && (computedAmount < item.client_rate || computedAmount > item.mrpRateAmount)) {
+                                                showAlert(`Partner amount must be between ₹${item.client_rate} and ₹${item.mrpRateAmount}.`, 'warning');
+                                                resetInput(item.test_id);
+                                            }
+                                        }, 1000);
 
-                            const percent = (partnerAmount / mrpRateAmount) * 100;
+                                        // Save the timeout ID
+                                        setDebounceTimeouts((prev) => ({
+                                            ...prev,
+                                            [item.test_id]: timeoutId,
+                                        }));
+                                    };
 
-                            return percent.toFixed(2);
-                        };
+                                    const calculatePartnerRatePercent = (partnerAmount, mrpRateAmount) => {
+                                        if (mrpRateAmount <= 0) return '0.00';  // Avoid division by zero
 
+                                        const percent = (partnerAmount / mrpRateAmount) * 100;
 
-
-                        const resetInput = (testId) => {
-                            setTestInputs((prevInputs) => ({
-                                ...prevInputs,
-                                [testId]: '',
-                            }));
-                        };
+                                        return percent.toFixed(2);
+                                    };
 
 
 
-                        return (
-                            <TouchableOpacity
-                                key={item.test_id}
-                                style={styles.testItem}
-                                onPress={() => {
-                                    setSelectedTest(item);
-                                    setTestDetailsModal(true);
-                                }}
-                            >
-                                <View style={styles.leftBlock}>
-                                    <View style={styles.testIcon}>
-                                        <Image
-                                            source={require('../../../../assets/testIcon.png')}
-                                            style={styles.iconImg}
-                                        />
-                                    </View>
-                                    <View style={styles.testTextblock}>
-                                        <Text style={styles.testTitle}>{item.test_name}</Text>
-                                        <View style={styles.testRate}>
-                                            <Text style={styles.testRateTest}>₹{item.client_rate}</Text>
-                                        </View>
-                                    </View>
-                                </View>
+                                    const resetInput = (testId) => {
+                                        setTestInputs((prevInputs) => ({
+                                            ...prevInputs,
+                                            [testId]: '',
+                                        }));
+                                    };
 
-                                <View style={styles.rightBlock}>
-                                    <TextInput
-                                        style={styles.testInput}
-                                        placeholder={item.partnerAmount ? `₹${item.partnerAmount}` : `₹${item.templateAmount || 0}` || 0}
-                                        placeholderTextColor="#000"
-                                        keyboardType="numeric"
-                                        value={testInputs[item.test_id] ?? ''}
-                                        onChangeText={handleChange}
-                                    />
-                                    {/* <Text style={styles.rightText}>%</Text> */}
-                                    {inputValue ? (
-                                        <View style={{ marginTop: 5 }}>
-                                            <Text style={styles.rightText}>
-                                                {calculatePartnerRatePercent(calculatedAmount, item.mrpRateAmount)}%
-                                            </Text>
-                                        </View>
-                                    ) : null}
 
-                                </View>
-                            </TouchableOpacity>
-                        );
-                    })}
 
-                    {/* { marginVertical: 20, paddingHorizontal: 16, } */}
+                                    return (
+                                        <TouchableOpacity
+                                            key={item.test_id}
+                                            style={styles.testItem}
+                                            onPress={() => {
+                                                setSelectedTest(item);
+                                                setTestDetailsModal(true);
+                                            }}
+                                        >
+                                            <View style={styles.leftBlock}>
+                                                <View style={styles.testIcon}>
+                                                    <Image
+                                                        source={require('../../../../assets/testIcon.png')}
+                                                        style={styles.iconImg}
+                                                    />
+                                                </View>
+                                                <View style={styles.testTextblock}>
+                                                    <Text style={styles.testTitle}>{item.test_name}</Text>
+                                                    <View style={styles.testRate}>
+                                                        <Text style={styles.testRateTest}>₹{item.client_rate}</Text>
+                                                    </View>
+                                                </View>
+                                            </View>
 
+                                            <View style={styles.rightBlock}>
+                                                <TextInput
+                                                    style={styles.testInput}
+                                                    placeholder={item.partnerAmount ? `₹${item.partnerAmount}` : `₹${item.templateAmount || 0}` || 0}
+                                                    placeholderTextColor="#000"
+                                                    keyboardType="numeric"
+                                                    value={testInputs[item.test_id] ?? ''}
+                                                    onChangeText={handleChange}
+                                                />
+                                                {/* <Text style={styles.rightText}>%</Text> */}
+                                                {inputValue ? (
+                                                    <View style={{ marginTop: 5 }}>
+                                                        <Text style={styles.rightText}>
+                                                            {calculatePartnerRatePercent(calculatedAmount, item.mrpRateAmount)}%
+                                                        </Text>
+                                                    </View>
+                                                ) : null}
+
+                                            </View>
+                                        </TouchableOpacity>
+                                    );
+                                })}
+
+                                {/* { marginVertical: 20, paddingHorizontal: 16, } */}
+
+                            </>
+                        ) : (
+                            <>
+                                {allCLientTestList?.map((item) => {
+                                    const inputValue = testInputs[item.test_id] ?? '';
+                                    const parsedInput = parseFloat(inputValue) || 0;
+
+                                    // Calculate partnerAmount based on rate_type
+                                    const calculatedAmount = parsedInput.toFixed(2);
+
+                                    const handleChange = (value) => {
+                                        const numericValue = parseFloat(value) || 0;
+
+                                        if (debounceTimeouts[item.test_id]) {
+                                            clearTimeout(debounceTimeouts[item.test_id]);
+                                        }
+
+                                        handleInputChange(item.test_id, value);
+
+                                        const timeoutId = setTimeout(() => {
+                                            const computedAmount =
+                                                rate_type === "percent"
+                                                    ? (item.mrpRateAmount - (item.mrpRateAmount * numericValue) / 100).toFixed(2)
+                                                    : numericValue.toFixed(2);
+
+                                            if (numericValue && (computedAmount < item.client_rate || computedAmount > item.mrpRateAmount)) {
+                                                showAlert(`Partner amount must be between ₹${item.client_rate} and ₹${item.mrpRateAmount}.`, 'warning');
+                                                resetInput(item.test_id);
+                                            }
+                                        }, 1000);
+
+                                        // Save the timeout ID
+                                        setDebounceTimeouts((prev) => ({
+                                            ...prev,
+                                            [item.test_id]: timeoutId,
+                                        }));
+                                    };
+
+                                    const calculatePartnerRatePercent = (partnerAmount, mrpRateAmount) => {
+                                        if (mrpRateAmount <= 0) return '0.00';  // Avoid division by zero
+
+                                        const percent = (partnerAmount / mrpRateAmount) * 100;
+
+                                        return percent.toFixed(2);
+                                    };
+
+                                    const resetInput = (testId) => {
+                                        setTestInputs((prevInputs) => ({
+                                            ...prevInputs,
+                                            [testId]: '',
+                                        }));
+                                    };
+
+                                    return (
+                                        <TouchableOpacity
+                                            key={item.test_id}
+                                            style={styles.testItem}
+                                            onPress={() => {
+                                                setSelectedTest(item);
+                                                setTestDetailsModal(true);
+                                            }}
+                                        >
+
+                                            <View style={styles.leftBlock}>
+                                                <View style={styles.testIcon}>
+                                                    <Image
+                                                        source={require('../../../../assets/testIcon.png')}
+                                                        style={styles.iconImg}
+                                                    />
+                                                </View>
+                                                <View style={styles.testTextblock}>
+                                                    <Text style={styles.testTitle}>{item.test_name}</Text>
+                                                    <View style={styles.testRate}>
+                                                        <Text style={styles.testRateTest}>₹{item.client_rate}</Text>
+                                                    </View>
+                                                </View>
+                                            </View>
+
+                                            <View style={styles.rightBlock}>
+                                                <TextInput
+                                                    style={styles.testInput}
+                                                    placeholder="₹0"
+                                                    placeholderTextColor="#000"
+                                                    keyboardType="numeric"
+                                                    value={testInputs[item.test_id] ?? ''}
+                                                    onChangeText={handleChange}
+                                                />
+                                                {/* <Text style={styles.rightText}>%</Text> */}
+                                                {inputValue ? (
+                                                    <View style={{ marginTop: 5 }}>
+                                                        <Text style={styles.rightText}>
+                                                            {calculatePartnerRatePercent(calculatedAmount, item.mrpRateAmount)}%
+                                                        </Text>
+                                                    </View>
+                                                ) : null}
+
+                                            </View>
+                                        </TouchableOpacity>
+                                    );
+                                })}
+                            </>
+                        )}
+                    </View>
                 </>
-
-
-                {/* Filter Modal */}
-                <Modal
-                    transparent={true}
-                    visible={filterModalVisible}
-                    animationType="slide"
-                    onRequestClose={() => setFilterModalVisible(false)}
-                >
-                    <View style={GlobalStyles.modalOverlay}>
-                        <View style={GlobalStyles.modalContainer}>
-                            {/* Close Button */}
-                            <TouchableOpacity
-                                style={GlobalStyles.modalClose}
-                                onPress={() => setFilterModalVisible(false)}
-                            >
-                                <Text style={GlobalStyles.closeIcon}>✕</Text>
-                            </TouchableOpacity>
-                            <Text style={GlobalStyles.mdlTitle}>Filter</Text>
-                            <Text style={GlobalStyles.mdlSubTitle}>Short Subheading may be fit</Text>
-                            <ScrollView
-                                showsVerticalScrollIndicator={false}
-                                showsHorizontalScrollIndicator={false}
-                            >
-                                <View style={GlobalStyles.inpBox}>
-                                    <Text style={GlobalStyles.label}>From Date <Text style={{ color: '#FA2C2C' }}>*</Text></Text>
-                                    <TouchableOpacity style={GlobalStyles.inputContainer}>
-                                        <TextInput
-                                            placeholder="DD-MM-YY"
-                                            style={GlobalStyles.input}
-                                            value={fromDate}
-                                            onChangeText={setFromDate}
-                                            placeholderTextColor="#C2C2C2"
-                                        />
-                                    </TouchableOpacity>
-                                </View>
-                                <View style={GlobalStyles.inpBox}>
-                                    <Text style={GlobalStyles.label}>To Date <Text style={{ color: '#FA2C2C' }}>*</Text></Text>
-                                    <TouchableOpacity style={GlobalStyles.inputContainer}>
-                                        <TextInput
-                                            placeholder="DD-MM-YY"
-                                            style={GlobalStyles.input}
-                                            value={toDate}
-                                            onChangeText={setToDate}
-                                            placeholderTextColor="#C2C2C2"
-                                        />
-                                    </TouchableOpacity>
-                                </View>
-                                <View style={GlobalStyles.inpBox}>
-                                    <Text style={GlobalStyles.label}>Search Type <Text style={{ color: '#FA2C2C' }}>*</Text></Text>
-                                    <View style={GlobalStyles.inputContainer}>
-                                        <View style={GlobalStyles.input}>
-                                            <Picker
-                                                selectedValue={selectedType}
-                                                onValueChange={value => setSelectedType(value)}
-                                                dropdownIconColor='#C2C2C2'
-                                                style={{
-                                                    color: '#C2C2C2',
-                                                }}
-                                            >
-                                                <Picker.Item label="Select Type" value="" />
-                                                <Picker.Item label="Partner" value="partner" />
-                                                <Picker.Item label="Report" value="report" />
-                                            </Picker>
-                                        </View>
-                                    </View>
-                                </View>
-                                <TouchableOpacity style={GlobalStyles.applyBtn}>
-                                    <Text style={GlobalStyles.applyBtnText}>Apply</Text>
-                                </TouchableOpacity>
-                            </ScrollView>
-                        </View>
-                    </View>
-                </Modal>
-
-                {/* Test Modal  */}
-                <Modal
-                    transparent={true}
-                    visible={testDetailsModal}
-                    animationType="slide"
-                    onRequestClose={() => testDetasetTestDetailsModalilsModal(false)}
-                >
-                    <View style={GlobalStyles.modalOverlay}>
-                        <View style={GlobalStyles.modalContainer}>
-                            {/* Close Button */}
-                            <TouchableOpacity
-                                style={GlobalStyles.modalClose}
-                                onPress={() => setTestDetailsModal(false)}
-                            >
-                                <Text style={GlobalStyles.closeIcon}>✕</Text>
-                            </TouchableOpacity>
-                            <View style={styles.percentageImg}>
-                                <Image source={require('../../../../assets/testimg1.png')} />
-                            </View>
-                            <Text style={styles.mdlSubTitle}>{selectedTest?.test_name}</Text>
-                            <Text style={styles.mdlTitle}>Complete Blood Count</Text>
-                            <View style={styles.mdlFlexdvs}>
-                                <Text style={styles.catTitle}>Category: {selectedTest?.categoryName}</Text>
-                                <View style={styles.mdlDot}></View>
-                                <Text style={styles.catTitle}>{selectedTest?.dept_name}</Text>
-                            </View>
-
-                            <View style={styles.testcard}>
-                                <View style={styles.section}>
-                                    <Text style={styles.testcardlbl}>MRP Rate</Text>
-                                    <Text style={styles.testcardvalue}>₹{selectedTest?.mrpRateAmount}</Text>
-                                </View>
-
-                                <View style={styles.divider} />
-
-                                <View style={styles.section}>
-                                    <Text style={styles.testcardlbl}>Client Rate</Text>
-                                    <Text style={styles.testcardvalue}>₹{selectedTest?.client_rate}</Text>
-                                </View>
-
-                                <View style={styles.divider} />
-
-                                <View style={styles.section}>
-                                    <Text style={styles.testcardlbl}>Client Rate %</Text>
-                                    <Text style={styles.testcardvalue}>
-                                        {selectedTest?.mrpRateAmount
-                                            ? `${((selectedTest.client_rate / selectedTest.mrpRateAmount) * 100).toFixed(2)}%`
-                                            : 'N/A'}
-                                    </Text>
-                                </View>
-                            </View>
-                        </View>
-                    </View>
-                </Modal>
 
             </ScrollView>
 
@@ -482,18 +560,156 @@ const PartnerRateAmountPage = () => {
                         shadowOpacity: 0.25,
                         shadowRadius: 3.84,
                         elevation: 5,
-                        marginBottom: 25
+                        marginBottom: 25,
                     }}
-                    onPress={!item.hasTestMappings ? handleSubmit : updateSubmit}
+                    onPress={() => {
+                        if (activeTab1 === "mapped" && !item.hasTestMappings) {
+                            handleSubmit();
+                        } else if (activeTab1 === "mapped" && item.hasTestMappings) {
+                            updateSubmit();
+                        } else {
+                            addMoreTests();
+                        }
+                    }}
                 >
                     <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 16 }}>
-
-                        {
-                            !item.hasTestMappings ? 'Save' : 'Update'
-                        }
+                        {activeTab1 === "mapped"
+                            ? !item.hasTestMappings
+                                ? "Save"
+                                : "Update"
+                            : "Submit"}
                     </Text>
                 </TouchableOpacity>
             </View>
+
+
+            {/* Filter Modal */}
+            <Modal
+                transparent={true}
+                visible={filterModalVisible}
+                animationType="slide"
+                onRequestClose={() => setFilterModalVisible(false)}
+            >
+                <View style={GlobalStyles.modalOverlay}>
+                    <View style={GlobalStyles.modalContainer}>
+                        {/* Close Button */}
+                        <TouchableOpacity
+                            style={GlobalStyles.modalClose}
+                            onPress={() => setFilterModalVisible(false)}
+                        >
+                            <Text style={GlobalStyles.closeIcon}>✕</Text>
+                        </TouchableOpacity>
+                        <Text style={GlobalStyles.mdlTitle}>Filter</Text>
+                        <Text style={GlobalStyles.mdlSubTitle}>Short Subheading may be fit</Text>
+                        <ScrollView
+                            showsVerticalScrollIndicator={false}
+                            showsHorizontalScrollIndicator={false}
+                        >
+                            <View style={GlobalStyles.inpBox}>
+                                <Text style={GlobalStyles.label}>From Date <Text style={{ color: '#FA2C2C' }}>*</Text></Text>
+                                <TouchableOpacity style={GlobalStyles.inputContainer}>
+                                    <TextInput
+                                        placeholder="DD-MM-YY"
+                                        style={GlobalStyles.input}
+                                        value={fromDate}
+                                        onChangeText={setFromDate}
+                                        placeholderTextColor="#C2C2C2"
+                                    />
+                                </TouchableOpacity>
+                            </View>
+                            <View style={GlobalStyles.inpBox}>
+                                <Text style={GlobalStyles.label}>To Date <Text style={{ color: '#FA2C2C' }}>*</Text></Text>
+                                <TouchableOpacity style={GlobalStyles.inputContainer}>
+                                    <TextInput
+                                        placeholder="DD-MM-YY"
+                                        style={GlobalStyles.input}
+                                        value={toDate}
+                                        onChangeText={setToDate}
+                                        placeholderTextColor="#C2C2C2"
+                                    />
+                                </TouchableOpacity>
+                            </View>
+                            <View style={GlobalStyles.inpBox}>
+                                <Text style={GlobalStyles.label}>Search Type <Text style={{ color: '#FA2C2C' }}>*</Text></Text>
+                                <View style={GlobalStyles.inputContainer}>
+                                    <View style={GlobalStyles.input}>
+                                        <Picker
+                                            selectedValue={selectedType}
+                                            onValueChange={value => setSelectedType(value)}
+                                            dropdownIconColor='#C2C2C2'
+                                            style={{
+                                                color: '#C2C2C2',
+                                            }}
+                                        >
+                                            <Picker.Item label="Select Type" value="" />
+                                            <Picker.Item label="Partner" value="partner" />
+                                            <Picker.Item label="Report" value="report" />
+                                        </Picker>
+                                    </View>
+                                </View>
+                            </View>
+                            <TouchableOpacity style={GlobalStyles.applyBtn}>
+                                <Text style={GlobalStyles.applyBtnText}>Apply</Text>
+                            </TouchableOpacity>
+                        </ScrollView>
+                    </View>
+                </View>
+            </Modal>
+
+            {/* Test Modal  */}
+            <Modal
+                transparent={true}
+                visible={testDetailsModal}
+                animationType="slide"
+                onRequestClose={() => testDetasetTestDetailsModalilsModal(false)}
+            >
+                <View style={GlobalStyles.modalOverlay}>
+                    <View style={GlobalStyles.modalContainer}>
+                        {/* Close Button */}
+                        <TouchableOpacity
+                            style={GlobalStyles.modalClose}
+                            onPress={() => setTestDetailsModal(false)}
+                        >
+                            <Text style={GlobalStyles.closeIcon}>✕</Text>
+                        </TouchableOpacity>
+                        <View style={styles.percentageImg}>
+                            <Image source={require('../../../../assets/amt-img.png')} />
+                        </View>
+                        <Text style={styles.mdlSubTitle}>{selectedTest?.test_name}</Text>
+                        <Text style={styles.mdlTitle}>Complete Blood Count</Text>
+                        <View style={styles.mdlFlexdvs}>
+                            <Text style={styles.catTitle}>Category: {selectedTest?.categoryName}</Text>
+                            <View style={styles.mdlDot}></View>
+                            <Text style={styles.catTitle}>{selectedTest?.dept_name}</Text>
+                        </View>
+
+                        <View style={styles.testcard}>
+                            <View style={styles.section}>
+                                <Text style={styles.testcardlbl}>MRP Rate</Text>
+                                <Text style={styles.testcardvalue}>₹{selectedTest?.mrpRateAmount}</Text>
+                            </View>
+
+                            <View style={styles.divider} />
+
+                            <View style={styles.section}>
+                                <Text style={styles.testcardlbl}>Client Rate</Text>
+                                <Text style={styles.testcardvalue}>₹{selectedTest?.client_rate}</Text>
+                            </View>
+
+                            <View style={styles.divider} />
+
+                            <View style={styles.section}>
+                                <Text style={styles.testcardlbl}>Client Rate %</Text>
+                                <Text style={styles.testcardvalue}>
+                                    {selectedTest?.mrpRateAmount
+                                        ? `${((selectedTest.client_rate / selectedTest.mrpRateAmount) * 100).toFixed(2)}%`
+                                        : 'N/A'}
+                                </Text>
+                            </View>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
 
             <AlertModal
                 visible={modalVisible}
@@ -765,5 +981,58 @@ const styles = StyleSheet.create({
     },
     // 
 
+
+
+    // New css
+    tabContainer: {
+        flexDirection: "row",
+        marginHorizontal:16,
+        marginBottom: 16,
+        marginTop:5,
+        borderBottomWidth:1,
+        borderBottomColor:'#72B183',
+    },
+    tab: {
+        flex: 1,
+        paddingVertical: 12,
+        alignItems: "center",
+        position:'relative',
+        zIndex:1,
+    },
+    activeTab: {
+        position:"relative",
+    },
+    activeTabIndicator: {
+        position: "absolute",
+        bottom: 0,
+        left: 0,
+        right: 0,
+        height: 3,
+        backgroundColor: "green",
+        borderTopLeftRadius: 2,
+        borderTopRightRadius: 2,
+        zIndex:1,
+      },
+    activeTabText: {
+        fontFamily: 'Poppins-Medium',
+        fontSize: 14,
+        color: "#555",
+    },
+    tabText: {
+        fontFamily: 'Poppins-Medium',
+        fontSize: 14,
+        color: "#555",
+    },
+
+    content: { flex: 1 },
+    item: {
+        padding: 14,
+        marginBottom: 10,
+        backgroundColor: "#f9f9f9",
+        borderRadius: 6,
+        borderWidth: 1,
+        borderColor: "#ddd",
+    },
+    itemText: { fontSize: 16 },
 
 })

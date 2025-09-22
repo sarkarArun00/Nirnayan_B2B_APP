@@ -74,6 +74,16 @@ const AuthService = {
       throw error;  // re-throw original error
     }
   },
+
+  getClietTestRateList: async () => {
+    try {
+      const response = await apiClient.get('client/partner-rate/client-test-rates');
+      return response.data
+    } catch (error) {
+      console.log("empLogin error response:", error.response?.data);
+      throw error;  // re-throw original error
+    }
+  },
   findByPartnerAndTemplateRateId: async (data) => {
     try {
       const response = await apiClient.post('client/partner-rate-test-mapping/findByPartnerAndTemplateRateId', data);
