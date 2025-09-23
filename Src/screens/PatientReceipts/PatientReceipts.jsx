@@ -19,10 +19,13 @@ const documentTypes = [
 function billReceipt() {
     const navigation = useNavigation();
     const [filterModalVisible, setFilterModalVisible] = useState(false);
+    const [DownloadModal, setDownloadModal] = useState(false);
+    const [EditRecModal, setEditRecModal] = useState(false);
     const [selectedType, setSelectedType] = useState('');
     const [fromDate, setFromDate] = useState('');
     const [toDate, setToDate] = useState('');
     const [uploadMdl, setUploadMdl] = useState(false);
+    const [selectGender, setSelectGender] = useState('');
 
     const labels = ['Net Amount', 'Total Price', 'Final Cost'];
     const prices = ['₹ 1,350', '₹ 1,650', '₹ 1,359'];
@@ -263,13 +266,13 @@ function billReceipt() {
                                 </View>
                             </View>
                             <View style={styles.filtBtnBlock}>
-                                <TouchableOpacity style={styles.editBtn}>
+                                <TouchableOpacity style={styles.editBtn} onPress={() => setEditRecModal(true)}>
                                     <Text style={styles.editBtnText}>Edit</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity style={styles.uploadBtn} onPress={() => setUploadMdl(true)}>
                                     <Text style={styles.uploadBtnText}>Upload</Text>
                                 </TouchableOpacity>
-                                <TouchableOpacity style={styles.downBtn}>
+                                <TouchableOpacity style={styles.downBtn} onPress={() => setDownloadModal(true)}>
                                     <Text style={styles.downBtnText}>Download</Text>
                                 </TouchableOpacity>
                             </View>
@@ -406,7 +409,7 @@ function billReceipt() {
 
                 </View>
 
-                {/* Upload Section */}
+                {/* Upload Modal */}
                 <Modal
                     transparent={true}
                     visible={uploadMdl}
@@ -433,23 +436,23 @@ function billReceipt() {
                                 {/* Select Document Type */}
                                 <Text style={GlobalStyles.label}>Document Type</Text>
                                 <TouchableOpacity
-                                    style={{ position:'relative', borderWidth:1, borderColor:'#C2C2C2', borderRadius:6, paddingVertical:15, paddingRight:12, paddingLeft:40, }}
+                                    style={{ position: 'relative', borderWidth: 1, borderColor: '#C2C2C2', borderRadius: 6, paddingVertical: 15, paddingRight: 12, paddingLeft: 40, }}
                                     onPress={() => setShowDocTypePicker(true)}
                                 >
-                                    <Text style={{ fontFamily:'Poppins-Regular', fontSize: 14, lineHeight:16, color: selectedDocType ? '#000' : '#999' }}>
+                                    <Text style={{ fontFamily: 'Poppins-Regular', fontSize: 14, lineHeight: 16, color: selectedDocType ? '#000' : '#999' }}>
                                         {selectedDocType ? selectedDocType.name : 'Select Document Type'}
                                     </Text>
-                                    <Icon name="chevron-down" size={20} color="#666" style={{position:'absolute', right:15, top:15, }} />
-                                    <Image source={require('../../../assets/selectUpload.png')} style={{position:'absolute', left:12, top:14, width:18, height:18, resizeMode:'contain',  }} />
+                                    <Icon name="chevron-down" size={20} color="#666" style={{ position: 'absolute', right: 15, top: 15, }} />
+                                    <Image source={require('../../../assets/selectUpload.png')} style={{ position: 'absolute', left: 12, top: 14, width: 18, height: 18, resizeMode: 'contain', }} />
                                 </TouchableOpacity>
-                                <Text style={{ fontFamily: 'Poppins-Medium', fontSize: 12, lineHeight: 14, color: '#6D6D6D', paddingTop:8, }}>Only support .jpg, .png and .pdf .doc files</Text>
+                                <Text style={{ fontFamily: 'Poppins-Medium', fontSize: 12, lineHeight: 14, color: '#6D6D6D', paddingTop: 8, }}>Only support .jpg, .png and .pdf .doc files</Text>
 
                                 {/* File List */}
                                 <FlatList
                                     data={uploads}
                                     renderItem={renderItem}
                                     keyExtractor={item => item.id}
-                                    contentContainerStyle={{ paddingBottom:18, }}
+                                    contentContainerStyle={{ paddingBottom: 18, }}
                                     scrollEnabled={false}
                                 />
 
@@ -458,7 +461,7 @@ function billReceipt() {
                                     <TouchableOpacity
                                         style={[
                                             styles.addButton,
-                                            { borderWidth:1, borderColor:'#00A635', borderRadius:6, paddingVertical:15,  }
+                                            { borderWidth: 1, borderColor: '#00A635', borderRadius: 6, paddingVertical: 15, }
                                         ]}
                                         onPress={() => {
                                             if (!selectedDocType) {
@@ -468,7 +471,7 @@ function billReceipt() {
                                             setShowImagePicker(true);
                                         }}
                                     >
-                                        <Text style={{ fontFamily: 'Poppins-SemiBold', fontSize: 14, lineHeight: 16, color: '#000', textAlign:'center', }}>Add Files</Text>
+                                        <Text style={{ fontFamily: 'Poppins-SemiBold', fontSize: 14, lineHeight: 16, color: '#000', textAlign: 'center', }}>Add Files</Text>
                                     </TouchableOpacity>
                                 )}
 
@@ -535,7 +538,6 @@ function billReceipt() {
                         </View>
                     </View>
                 </Modal>
-                {/* Upload Section */}
 
                 {/* Filter Modal */}
                 <Modal
@@ -630,6 +632,195 @@ function billReceipt() {
                     </View>
                 </Modal>
 
+                {/* Download Modal */}
+                <Modal
+                    transparent={true}
+                    visible={DownloadModal}
+                    animationType="slide"
+                    onRequestClose={() => setDownloadModal(false)}
+                >
+                    <View style={GlobalStyles.modalOverlay}>
+                        <View style={GlobalStyles.modalContainer}>
+                            {/* Close Button */}
+                            <TouchableOpacity
+                                style={GlobalStyles.modalClose}
+                                onPress={() => setDownloadModal(false)}
+                            >
+                                <Text style={GlobalStyles.closeIcon}>✕</Text>
+                            </TouchableOpacity>
+                            <Text style={GlobalStyles.mdlCenterTitle}>Downloads</Text>
+                            {/* <Text style={GlobalStyles.mdlSubTitle}>Choose a receipt type to download</Text> */}
+                            <ScrollView
+                                showsVerticalScrollIndicator={false}
+                                showsHorizontalScrollIndicator={false}
+                            >
+                                <View style={styles.downloadMainWrap}>
+                                    <TouchableOpacity style={styles.payRecBtn}>
+                                        <Image source={require('../../../assets/payreceipt1.png')} style={styles.downloadmdlIcon} />
+                                        <Text style={styles.downloadmdlText}>Payment {"\n"}Receipt</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity style={styles.paidRecBtn}>
+                                        <Image source={require('../../../assets/payreceipt2.png')} style={styles.downloadmdlIcon} />
+                                        <Text style={styles.downloadmdlText}>Paid {"\n"}Receipt</Text>
+                                    </TouchableOpacity>
+                                </View>
+
+                            </ScrollView>
+                        </View>
+                    </View>
+                </Modal>
+
+                {/* Edit Modal */}
+                <Modal
+                    transparent={true}
+                    visible={EditRecModal}
+                    animationType="slide"
+                    onRequestClose={() => setEditRecModal(false)}
+                >
+                    <View style={GlobalStyles.modalOverlay}>
+                        <View style={GlobalStyles.modalContainer}>
+                            {/* Close Button */}
+                            <TouchableOpacity
+                                style={GlobalStyles.modalClose}
+                                onPress={() => setEditRecModal(false)}
+                            >
+                                <Text style={GlobalStyles.closeIcon}>✕</Text>
+                            </TouchableOpacity>
+                            <Text style={GlobalStyles.mdlTitle}>Edit Receipt</Text>
+                            <View style={{ paddingTop: 10, paddingVertical: 15, }}>
+                                <View style={styles.editRow}>
+                                    <View style={styles.editRowBox}>
+                                        <Image
+                                            source={require("../../../assets/patientreceditmdl1.png")}
+                                            style={styles.editRowBoxIcon}
+                                        />
+                                        <Text style={styles.editRowBoxLabel}>Investigation ID:</Text>
+                                    </View>
+                                    <Text style={styles.editRowBoxValue}>SE/CL/250117/0007</Text>
+                                </View>
+                                <View style={styles.editRow}>
+                                    <View style={styles.editRowBox}>
+                                        <Image
+                                            source={require("../../../assets/patientreceditmdl2.png")}
+                                            style={styles.editRowBoxIcon}
+                                        />
+                                        <Text style={styles.editRowBoxLabel}>Date:</Text>
+                                    </View>
+                                    <Text style={styles.editRowBoxValue}>08 Aug, 2025, 08:22pm</Text>
+                                </View>
+                            </View>
+                            <ScrollView
+                                showsVerticalScrollIndicator={false}
+                                showsHorizontalScrollIndicator={false}
+                            >
+                                <View style={GlobalStyles.inpBox}>
+                                    <Text style={GlobalStyles.label}>Patient Name <Text style={{ color: '#FA2C2C' }}>*</Text></Text>
+                                    <TouchableOpacity style={GlobalStyles.inputContainer}>
+                                        <TextInput
+                                            placeholder="Enter Name"
+                                            style={GlobalStyles.input}
+                                            placeholderTextColor="#C2C2C2"
+                                        />
+                                    </TouchableOpacity>
+                                </View>
+                                <View style={{ flexDirection: 'row', marginBottom:10, }}>
+                                    <View style={{ flex: 1, }}>
+                                        <Text style={GlobalStyles.label}>
+                                            Age <Text style={{ color: '#FA2C2C' }}>*</Text>
+                                        </Text>
+                                        <View style={{ flexDirection: 'row', gap: 10 }}>
+                                            <TextInput
+                                                placeholder="YY"
+                                                style={[GlobalStyles.input, { flex: 1 }]}
+                                                placeholderTextColor="#C2C2C2"
+                                            />
+                                            <TextInput
+                                                placeholder="MM"
+                                                style={[GlobalStyles.input, { flex: 1 }]}
+                                                placeholderTextColor="#C2C2C2"
+                                            />
+                                            <TextInput
+                                                placeholder="DD"
+                                                style={[GlobalStyles.input, { flex: 1 }]}
+                                                placeholderTextColor="#C2C2C2"
+                                            />
+                                        </View>
+                                    </View>
+
+                                    <View style={{ flex: 1, marginLeft: 10 }}>
+                                        <Text style={GlobalStyles.label}>
+                                            Gender <Text style={{ color: '#FA2C2C' }}>*</Text>
+                                        </Text>
+                                        <View style={GlobalStyles.input}>
+                                            <Picker
+                                                selectedValue={selectGender}
+                                                onValueChange={value => setSelectGender(value)}
+                                                dropdownIconColor="#C2C2C2"
+                                                style={{
+                                                    color: selectGender ? '#000' : '#C2C2C2',
+                                                }}
+                                            >
+                                                <Picker.Item label="Select" value="" />
+                                                <Picker.Item label="Male" value="Male" />
+                                                <Picker.Item label="Female" value="Female" />
+                                                <Picker.Item label="Other" value="Other" />
+                                                <Picker.Item label="Prefer not to say" value="PreferNotToSay" />
+                                            </Picker>
+                                        </View>
+                                    </View>
+                                </View>
+                                <View style={GlobalStyles.inpBox}>
+                                    <Text style={GlobalStyles.label}>Doctor Name <Text style={{ color: '#FA2C2C' }}>*</Text></Text>
+                                    <TouchableOpacity style={GlobalStyles.inputContainer}>
+                                        <TextInput
+                                            placeholder="Enter Name"
+                                            style={GlobalStyles.input}
+                                            placeholderTextColor="#C2C2C2"
+                                        />
+                                    </TouchableOpacity>
+                                </View>
+                                <View style={GlobalStyles.inpBox}>
+                                    <Text style={GlobalStyles.label}>Mobile Number</Text>
+                                    <TouchableOpacity style={GlobalStyles.inputContainer}>
+                                        <TextInput
+                                            placeholder="Enter Number"
+                                            style={GlobalStyles.input}
+                                            placeholderTextColor="#C2C2C2"
+                                        />
+                                    </TouchableOpacity>
+                                </View>
+                                <View style={GlobalStyles.inpBox}>
+                                    <Text style={GlobalStyles.label}>Reason for Edit (Required)</Text>
+                                    <TouchableOpacity style={GlobalStyles.inputContainer}>
+                                        <TextInput
+                                            placeholder="Description"
+                                            style={GlobalStyles.textAreaNew}
+                                            multiline={true}
+                                            numberOfLines={4}
+                                            placeholderTextColor="#C2C2C2"
+                                        />
+                                    </TouchableOpacity>
+                                </View>
+
+                                <TouchableOpacity style={GlobalStyles.applyBtnFullWidth}>
+                                    <Text style={GlobalStyles.applyBtnTextNew}>Submit</Text>
+                                </TouchableOpacity>
+
+
+
+
+
+
+
+
+
+
+
+                            </ScrollView>
+                        </View>
+                    </View>
+                </Modal>
+
             </ScrollView>
         </SafeAreaView>
     )
@@ -638,6 +829,40 @@ function billReceipt() {
 export default billReceipt
 
 const styles = StyleSheet.create({
+    // Edit Modal Start
+    editRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginTop: 5,
+    },
+    editRowBox: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+    },
+    editRowBoxIcon: {
+        width: 17,
+        height: 17,
+        resizeMode: 'contain',
+    },
+    editRowBoxLabel: {
+        fontFamily: 'Poppins-Regular',
+        fontSize: 12,
+        lineHeight: 14,
+        color: '#9C9C9C',
+    },
+    editRowBoxValue: {
+        fontFamily: 'Poppins-Regular',
+        fontSize: 12,
+        lineHeight: 14,
+        color: '#000',
+    },
+
+
+
+    // Edit Modal End
     cardContainer: {
         padding: 15,
     },
@@ -895,6 +1120,45 @@ const styles = StyleSheet.create({
         borderRadius: 3,
     },
     // Upload Documents End
+
+    // Download Modal Start
+    downloadMainWrap: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        gap: 25,
+        paddingTop: 25,
+        paddingHorizontal: 30,
+    },
+    payRecBtn: {
+        flex: 1,
+        alignItems: 'center',
+        backgroundColor: 'rgba(0,166,53,0.15)',
+        borderRadius: 20,
+        paddingVertical: 18,
+        paddingHorizontal: 5,
+    },
+    paidRecBtn: {
+        flex: 1,
+        alignItems: 'center',
+        backgroundColor: 'rgba(255,189,100,0.15)',
+        borderRadius: 20,
+        paddingVertical: 20,
+        paddingHorizontal: 5,
+    },
+    downloadmdlIcon: {
+        width: 60,
+        height: 60,
+        resizeMode: 'contain',
+        marginBottom: 8,
+    },
+    downloadmdlText: {
+        fontFamily: 'Poppins-Medium',
+        fontSize: 12,
+        lineHeight: 14,
+        color: '#000000',
+        textAlign: 'center',
+    },
+    // Download Modal End
 
 
 
