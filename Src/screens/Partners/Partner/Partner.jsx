@@ -14,7 +14,7 @@ const cardWidth = (screenWidth - 48) / 3;
 function Partner() {
     const navigation = useNavigation();
     const placeholderOptions = ['Search Partner', 'Search Blog', 'Search Report'];
-    const [placeholderIndex, setPlaceholderIndex] = useState(0);
+    // const [placeholderIndex, setPlaceholderIndex] = useState(0);
     const [activeTab, setActiveTab] = useState('partner');
     const [filterModalVisible, setFilterModalVisible] = useState(false);
     const [activeAction, setActiveAction] = useState(null);
@@ -68,10 +68,10 @@ function Partner() {
     useEffect(() => {
         fetchAllData();
 
-        const interval = setInterval(() => {
-            setPlaceholderIndex((prevIndex) => (prevIndex + 1) % placeholderOptions.length);
-        }, 2000);
-        return () => clearInterval(interval);
+        // const interval = setInterval(() => {
+        //     setPlaceholderIndex((prevIndex) => (prevIndex + 1) % placeholderOptions.length);
+        // }, 2000);
+        // return () => clearInterval(interval);
     }, []);
 
     const fetchAllData = async () => {
@@ -176,7 +176,8 @@ function Partner() {
 
     const handleActionPress = (label) => {
         if (label === 'Download Rate') {
-            navigation.navigate('ViewAllRates');
+            // onPress={() => navigation.navigate('DownloadRates')}
+            navigation.navigate('DownloadRates');
         } else if (label === 'Add Partner' || label === 'Create Rate') {
             openModal();
             setActiveAction(label);
@@ -377,7 +378,7 @@ function Partner() {
                     <View style={styles.searchBox}>
                         <Icon name="search" size={20} color="#aaa" style={styles.searchIcon} />
                         <TextInput
-                            placeholder={placeholderOptions[placeholderIndex]}
+                            placeholder="Start Searching..."
                             placeholderTextColor="#999"
                             style={styles.input}
                         />

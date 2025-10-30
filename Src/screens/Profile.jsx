@@ -100,7 +100,7 @@ const ProfileScreen = () => {
               <Image style={styles.menuImg} source={require('../../assets/menu12.png')} />
               <Text style={styles.menuText}>Partner</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('DownloadRates')}>
+            <TouchableOpacity style={styles.menuItem} >
               <Image style={styles.menuImg} source={require('../../assets/menu5.png')} />
               <Text style={styles.menuText}>Request Pick-up</Text>
             </TouchableOpacity>

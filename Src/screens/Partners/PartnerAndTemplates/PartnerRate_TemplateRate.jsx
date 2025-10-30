@@ -304,10 +304,6 @@ function ViewAllRates() {
                                     <Text style={styles.tbSubTitle}>
                                         {item.hasTestMappings ? item.testCount : "No"} Investigation
                                     </Text>
-                                    <Text style={styles.tbSubTitle}>
-                                        {item.rate_type}
-                                        {item.rate_type_id}
-                                    </Text>
                                 </View>
                             </View>
 

@@ -1,15 +1,83 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Text, ImageBackground, View, Image, SafeAreaView, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal } from 'react-native'
 import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Ionicons from "react-native-vector-icons/Ionicons";
-
+import PartnerService from "../../../services/partner_service"
 import { GlobalStyles } from '../../../GlobalStyles';
 
 function DownloadRates() {
     const navigation = useNavigation();
     const [filterModalVisible, setFilterModalVisible] = useState(false);
     const [activeTab, setActiveTab] = useState("partner");
+    const [allPartners, setPartners] = useState([])
+    const [partnerRates, setPartnerRates] = useState([]);
+    const [templateRates, setTemplateRates] = useState([]);
+    const [allTemplates, setTemplates] = useState([])
+    const [activeTemplates, setActiveTemplates] = useState([]);
+    const [activePartner, setActivePartners] = useState([]);
+
+
+    useEffect(() => {
+        fetchAllData();
+
+    }, []);
+
+    const fetchAllData = async () => {
+        try {
+            await fetchPartner();
+            await fetchTemplate();
+            await fetchPartnerRateMaster();
+        } catch (error) {
+            console.log('Error in fetchAllData:', error);
+        }
+    };
+
+
+    const fetchPartner = async () => {
+        try {
+            const response = await PartnerService.getAllPartners();
+            if (response.status == 1) {
+                const active = response.data.filter(item => item.status === true);
+                setPartners(active);
+            }
+        } catch {
+            setPartners([]);
+        }
+    };
+
+    const fetchTemplate = async () => {
+        try {
+            const response = await PartnerService.getAllTemplateRate();
+            setTemplates(response.data);
+            setTemplateRates(response.data);
+            const active = response.data.filter(item => item.status === true);
+            setActiveTemplates(active);
+        } catch {
+            setTemplates([]);
+            setTemplateRates([]);
+        }
+    };
+
+    const fetchPartnerRateMaster = async () => {
+        try {
+            const response = await PartnerService.getAllPartnerRateMaster();
+            const active = response.data.filter(item => item.status == true);
+            setActivePartners(response.data);
+            setPartnerRates(response.data);
+            console.log('heloooooo', active)
+        } catch {
+            setPartnerRates([]);
+        }
+    };
+
+
+    const handleExcelDownload = async(activeTab,item) => {
+        console.log('Clicked on excel: '+activeTab, item )
+    }
+    const handlePdfDownload = async(activeTab,item) => {
+        console.log('Clicked on pdf: '+activeTab, item )
+    }
 
     return (
         <SafeAreaView style={{ flex: 1, }}>
@@ -82,76 +150,55 @@ function DownloadRates() {
                 </View>
 
                 <View style={{ paddingHorizontal: 16, paddingTop: 10, }}>
-                    {activeTab === "partner" && (
-                        <>
-                            <View style={styles.card}>
-                                <View style={{ flex: 1 }}>
-                                    <View style={styles.badge}>
-                                        <Text style={styles.badgeText}>Active</Text>
-                                    </View>
-                                    <Text style={styles.title}>NAPP - Beldanga</Text>
-                                    <View style={styles.CardRow}>
-                                        <Ionicons name="document-text-outline" size={18} color="#555" />
-                                        <Text style={styles.subText}>12 Investigation</Text>
-                                    </View>
+                    {(activeTab === 'partner' ? partnerRates : templateRates).map((item) => (
+                        <View key={item.id} style={styles.card}>
+                            <View style={{ flex: 1 }}>
+                                <View
+                                    style={[
+                                        styles.badge,
+                                        item.status == true ? styles.active : styles.inactive,
+                                        { marginBottom: 10 }
+                                    ]}
+                                >
+                                    <Text
+                                        style={[
+                                            styles.badgeText,
+                                            item.status == true ? { color: '#00A651' } : { color: '#888' }
+                                        ]}
+                                    >
+                                        {item.status ? 'Active' : 'Inactive'}
+                                    </Text>
                                 </View>
+
+                                <Text style={styles.title}>
+                                    {activeTab === 'partner' ? item.partner_name : item.template_name}
+                                </Text>
+
+                                <View style={styles.CardRow}>
+                                    <Image
+                                        source={require('../../../../assets/invicon.png')}
+                                        style={[styles.invIcon, { width: 11, height: 12, objectFit: 'contain' }]}
+                                    />
+                                    <Text style={styles.subText}>
+                                        {item.hasTestMappings ? item.testCount : "No"} Investigation
+                                    </Text>
+
+                                </View>
+                            </View>
+
+                            <View style={styles.tbactionIcon}>
                                 <View style={styles.iconRow}>
-                                    <TouchableOpacity>
+                                    <TouchableOpacity onPress={() => handleExcelDownload(activeTab,item)}>
                                         <Image style={styles.iconWrapper} source={require('../../../../assets/downloadicon1.png')} />
                                     </TouchableOpacity>
-                                    <TouchableOpacity>
+                                    <TouchableOpacity onPress={() => handlePdfDownload(activeTab,item)}>
                                         <Image style={styles.iconWrapper} source={require('../../../../assets/downloadicon2.png')} />
                                     </TouchableOpacity>
                                 </View>
                             </View>
 
-                            <View style={styles.card}>
-                                <View style={{ flex: 1 }}>
-                                    <View style={styles.badge}>
-                                        <Text style={styles.badgeText}>Active</Text>
-                                    </View>
-                                    <Text style={styles.title}>NAPP - Beldanga</Text>
-                                    <View style={styles.CardRow}>
-                                        <Ionicons name="document-text-outline" size={18} color="#555" />
-                                        <Text style={styles.subText}>12 Investigation</Text>
-                                    </View>
-                                </View>
-                                <View style={styles.iconRow}>
-                                    <TouchableOpacity>
-                                        <Image style={styles.iconWrapper} source={require('../../../../assets/downloadicon1.png')} />
-                                    </TouchableOpacity>
-                                    <TouchableOpacity>
-                                        <Image style={styles.iconWrapper} source={require('../../../../assets/downloadicon2.png')} />
-                                    </TouchableOpacity>
-                                </View>
-                            </View>
-                        </>
-                    )}
-
-                    {activeTab === "template" && (
-                        <>
-                            <View style={styles.card}>
-                                <View style={{ flex: 1 }}>
-                                    <View style={styles.badge}>
-                                        <Text style={styles.badgeText}>Active</Text>
-                                    </View>
-                                    <Text style={styles.title}>NAPP - Beldanga</Text>
-                                    <View style={styles.CardRow}>
-                                        <Ionicons name="document-text-outline" size={18} color="#555" />
-                                        <Text style={styles.subText}>12 Investigation</Text>
-                                    </View>
-                                </View>
-                                <View style={styles.iconRow}>
-                                    <TouchableOpacity>
-                                        <Image style={styles.iconWrapper} source={require('../../../../assets/downloadicon1.png')} />
-                                    </TouchableOpacity>
-                                    <TouchableOpacity>
-                                        <Image style={styles.iconWrapper} source={require('../../../../assets/downloadicon2.png')} />
-                                    </TouchableOpacity>
-                                </View>
-                            </View>
-                        </>
-                    )}
+                        </View>
+                    ))}
                 </View>
 
                 {/* Filter Modal */}
