@@ -50,7 +50,7 @@ function NewEstimate({ navigation }) {
                     </View>
                 </View>
 
-                <View style={{ margin: 16, flex: 1, }}>
+                <View style={{ margin: 16, }}>
                     <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#fff', borderWidth: 1, borderColor: '#00A635', paddingVertical: 12, paddingHorizontal: 16, borderRadius: 10, }}
                         onPress={toggleAccordion}>
                         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, }}>
@@ -180,8 +180,8 @@ function NewEstimate({ navigation }) {
                                         <Image source={require('../../../assets/partnerrate-icn1.png')} style={styles.rateIcon} />
                                     </View>
                                     <View style={styles.rateText}>
-                                        <Text>Total Rate</Text>
-                                        <Text>550</Text>
+                                        <Text style={styles.rateLabel}>Total Rate</Text>
+                                        <Text style={styles.rateValue}>550</Text>
                                     </View>
                                 </View>
                                 <View style={styles.rateBox}>
@@ -207,6 +207,7 @@ function NewEstimate({ navigation }) {
                 </View>
 
             </ScrollView>
+
             <View style={styles.summaryContainer}>
                 <View style={styles.amountSection}>
                     <View style={styles.amountBox}>
