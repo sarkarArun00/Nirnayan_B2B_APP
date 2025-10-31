@@ -64,7 +64,7 @@ export const GlobalStyles = StyleSheet.create({
     marginBottom: 2,
   },
   mdlSubTitle: {
-    fontFamily: 'Poppins-Reqular',
+    fontFamily: 'Poppins-Regular',
     fontSize: 12,
     lineHeight: 14,
     color: '#A4A4A4',
@@ -74,7 +74,7 @@ export const GlobalStyles = StyleSheet.create({
     marginBottom: 10,
   },
   label: {
-    fontFamily: 'Poppins-Reqular',
+    fontFamily: 'Poppins-Regular',
     fontSize: 12,
     lineHeight: 14,
     color: '#7D7B7B',
@@ -89,7 +89,7 @@ export const GlobalStyles = StyleSheet.create({
   //   top:18,
   // },
   input: {
-    fontFamily: 'Poppins-Reqular',
+    fontFamily: 'Poppins-Regular',
     fontSize: 12,
     lineHeight: 14,
     height: 50,
@@ -101,7 +101,7 @@ export const GlobalStyles = StyleSheet.create({
     color: '#C2C2C2',
   },
   textArea: {
-    fontFamily: 'Poppins-Reqular',
+    fontFamily: 'Poppins-Regular',
     fontSize: 12,
     lineHeight: 14,
     height: 50,
@@ -113,7 +113,7 @@ export const GlobalStyles = StyleSheet.create({
     color: '#C2C2C2',
   },
    textAreaNew: {
-    fontFamily: 'Poppins-Reqular',
+    fontFamily: 'Poppins-Regular',
     fontSize: 12,
     lineHeight: 14,
     height:85,

@@ -80,7 +80,7 @@ const ProfileScreen = () => {
         {/* Scrollable Menu */}
         <View style={{ flex: 1, paddingHorizontal: 20 }}>
           <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1 }}>
-            <TouchableOpacity style={styles.menuItem}>
+            <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('ServiceEstimate')}>
               <Image style={styles.menuImg} source={require('../../assets/menu1.png')} />
               <Text style={styles.menuText}>Service Estimate</Text>
             </TouchableOpacity>
