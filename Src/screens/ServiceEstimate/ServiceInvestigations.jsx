@@ -105,7 +105,7 @@ function ServiceInvestigations() {
                             <View style={styles.arrowBox}>
                                 <Image source={require('../../../assets/arrow1.png')} />
                             </View>
-                            <Text style={styles.titleText}>Page Title</Text>
+                            <Text style={styles.titleText}>Investigation Details</Text>
                         </TouchableOpacity>
                         <View style={styles.rightSection}>
                             <TouchableOpacity style={{ position: 'relative' }}>
@@ -120,7 +120,6 @@ function ServiceInvestigations() {
                 </ImageBackground>
 
                 <View style={{paddingHorizontal:16,}}>
-                    <Text style={{ fontFamily: 'Poppins-SemiBold', fontSize: 15, lineHeight: 17, color: '#000',}}>Know more about your investigation</Text>
                     {packages.map((item, index) => (
                         <TouchableOpacity key={index} style={styles.invCard} onPress={() => setPackageModalVisible(true)}>
                             <View style={[styles.invCardIconWrap, { backgroundColor: `${item.color}15`, borderWidth: 1, borderColor: `${item.color}25` }]}>
