@@ -31,7 +31,7 @@ function ServiceEstimate() {
                                 <Image source={require('../../../assets/notification.png')} />
                                 <View style={styles.notiDot}></View>
                             </TouchableOpacity>
-                            <TouchableOpacity>
+                            <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
                                 <Image source={require('../../../assets/menu-bar.png')} />
                             </TouchableOpacity>
                         </View>
