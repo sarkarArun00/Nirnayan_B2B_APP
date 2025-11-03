@@ -24,6 +24,7 @@ import PatientReceipts from '../screens/PatientReceipts/PatientReceipts';
 import DownloadRates from '../screens/Partners/DownloadRates/DownloadRates';
 import ServiceEstimate from '../screens/ServiceEstimate/ServiceEstimate';
 import NewEstimate from '../screens/ServiceEstimate/NewEstimate';
+import ServiceInvestigations from '../screens/ServiceEstimate/ServiceInvestigations';
 
 
 const Tab = createBottomTabNavigator();
@@ -132,6 +133,7 @@ const AppNavigator = () => {
       <Stack.Screen name="DownloadRates" component={DownloadRates} />
       <Stack.Screen name="ServiceEstimate" component={ServiceEstimate} />
       <Stack.Screen name="NewEstimate" component={NewEstimate} />
+      <Stack.Screen name="ServiceInvestigations" component={ServiceInvestigations} />
     </Stack.Navigator>
   );
 };

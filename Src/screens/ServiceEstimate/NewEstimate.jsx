@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, SafeAreaView, ScrollView, ImageBackground, TouchableOpacity, Image, TextInput, StyleSheet, } from 'react-native';
+import React, { useState, useRef } from 'react';
+import { View, Text, SafeAreaView, ScrollView, ImageBackground, TouchableOpacity, Animated, Image, TextInput, StyleSheet, } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Collapsible from 'react-native-collapsible';
 import { GlobalStyles } from '../../GlobalStyles';
@@ -11,6 +11,42 @@ function NewEstimate({ navigation }) {
     const [selectGender, setSelecteGender] = useState('');
     const [selectPartner, setSelectPartner] = useState('');
     const [selectInitial, setSelectInitial] = useState('');
+
+    const [showGross, setShowGross] = useState(true);
+    const fadeAnim = useRef(new Animated.Value(1)).current;
+    const slideAnim = useRef(new Animated.Value(0)).current;
+
+    const toggleBox = () => {
+        // Animate hide current box
+        Animated.parallel([
+            Animated.timing(fadeAnim, {
+                toValue: 0,
+                duration: 200,
+                useNativeDriver: true,
+            }),
+            Animated.timing(slideAnim, {
+                toValue: -20,
+                duration: 200,
+                useNativeDriver: true,
+            }),
+        ]).start(() => {
+            // Toggle the box
+            setShowGross(prev => !prev);
+            // Animate show new box
+            Animated.parallel([
+                Animated.timing(fadeAnim, {
+                    toValue: 1,
+                    duration: 300,
+                    useNativeDriver: true,
+                }),
+                Animated.timing(slideAnim, {
+                    toValue: 0,
+                    duration: 300,
+                    useNativeDriver: true,
+                }),
+            ]).start();
+        });
+    };
 
     return (
         <SafeAreaView style={{ flex: 1 }}>
@@ -168,7 +204,7 @@ function NewEstimate({ navigation }) {
                             <Text style={styles.packageTitle}>
                                 Suswastham 17.0 - Pre Operative Check Up Basic Package
                             </Text>
-                            <TouchableOpacity>
+                            <TouchableOpacity onPress={() => navigation.navigate('ServiceInvestigations')}>
                                 <Ionicons name="eye" size={22} color="#B8B8B8" />
                                 {/* <Text style={styles.addTestBtn}>+7</Text> */}
                             </TouchableOpacity>
@@ -189,7 +225,7 @@ function NewEstimate({ navigation }) {
                                         <Image source={require('../../../assets/partnerrate-icn2.png')} style={styles.rateIcon} />
                                     </View>
                                     <View style={styles.rateText}>
-                                        <Text style={styles.rateLabel}>Gross Rate</Text>
+                                        <Text style={styles.rateLabel}>Gross MRP</Text>
                                         <Text style={styles.rateValue}>550</Text>
                                     </View>
                                 </View>
@@ -208,16 +244,30 @@ function NewEstimate({ navigation }) {
 
             </ScrollView>
 
-            <View style={styles.summaryContainer}>
-                <View style={styles.amountSection}>
-                    <View style={styles.amountBox}>
-                        <Text style={styles.amountLabel}>Gross Total</Text>
-                        <Text style={styles.amountValue}>₹ 1,100</Text>
-                    </View>
-                    <View style={styles.amountBox}>
-                        <Text style={styles.amountLabel}>Total Rate</Text>
-                        <Text style={styles.amountValue}>₹ 800</Text>
-                    </View>
+            <View style={styles.amntContainer}>
+                <View style={styles.amntinnContainer}>
+                    <Animated.View
+                        style={[
+                            styles.amountBox,
+                            { opacity: fadeAnim, transform: [{ translateY: slideAnim }] },
+                        ]}
+                    >
+                        {showGross ? (
+                            <>
+                                <Text style={styles.amountLabel}>Gross Total</Text>
+                                <Text style={styles.amountValue}>₹ 10,100</Text>
+                            </>
+                        ) : (
+                            <>
+                                <Text style={styles.amountLabel}>Total Rate</Text>
+                                <Text style={styles.amountValue}>₹ 800</Text>
+                            </>
+                        )}
+                    </Animated.View>
+
+                    <TouchableOpacity style={styles.iconButton} onPress={toggleBox}>
+                        <Ionicons name="code-outline" size={24} color="#FFFFFF" />
+                    </TouchableOpacity>
                 </View>
                 <TouchableOpacity style={styles.saveButton}>
                     <Text style={styles.saveButtonText}>Save</Text>
@@ -230,16 +280,55 @@ function NewEstimate({ navigation }) {
 export default NewEstimate;
 
 const styles = StyleSheet.create({
-    summaryContainer: {
+    amntContainer: {
         position: 'absolute',
         left: 0,
         bottom: 0,
-        width:'100%',
-        backgroundColor:'#00A651',
-        paddingHorizontal:16,
-        paddingTop:25,
-        paddingBottom:14,
+        width: '100%',
+        backgroundColor: '#00A651',
+        paddingHorizontal: 16,
+        paddingVertical:17,
+        flexDirection:'row',
+        justifyContent:'space-between',
+        alignItems:'center',
     },
+    amntinnContainer:{
+        flexDirection:'row',
+        alignItems:"flex-start",
+        gap:0,
+    },
+    amountBox:{ 
+        width:110,
+    },
+    amountLabel:{
+        fontFamily: 'Poppins-SemiBold',
+        fontSize: 15,
+        lineHeight: 17,
+        color:'#FFFFFF',
+        paddingBottom:5,
+    },
+    amountValue:{
+        fontFamily: 'Poppins-SemiBold',
+        fontSize: 17,
+        lineHeight: 19,
+        color:'#FFFFFF',
+    },
+    saveButton:{
+        backgroundColor:'#C2FF84',
+        borderRadius:6,
+        paddingVertical:14,
+        paddingHorizontal:25,
+    },
+    saveButtonText:{
+        fontFamily: 'Poppins-SemiBold',
+        fontSize: 16,
+        lineHeight: 18,
+        color:'#00A651',
+    },
+
+
+
+
 
     // CardBox
     patCard: {

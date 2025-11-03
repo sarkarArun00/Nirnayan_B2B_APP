@@ -8,6 +8,10 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 function ServiceEstimate() {
     const navigation = useNavigation();
     const [filterModalVisible, setFilterModalVisible] = useState(false);
+    const [editModalVisible, setEditModalVisible] = useState(false);
+    // const [infoModalVisible, setInfoModalVisible] = useState(false);
+    // const [packageModalVisible, setPackageModalVisible] = useState(false);
+
     return (
         <SafeAreaView style={{ flex: 1, }}>
             <ScrollView style={{ flex: 1, }}>
@@ -60,7 +64,7 @@ function ServiceEstimate() {
                         {/* Header */}
                         <View style={styles.patHeader}>
                             <Text style={styles.patHeaderRefId}>SE/CL/250117/0007</Text>
-                            <TouchableOpacity style={styles.headerButton}>
+                            <TouchableOpacity style={styles.headerButton} onPress={() => setEditModalVisible(true)}>
                                 <Icon name="ellipsis-vertical" size={18} color="#000" />
                             </TouchableOpacity>
                         </View>
@@ -87,7 +91,7 @@ function ServiceEstimate() {
                             <Text style={styles.packageTitle}>
                                 Suswastham 17.0 - Pre Operative Check Up Basic Package
                             </Text>
-                            <TouchableOpacity>
+                            <TouchableOpacity onPress={() => navigation.navigate('ServiceInvestigations')}>
                                 <Ionicons name="eye" size={22} color="#B8B8B8" />
                                 {/* <Text style={styles.addTestBtn}>+7</Text> */}
                             </TouchableOpacity>
@@ -97,8 +101,8 @@ function ServiceEstimate() {
                         <View style={styles.rateSection}>
                             {[
                                 { icon: require('../../../assets/partnerrate-icn1.png'), label: 'Partner Rate', value: '550' },
-                                { icon: require('../../../assets/partnerrate-icn2.png'), label: 'Partner Rate', value: '550' },
-                                { icon: require('../../../assets/partnerrate-icn3.png'), label: 'Partner Rate', value: '550' },
+                                { icon: require('../../../assets/partnerrate-icn2.png'), label: 'Total Rate', value: '550' },
+                                { icon: require('../../../assets/partnerrate-icn3.png'), label: 'Gross MRP', value: '550' },
                             ].map((item, index) => (
                                 <View key={index} style={styles.rateBox}>
                                     <View style={styles.rateIconWrap}>
@@ -146,6 +150,46 @@ function ServiceEstimate() {
                     </View>
                 </Modal>
 
+                {/* Edit Delete Print Modal */}
+                <Modal
+                    transparent={true}
+                    visible={editModalVisible}
+                    animationType="slide"
+                    onRequestClose={() => setEditModalVisible(false)}
+                >
+                    <View style={GlobalStyles.modalOverlay}>
+                        <View style={GlobalStyles.modalContainer}>
+                            {/* Close Button */}
+                            <TouchableOpacity
+                                style={GlobalStyles.modalClose}
+                                onPress={() => setEditModalVisible(false)}
+                            >
+                                <Text style={GlobalStyles.closeIcon}>✕</Text>
+                            </TouchableOpacity>
+
+                            <View style={{ flexDirection: 'row', justifyContent: 'center', justifyContent: 'space-around', }}>
+                                <TouchableOpacity>
+                                    <View style={styles.editIcon}>
+                                        <Image source={require('../../../assets/estimate-edit.png')} style={{ width: 28, height: 28, objectFit: 'contain', }} />
+                                    </View>
+                                    <Text style={styles.editModalText}>Edit</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity>
+                                    <View style={styles.printIcon}>
+                                        <Image source={require('../../../assets/estimate-print.png')} style={{ width: 28, height: 28, objectFit: 'contain', }} />
+                                    </View>
+                                    <Text style={styles.editModalText}>Print</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity>
+                                    <View style={styles.deleteIcon}>
+                                        <Image source={require('../../../assets/estimate-delete.png')} style={{ width: 28, height: 28, objectFit: 'contain', }} />
+                                    </View>
+                                    <Text style={styles.editModalText}>Delete</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </View>
+                </Modal>                
 
             </ScrollView>
         </SafeAreaView>
@@ -263,40 +307,40 @@ const styles = StyleSheet.create({
         paddingVertical: 3,
         paddingHorizontal: 6,
     },
-    rateSection:{
-        flexDirection:'row',
+    rateSection: {
+        flexDirection: 'row',
     },
-    rateBox:{
-        flexDirection:'row',
-        alignItems:'center',
-        flex:1,
+    rateBox: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        flex: 1,
     },
-    rateIconWrap:{
-        width:35,
-        height:35,
-        borderWidth:1,
-        borderColor:'#EDEDED',
-        backgroundColor:'#F8F8F8',
-        borderRadius:17.5,
-        justifyContent:'center',
-        alignItems:'center',
+    rateIconWrap: {
+        width: 35,
+        height: 35,
+        borderWidth: 1,
+        borderColor: '#EDEDED',
+        backgroundColor: '#F8F8F8',
+        borderRadius: 17.5,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
-    rateIcon:{
-        width:22,
-        height:22,
-        objectFit:'contain',
+    rateIcon: {
+        width: 22,
+        height: 22,
+        objectFit: 'contain',
     },
-    rateText:{
-        paddingLeft:5,
+    rateText: {
+        paddingLeft: 5,
     },
-    rateLabel:{
+    rateLabel: {
         fontFamily: 'Poppins-Regular',
         fontSize: 10,
         lineHeight: 12,
         color: '#818181',
-        paddingBottom:4,
+        paddingBottom: 4,
     },
-    rateValue:{
+    rateValue: {
         fontFamily: 'Poppins-SemiBold',
         fontSize: 13,
         lineHeight: 15,
@@ -353,7 +397,7 @@ const styles = StyleSheet.create({
     },
     // Header
 
-    //  Search Bar
+    //  Search Bar Start
     searchContainer: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -400,10 +444,42 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
-    // Search Bar
+    // Search Bar End
 
-
-
+    // Edit Delete Print Modal Start
+    editIcon: {
+        width: 55,
+        height: 55,
+        backgroundColor: '#00A635',
+        borderRadius: 27.5,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    printIcon: {
+        width: 55,
+        height: 55,
+        backgroundColor: '#B59A3E',
+        borderRadius: 27.5,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    deleteIcon: {
+        width: 55,
+        height: 55,
+        backgroundColor: '#D20000',
+        borderRadius: 27.5,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    editModalText: {
+        fontFamily: 'Poppins-Medium',
+        fontSize: 14,
+        lineHeight: 16,
+        color: '#4E4E4E',
+        textAlign: 'center',
+        paddingTop: 10,
+    },
+    // Edit Delete Print Modal End
 
 
 
