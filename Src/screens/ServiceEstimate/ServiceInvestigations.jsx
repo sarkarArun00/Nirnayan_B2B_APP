@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { View, Text, SafeAreaView, ScrollView, ImageBackground, TouchableOpacity, Image, StyleSheet, Modal, TextInput } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
+import { View, Text, SafeAreaView, ScrollView, ImageBackground, TouchableOpacity, Image, StyleSheet, Modal, Button } from 'react-native';
 import { GlobalStyles } from '../../GlobalStyles';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
@@ -14,7 +13,7 @@ function ServiceInvestigations() {
         if (item.title === "Parameter") {
             setParameterModalVisible(true);
         }
-        // You can add other conditions here if needed
+        // add other conditions here
         // else if (item.title === "TAT") { ... }
     };
 
@@ -106,7 +105,7 @@ function ServiceInvestigations() {
                             <View style={styles.arrowBox}>
                                 <Image source={require('../../../assets/arrow1.png')} />
                             </View>
-                            <Text style={styles.titleText}>Service Estimate</Text>
+                            <Text style={styles.titleText}>Page Title</Text>
                         </TouchableOpacity>
                         <View style={styles.rightSection}>
                             <TouchableOpacity style={{ position: 'relative' }}>
@@ -190,7 +189,8 @@ function ServiceInvestigations() {
                         </View>
                     </View>
                 </Modal>
-
+                
+                {/* Parameter Modal */}
                  <Modal
                     transparent={true}
                     visible={parameterModalVisible}
@@ -225,8 +225,6 @@ function ServiceInvestigations() {
                         </View>
                     </View>
                 </Modal>
-
-                
 
             </ScrollView>
         </SafeAreaView>
