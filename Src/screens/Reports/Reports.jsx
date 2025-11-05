@@ -1,5 +1,5 @@
 import React from 'react'
-import { Text } from 'react-native-gesture-handler'
+import { Text } from 'react-native'
 
 function Reports() {
   return (
