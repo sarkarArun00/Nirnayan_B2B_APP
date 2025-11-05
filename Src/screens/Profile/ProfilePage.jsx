@@ -1,7 +1,7 @@
 import React from 'react'
 import { View, Text, SafeAreaView, ScrollView, ImageBackground, TouchableOpacity, Image, StyleSheet, Modal, } from 'react-native';
-import { GlobalStyles } from '../../GlobalStyles';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+// import { GlobalStyles } from '../../GlobalStyles';
+// import Ionicons from 'react-native-vector-icons/Ionicons';
 
 function ProfilePage({ navigation }) {
 
@@ -36,7 +36,7 @@ function ProfilePage({ navigation }) {
 
 
 
-                
+
             </ScrollView>
         </SafeAreaView>
     )
