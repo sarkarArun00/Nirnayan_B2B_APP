@@ -182,6 +182,7 @@ function ProfilePage() {
                                         placeholder="Enter Phone"
                                         style={[GlobalStyles.input, GlobalStyles.disabledInput]}
                                         placeholderTextColor="#C2C2C2"
+                                        editable={false}
                                     />
                                 </View>
                                 <View style={GlobalStyles.inpBox}>
