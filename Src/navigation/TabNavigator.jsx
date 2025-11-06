@@ -26,6 +26,7 @@ import ServiceEstimate from '../screens/ServiceEstimate/ServiceEstimate';
 import NewEstimate from '../screens/ServiceEstimate/NewEstimate';
 import ServiceInvestigations from '../screens/ServiceEstimate/ServiceInvestigations';
 import ProfilePage from '../screens/Profile/ProfilePage';
+import LocationPage from '../screens/Profile/LocationPage';
 
 
 const Tab = createBottomTabNavigator();
@@ -136,6 +137,7 @@ const AppNavigator = () => {
       <Stack.Screen name="NewEstimate" component={NewEstimate} />
       <Stack.Screen name="ServiceInvestigations" component={ServiceInvestigations} />
       <Stack.Screen name="ProfilePage" component={ProfilePage} />
+      <Stack.Screen name="LocationPage" component={LocationPage} />
     </Stack.Navigator>
   );
 };

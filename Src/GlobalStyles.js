@@ -55,9 +55,9 @@ export const GlobalStyles = StyleSheet.create({
     color: '#535353',
     marginBottom: 2,
   },
-    mdlTitle2: {
+  mdlTitle2: {
     fontFamily: 'Poppins-SemiBold',
-    fontSize:15,
+    fontSize: 15,
     // lineHeight: 17,
     color: '#000000',
     marginBottom: 2,
@@ -67,7 +67,7 @@ export const GlobalStyles = StyleSheet.create({
     fontSize: 22,
     lineHeight: 24,
     color: '#535353',
-    textAlign:'center',
+    textAlign: 'center',
     marginBottom: 2,
   },
   mdlSubTitle: {
@@ -86,6 +86,9 @@ export const GlobalStyles = StyleSheet.create({
     lineHeight: 14,
     color: '#7D7B7B',
     marginBottom: 10,
+  },
+  regText:{
+    color:'#FA2C2C',
   },
   inputContainer: {
     position: 'relative',
@@ -107,6 +110,9 @@ export const GlobalStyles = StyleSheet.create({
     paddingRight: 10,
     color: '#C2C2C2',
   },
+  disabledInput:{
+    backgroundColor:'#F6F6F6',
+  },
   textArea: {
     fontFamily: 'Poppins-Regular',
     fontSize: 12,
@@ -119,11 +125,11 @@ export const GlobalStyles = StyleSheet.create({
     paddingRight: 10,
     color: '#C2C2C2',
   },
-   textAreaNew: {
+  textAreaNew: {
     fontFamily: 'Poppins-Regular',
     fontSize: 12,
     lineHeight: 14,
-    height:85,
+    height: 85,
     borderWidth: 1,
     borderColor: '#C5C5C5',
     borderRadius: 10,
@@ -140,7 +146,7 @@ export const GlobalStyles = StyleSheet.create({
     paddingHorizontal: 38,
     marginTop: 10,
   },
-   applyBtnFullWidth: {
+  applyBtnFullWidth: {
     backgroundColor: '#00A651',
     borderRadius: 6,
     paddingVertical: 15,
@@ -165,20 +171,26 @@ export const GlobalStyles = StyleSheet.create({
     fontSize: 13,
     lineHeight: 15,
     color: '#fff',
-    textAlign:'center',
+    textAlign: 'center',
   },
   tempSwitch: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap:5,
-    marginBottom:10,
+    gap: 5,
+    marginBottom: 10,
   },
   switchLabel: {
     fontFamily: 'Poppins-Medium',
     fontSize: 12,
     color: '#000',
   },
-
+  maxTextLength: {
+    fontFamily: 'Poppins-Regular',
+    fontSize: 11,
+    lineHeight: 13,
+    color: '#6D6D6D',
+    paddingTop: 8,
+  },
 
 
 

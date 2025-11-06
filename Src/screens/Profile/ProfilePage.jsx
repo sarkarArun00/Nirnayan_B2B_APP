@@ -1,13 +1,18 @@
 import React, { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { View, Text, SafeAreaView, ScrollView, ImageBackground, TouchableOpacity, Image, StyleSheet, Modal, } from 'react-native';
+import { View, Text, SafeAreaView, ScrollView, ImageBackground, TouchableOpacity, Image, StyleSheet, Modal, TextInput, } from 'react-native';
 import { GlobalStyles } from '../../GlobalStyles';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 function ProfilePage() {
     const navigation = useNavigation();
     const [editModalVisible, setEditModalVisible] = useState(false);
+    const [personalDetailsModal, setPersonalDetailsModal] = useState(false);
     const [contactInfModal, setContactInfModal] = useState(false);
+    const [passwordModal, setPasswordModal] = useState(false);
+    const [showCurrent, setShowCurrent] = useState(false);
+    const [showNew, setShowNew] = useState(false);
+    const [showConfirm, setShowConfirm] = useState(false);
 
     return (
         <SafeAreaView style={{ flex: 1, }}>
@@ -45,17 +50,17 @@ function ProfilePage() {
                     <Text style={styles.userName}>Arun Sarkar</Text>
                     <Text style={styles.userId}>Client ID: 123 45</Text>
                     <View style={styles.accWrap}>
-                        <TouchableOpacity style={styles.accBox} onPress={() => setContactInfModal(true)}>
+                        <TouchableOpacity style={styles.accBox} onPress={() => setPersonalDetailsModal(true)}>
                             <Image source={require('../../../assets/b2bac1.png')} style={styles.accIcon} />
                             <Ionicons name='chevron-forward-outline' size={18} color="#1E1E1E" style={styles.accRightIcon} />
                             <Text style={styles.accTitle}>Personal Deatils</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.accBox}>
+                        <TouchableOpacity style={styles.accBox} onPress={() => setContactInfModal(true)}>
                             <Image source={require('../../../assets/b2bac2.png')} style={styles.accIcon} />
                             <Ionicons name='chevron-forward-outline' size={18} color="#1E1E1E" style={styles.accRightIcon} />
                             <Text style={styles.accTitle}>Contact Information</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.accBox}>
+                        <TouchableOpacity style={styles.accBox} onPress={() => setPasswordModal(true)}>
                             <Image source={require('../../../assets/b2bac3.png')} style={styles.accIcon} />
                             <Ionicons name='chevron-forward-outline' size={18} color="#1E1E1E" style={styles.accRightIcon} />
                             <Text style={styles.accTitle}>Password & Security</Text>
@@ -81,7 +86,7 @@ function ProfilePage() {
                                 <Text style={GlobalStyles.closeIcon}>✕</Text>
                             </TouchableOpacity>
                             <Text style={styles.profileTitle}>Profile Photo</Text>
-                            <View style={{ flexDirection: 'row', justifyContent: 'center', gap:16, }}>
+                            <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 16, }}>
                                 <TouchableOpacity style={styles.camBg}>
                                     <View style={styles.camera}>
                                         <Image source={require('../../../assets/b2bedit1.png')} style={styles.editb2bIcon} />
@@ -105,6 +110,52 @@ function ProfilePage() {
                     </View>
                 </Modal>
 
+                {/* Personal Details */}
+                <Modal
+                    transparent={true}
+                    visible={personalDetailsModal}
+                    animationType="slide"
+                    onRequestClose={() => setPersonalDetailsModal(false)}
+                >
+                    <View style={GlobalStyles.modalOverlay}>
+                        <View style={GlobalStyles.modalContainer}>
+                            {/* Close Button */}
+                            <TouchableOpacity
+                                style={GlobalStyles.modalClose}
+                                onPress={() => setPersonalDetailsModal(false)}
+                            >
+                                <Text style={GlobalStyles.closeIcon}>✕</Text>
+                            </TouchableOpacity>
+                            <Text style={GlobalStyles.mdlTitle}>Personal Details</Text>
+                            <ScrollView style={{ paddingTop: 14, }}
+                                showsVerticalScrollIndicator={false}
+                                showsHorizontalScrollIndicator={false}>
+                                <View style={GlobalStyles.inpBox}>
+                                    <Text style={GlobalStyles.label}>Display Name</Text>
+                                    <TextInput
+                                        placeholder="Name Here"
+                                        style={GlobalStyles.input}
+                                        placeholderTextColor="#C2C2C2"
+                                    />
+                                    <Text style={GlobalStyles.maxTextLength}>Max 50 Character</Text>
+                                </View>
+                                <View style={GlobalStyles.inpBox}>
+                                    <Text style={GlobalStyles.label}>Agreement Name</Text>
+                                    <TextInput
+                                        placeholder="Name Here"
+                                        style={GlobalStyles.input}
+                                        placeholderTextColor="#C2C2C2"
+                                    />
+                                    <Text style={GlobalStyles.maxTextLength}>Max 50 Character</Text>
+                                </View>
+                                <TouchableOpacity style={GlobalStyles.applyBtnFullWidth}>
+                                    <Text style={GlobalStyles.applyBtnTextNew}>Update</Text>
+                                </TouchableOpacity>
+                            </ScrollView>
+                        </View>
+                    </View>
+                </Modal>
+
                 {/* Contact Information */}
                 <Modal
                     transparent={true}
@@ -121,13 +172,139 @@ function ProfilePage() {
                             >
                                 <Text style={GlobalStyles.closeIcon}>✕</Text>
                             </TouchableOpacity>
-                            <Text style={GlobalStyles.mdlTitle}>Personal Details</Text>
+                            <Text style={GlobalStyles.mdlTitle}>Contact Information</Text>
+                            <ScrollView style={{ paddingTop: 14, }}
+                                showsVerticalScrollIndicator={false}
+                                showsHorizontalScrollIndicator={false}>
+                                <View style={GlobalStyles.inpBox}>
+                                    <Text style={GlobalStyles.label}>Business Phone<Text style={GlobalStyles.regText}>*</Text></Text>
+                                    <TextInput
+                                        placeholder="Enter Phone"
+                                        style={[GlobalStyles.input, GlobalStyles.disabledInput]}
+                                        placeholderTextColor="#C2C2C2"
+                                    />
+                                </View>
+                                <View style={GlobalStyles.inpBox}>
+                                    <Text style={GlobalStyles.label}>Business Address<Text style={GlobalStyles.regText}>*</Text></Text>
+                                    <TextInput
+                                        placeholder="Enter Address"
+                                        style={GlobalStyles.input}
+                                        placeholderTextColor="#C2C2C2"
+                                    />
+                                </View>
+                                <View style={GlobalStyles.inpBox}>
+                                    <Text style={GlobalStyles.label}>Latitude & Longitude<Text style={GlobalStyles.regText}>*</Text></Text>
+                                    <View style={{ position: 'relative', }}>
+                                        <TextInput
+                                            placeholder="28.9278, 28.9278"
+                                            style={GlobalStyles.input}
+                                            placeholderTextColor="#C2C2C2"
+                                        />
+                                        <TouchableOpacity style={styles.changeBtn} onPress={() => navigation.navigate('LocationPage')}>
+                                            <Text style={styles.changeBtnText}>Change</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                </View>
+
+                                <TouchableOpacity style={GlobalStyles.applyBtnFullWidth}>
+                                    <Text style={GlobalStyles.applyBtnTextNew}>Update</Text>
+                                </TouchableOpacity>
+                            </ScrollView>
                         </View>
                     </View>
                 </Modal>
 
-                {/* Password Security */}
+                {/* Password Modal */}
+                <Modal
+                    transparent={true}
+                    visible={passwordModal}
+                    animationType="slide"
+                    onRequestClose={() => setPasswordModal(false)}
+                >
+                    <View style={GlobalStyles.modalOverlay}>
+                        <View style={GlobalStyles.modalContainer}>
+                            {/* Close Button */}
+                            <TouchableOpacity
+                                style={GlobalStyles.modalClose}
+                                onPress={() => setPasswordModal(false)}
+                            >
+                                <Text style={GlobalStyles.closeIcon}>✕</Text>
+                            </TouchableOpacity>
+                            <Text style={GlobalStyles.mdlTitle}>Password & Security</Text>
+                            <ScrollView style={{ paddingTop: 14, }}
+                                showsVerticalScrollIndicator={false}
+                                showsHorizontalScrollIndicator={false}>
 
+                                <View style={GlobalStyles.inpBox}>
+                                    <Text style={GlobalStyles.label}>Current Password<Text style={GlobalStyles.regText}>*</Text></Text>
+                                    <View style={{ position: 'relative', }}>
+                                        <TextInput
+                                            placeholder="Current Password"
+                                            style={[GlobalStyles.input, { paddingRight: 40 }]}
+                                            placeholderTextColor="#C2C2C2"
+                                            secureTextEntry={!showCurrent}
+                                        />
+                                        <TouchableOpacity
+                                            onPress={() => setShowCurrent(!showCurrent)}
+                                            style={styles.eyeButton}
+                                        >
+                                            <Ionicons
+                                                name={showCurrent ? 'eye-off-outline' : 'eye-outline'}
+                                                size={22}
+                                                color="#888"
+                                            />
+                                        </TouchableOpacity>
+                                    </View>
+                                </View>
+                                <View style={GlobalStyles.inpBox}>
+                                    <Text style={GlobalStyles.label}>Current Password<Text style={GlobalStyles.regText}>*</Text></Text>
+                                    <View style={{ position: 'relative', }}>
+                                        <TextInput
+                                            placeholder="New Password"
+                                            style={[GlobalStyles.input, { paddingRight: 40 }]}
+                                            placeholderTextColor="#C2C2C2"
+                                            secureTextEntry={!showNew}
+                                        />
+                                        <TouchableOpacity
+                                            onPress={() => setShowNew(!showNew)}
+                                            style={styles.eyeButton}
+                                        >
+                                            <Ionicons
+                                                name={showNew ? 'eye-off-outline' : 'eye-outline'}
+                                                size={22}
+                                                color="#888"
+                                            />
+                                        </TouchableOpacity>
+                                    </View>
+                                </View>
+                                <View style={GlobalStyles.inpBox}>
+                                    <Text style={GlobalStyles.label}>Current Password<Text style={GlobalStyles.regText}>*</Text></Text>
+                                    <View style={{ position: 'relative', }}>
+                                        <TextInput
+                                            placeholder="Confirm Password"
+                                            style={[GlobalStyles.input, { paddingRight: 40 }]}
+                                            placeholderTextColor="#C2C2C2"
+                                            secureTextEntry={!showConfirm}
+                                        />
+                                        <TouchableOpacity
+                                            onPress={() => setShowConfirm(!showConfirm)}
+                                            style={styles.eyeButton}
+                                        >
+                                            <Ionicons
+                                                name={showConfirm ? 'eye-off-outline' : 'eye-outline'}
+                                                size={22}
+                                                color="#888"
+                                            />
+                                        </TouchableOpacity>
+                                    </View>
+                                </View>
+                                <TouchableOpacity style={GlobalStyles.applyBtnFullWidth}>
+                                    <Text style={GlobalStyles.applyBtnTextNew}>Update</Text>
+                                </TouchableOpacity>
+                            </ScrollView>
+                        </View>
+                    </View>
+                </Modal>
 
 
             </ScrollView>
@@ -138,72 +315,94 @@ function ProfilePage() {
 export default ProfilePage
 
 const styles = StyleSheet.create({
+    // Password Modal Start
+    eyeButton:{
+        position:'absolute',
+        right:12,
+        top:13,
+    },
+    // Password Modal End
+
+    // Contact Information Modal Start
+    changeBtn: {
+        position: 'absolute',
+        right: 12,
+        top: 13,
+    },
+    changeBtnText: {
+        fontFamily: 'Poppins-Medium',
+        fontSize: 13,
+        color: '#00A651',
+        textDecorationLine: 'underline',
+    },
+    // Contact Information Modal End
+
     // Edit Modal Start
-    profileTitle:{
+    profileTitle: {
         fontFamily: 'Poppins-Bold',
         fontSize: 18,
         lineHeight: 20,
         color: '#535353',
-        textAlign:'center',
-        paddingBottom:24,
+        textAlign: 'center',
+        paddingBottom: 24,
     },
-    camera:{
-        width:42,
-        height:42,
-        alignSelf:'center',
-        backgroundColor:'#00A635',
-        borderRadius:21,
-        justifyContent:'center',
-        alignItems:'center',
+    camera: {
+        width: 42,
+        height: 42,
+        alignSelf: 'center',
+        backgroundColor: '#00A635',
+        borderRadius: 21,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
-    gallery:{
-        width:42,
-        height:42,
-        alignSelf:'center',
-        backgroundColor:'#D9F2E1',
-        borderRadius:21,
-        justifyContent:'center',
-        alignItems:'center',
+    gallery: {
+        width: 42,
+        height: 42,
+        alignSelf: 'center',
+        backgroundColor: '#D9F2E1',
+        borderRadius: 21,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
-    remove:{
-        width:42,
-        height:42,
-        alignSelf:'center',
-        backgroundColor:'#E63946',
-        borderRadius:21,
-        justifyContent:'center',
-        alignItems:'center',
+    remove: {
+        width: 42,
+        height: 42,
+        alignSelf: 'center',
+        backgroundColor: '#E63946',
+        borderRadius: 21,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
-    editb2bIcon:{
-        width:26,
-        height:26,
-        resizeMode:'contain',
+    editb2bIcon: {
+        width: 26,
+        height: 26,
+        resizeMode: 'contain',
     },
-    editModalText:{
+    editModalText: {
         fontFamily: 'Poppins-Medium',
         fontSize: 13,
         lineHeight: 15,
         color: '#000',
-        textAlign:'center',
-        paddingTop:12,
+        textAlign: 'center',
+        paddingTop: 12,
     },
-    camBg:{
-        backgroundColor:'rgba(0, 166, 53, 0.15)',
-        borderRadius:22,
-        width:90,
-        paddingVertical:16,
+    camBg: {
+        backgroundColor: 'rgba(0, 166, 53, 0.15)',
+        borderRadius: 22,
+        width: 90,
+        paddingVertical: 16,
     },
-    gallBg:{
-        backgroundColor:'rgba(167, 167, 167, 0.15)',
-        borderRadius:22,
-        width:90,
-        paddingVertical:16,
+    gallBg: {
+        backgroundColor: 'rgba(167, 167, 167, 0.15)',
+        borderRadius: 22,
+        width: 90,
+        paddingVertical: 16,
     },
-    remBg:{
-        backgroundColor:'rgba(255, 235, 237, 1)',
-        borderRadius:22,
-        width:90,
-        paddingVertical:16,
+    remBg: {
+        backgroundColor: 'rgba(255, 235, 237, 1)',
+        borderRadius: 22,
+        width: 90,
+        paddingVertical: 16,
     },
     // Edit Modal End
 
