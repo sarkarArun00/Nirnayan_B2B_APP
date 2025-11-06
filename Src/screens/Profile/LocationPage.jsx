@@ -2,13 +2,13 @@ import React from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { View, Text, SafeAreaView, ScrollView, TextInput, TouchableOpacity, Image, StyleSheet, } from 'react-native';
 import { GlobalStyles } from '../../GlobalStyles';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 
 function LocationPage() {
     const navigation = useNavigation();
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: '#ddd', }}>
             {/* <ScrollView style={{ flex: 1, }}></ScrollView> */}
+
             <TouchableOpacity style={styles.leftArrow} onPress={() => navigation.goBack()}>
                 <Image source={require('../../../assets/arrow1.png')} />
             </TouchableOpacity>
@@ -24,7 +24,8 @@ function LocationPage() {
                         <Image source={require('../../../assets/b2blocarrow.png')} style={styles.locIcon} />
                     </TouchableOpacity>
                 </View>
-                <ScrollView style={{ maxHeight: 200, }}
+
+                <ScrollView style={{ maxHeight:170, }}
                     showsVerticalScrollIndicator={false}
                     showsHorizontalScrollIndicator={false}>
                     <View style={styles.searchItem}>
@@ -63,6 +64,7 @@ function LocationPage() {
                         </View>
                     </View>
                 </ScrollView>
+
                 <TouchableOpacity style={GlobalStyles.applyBtnFullWidth}>
                     <Text style={GlobalStyles.applyBtnTextNew}>Change</Text>
                 </TouchableOpacity>
@@ -136,8 +138,5 @@ const styles = StyleSheet.create({
         fontSize: 12,
         color: '#737373',
     },
-
-
-
 
 })

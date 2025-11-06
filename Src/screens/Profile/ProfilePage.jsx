@@ -133,7 +133,7 @@ function ProfilePage() {
                                 <View style={GlobalStyles.inpBox}>
                                     <Text style={GlobalStyles.label}>Display Name</Text>
                                     <TextInput
-                                        placeholder="Name Here"
+                                        placeholder="Enter Name"
                                         style={GlobalStyles.input}
                                         placeholderTextColor="#C2C2C2"
                                     />
@@ -142,7 +142,7 @@ function ProfilePage() {
                                 <View style={GlobalStyles.inpBox}>
                                     <Text style={GlobalStyles.label}>Agreement Name</Text>
                                     <TextInput
-                                        placeholder="Name Here"
+                                        placeholder="Enter Name"
                                         style={GlobalStyles.input}
                                         placeholderTextColor="#C2C2C2"
                                     />
