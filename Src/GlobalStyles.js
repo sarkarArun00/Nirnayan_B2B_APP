@@ -78,7 +78,7 @@ export const GlobalStyles = StyleSheet.create({
     marginBottom: 20,
   },
   inpBox: {
-    marginBottom: 10,
+    marginBottom: 12,
   },
   label: {
     fontFamily: 'Poppins-Regular',
@@ -162,14 +162,14 @@ export const GlobalStyles = StyleSheet.create({
   },
   applyBtnText: {
     fontFamily: 'Poppins-Medium',
-    fontSize: 13,
-    lineHeight: 15,
+    fontSize: 14,
+    lineHeight: 17,
     color: '#fff',
   },
   applyBtnTextNew: {
     fontFamily: 'Poppins-Medium',
-    fontSize: 13,
-    lineHeight: 15,
+    fontSize: 14,
+    lineHeight: 17,
     color: '#fff',
     textAlign: 'center',
   },
