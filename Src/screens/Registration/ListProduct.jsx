@@ -13,11 +13,11 @@ import Icon from 'react-native-vector-icons/Ionicons';
 const ListProduct = ({ item, onDelete, onLeftAction, onToggleCheck }) => {
   const swipeRef = useRef(null);
 
-  // ✅ Local checkbox and selected state
+  // Local checkbox and selected state
   const [checked, setChecked] = useState(item?.checked || false);
   const [selected, setSelected] = useState(item?.selected || false);
 
-  // ✅ Animation refs for delete
+  // Animation refs for smooth delete
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const slideAnim = useRef(new Animated.Value(0)).current;
 
@@ -28,7 +28,7 @@ const ListProduct = ({ item, onDelete, onLeftAction, onToggleCheck }) => {
 
   if (!item) return null;
 
-  // ✅ Left Swipe Content (Orange)
+  // Left Swipe (Orange)
   const renderLeftActions = (progress, dragX) => {
     const scale = dragX.interpolate({
       inputRange: [0, 100],
@@ -40,7 +40,7 @@ const ListProduct = ({ item, onDelete, onLeftAction, onToggleCheck }) => {
       <TouchableOpacity
         style={styles.leftAction}
         onPress={() => {
-          const newState = !selected; // ✅ toggle on/off
+          const newState = !selected; // toggle select
           setSelected(newState);
           onLeftAction && onLeftAction(item.id, newState);
           swipeRef.current?.close();
@@ -48,23 +48,23 @@ const ListProduct = ({ item, onDelete, onLeftAction, onToggleCheck }) => {
         activeOpacity={0.8}
       >
         <Animated.View style={{ transform: [{ scale }] }}>
-          <Icon name="time-outline" size={26} color="#fff" />
+          <Icon name="time-outline" size={32} color="#fff" />
         </Animated.View>
       </TouchableOpacity>
     );
   };
 
-  // ✅ Smooth delete animation
+  // Smooth delete animation
   const handleDelete = () => {
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 0,
-        duration: 300,
+        duration: 250,
         useNativeDriver: true,
       }),
       Animated.timing(slideAnim, {
-        toValue: -100,
-        duration: 300,
+        toValue: -50,
+        duration: 250,
         useNativeDriver: true,
       }),
     ]).start(() => {
@@ -72,7 +72,7 @@ const ListProduct = ({ item, onDelete, onLeftAction, onToggleCheck }) => {
     });
   };
 
-  // ✅ Right Swipe Content (Red Delete)
+  // Right Swipe (Red Delete)
   const renderRightActions = () => (
     <TouchableOpacity
       style={styles.rightAction}
@@ -83,7 +83,7 @@ const ListProduct = ({ item, onDelete, onLeftAction, onToggleCheck }) => {
     </TouchableOpacity>
   );
 
-  // ✅ Checkbox toggle handler
+  // Checkbox toggle
   const handleCheckboxPress = () => {
     const newValue = !checked;
     setChecked(newValue);

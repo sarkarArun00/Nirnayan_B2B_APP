@@ -78,6 +78,11 @@ function Registration({ navigation }) {
     { id: '1', title: 'Complete Blood Count (CBC)', price: 500, checked: false, selected: false },
     { id: '2', title: 'Liver Function Test', price: 700, checked: false, selected: false },
     { id: '3', title: 'Thyroid Profile', price: 650, checked: false, selected: false },
+    { id: '4', title: 'Demo Product', price: 650, checked: false, selected: false },
+    { id: '5', title: 'Demo Product 1', price: 650, checked: false, selected: false },
+    { id: '6', title: 'Demo Product 2', price: 650, checked: false, selected: false },
+    { id: '7', title: 'Demo Product 3', price: 650, checked: false, selected: false },
+    { id: '8', title: 'Demo Product 4', price: 650, checked: false, selected: false },
   ]);
 
   // ✅ Delete item
@@ -102,6 +107,8 @@ function Registration({ navigation }) {
       )
     );
   };
+
+  const selectedCount = products.filter((p) => p.checked).length;
 
   // Tab Content Start //
   const renderTabContent = () => {
@@ -374,31 +381,10 @@ function Registration({ navigation }) {
               </View>
             </View>
 
-            {/* <View style={styles.invsMainBox}>
-              <View style={styles.leftBox}>
-                <TouchableOpacity
-                  style={styles.checkboxContainer}
-                  onPress={() => setChecked(!checked)}
-                  activeOpacity={0.8}
-                >
-                  <View style={[styles.checkbox, checked && styles.checkedBox]}>
-                    {checked && <Icon name="checkmark" size={16} color="#fff" />}
-                  </View>
-                </TouchableOpacity>
-                <Image source={require('../../../assets/b2bblood.png')} style={styles.invsIcon} />
-                <Text style={styles.invsTitle}>Complete Blood Count (CBC) Complete Blood Count Complete</Text>
-              </View>
-              <View style={styles.rightBox}>
-                <Icon name="warning-outline" size={22} color="#FF7A00" />
-                <Text style={styles.invsRate}>₹500</Text>
-              </View>
-            </View> */}
-
-            {/* <ListProduct /> */}
             <GestureHandlerRootView style={{ flex: 1 }}>
               <FlatList
                 data={products}
-                keyExtractor={(item) => item.id}
+                keyExtractor={(item) => item.id.toString()}
                 renderItem={({ item }) => (
                   <ListProduct
                     item={item}
@@ -409,8 +395,6 @@ function Registration({ navigation }) {
                 )}
               />
             </GestureHandlerRootView>
-
-
 
             <TouchableOpacity style={styles.addDoctor}>
               <Text style={styles.addDoctorText}>Upload Clinical History</Text>
@@ -437,8 +421,8 @@ function Registration({ navigation }) {
   // Tab Content End //
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <ScrollView style={{ flex: 1 }}>
+    <SafeAreaView style={{ flex: 1, position: 'relative', paddingBottom:80, }}>
+      <ScrollView style={{ flex: 1, }}>
         {/* Header */}
         <ImageBackground
           source={require('../../../assets/partnerbg.png')}
@@ -522,7 +506,7 @@ function Registration({ navigation }) {
           </View>
         </LinearGradient>
 
-        {/* Content Box (Changes by activeTab) */}
+        {/* Content Box */}
         {renderTabContent()}
 
         {/* ADD Doctor Modal */}
@@ -616,6 +600,38 @@ function Registration({ navigation }) {
         {/* Upload Modal */}
 
       </ScrollView>
+
+      {selectedCount > 0 && (
+        <View style={styles.selectedBar}>
+          <Text style={styles.selectedText}>{selectedCount} items selected</Text>
+          <View style={styles.selectedActions}>
+
+            {/* ✅ URGENT BUTTON */}
+            <TouchableOpacity
+              style={styles.actionCircle}
+              onPress={() => {
+                setProducts((prev) =>
+                  prev.map((p) =>
+                    p.checked ? { ...p, urgent: !p.urgent } : p
+                  )
+                );
+              }}
+            >
+              <Icon name="time-outline" size={20} color="#fff" />
+            </TouchableOpacity>
+
+            {/* ✅ DELETE SELECTED */}
+            <TouchableOpacity
+              style={styles.actionCircle}
+              onPress={() => {
+                setProducts((prev) => prev.filter((p) => !p.checked));
+              }}
+            >
+              <Icon name="trash-outline" size={20} color="#fff" />
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
     </SafeAreaView>
   );
 }
@@ -642,7 +658,6 @@ const styles = StyleSheet.create({
     color: '#000',
     textAlign: 'center',
   },
-
 
   // 
   container: {
@@ -681,6 +696,44 @@ const styles = StyleSheet.create({
     height: 3,
     backgroundColor: '#00A651',
     borderRadius: 3,
+  },
+  // 
+  selectedBar: {
+    position: 'absolute',
+    bottom: 10,
+    alignSelf: 'center',
+    backgroundColor: '#2B724E',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderRadius: 40,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 3,
+    width: '75%',
+    zIndex: 1,
+  },
+  selectedText: {
+    color: '#fff',
+    fontFamily: 'Poppins-SemiBold',
+    fontSize: 14,
+  },
+  selectedActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 7,
+  },
+  actionCircle: {
+    backgroundColor: '#00A651',
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   // Header Start 
   background: {
