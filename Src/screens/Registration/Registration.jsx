@@ -19,7 +19,8 @@ function Registration({ navigation }) {
   const [bloodGroup, setBloodGroup] = useState('');
   const [addDoctor, setAddDoctor] = useState('');
   const [degree, setDegree] = useState('');
-  const [checked, setChecked] = useState('');
+  // const [checked, setChecked] = useState('');
+  const [showBar, setShowBar] = useState(false);
 
   const scrollRef = useRef(null);
   const progressAnim = useRef(new Animated.Value(0)).current;
@@ -51,6 +52,7 @@ function Registration({ navigation }) {
       handleTabPress(activeTab + 1);
     }
   };
+
   useEffect(() => {
     Animated.timing(progressAnim, {
       toValue: (activeTab + 1) / tabs.length,
@@ -85,12 +87,12 @@ function Registration({ navigation }) {
     { id: '8', title: 'Demo Product 4', price: 650, checked: false, selected: false },
   ]);
 
-  // ✅ Delete item
+  // Delete item
   const handleDelete = (id) => {
     setProducts((prev) => prev.filter((p) => p.id !== id));
   };
 
-  // ✅ Toggle left border (orange)
+  // Toggle left border (orange)
   const handleLeftAction = (id, newState) => {
     setProducts((prev) =>
       prev.map((p) =>
@@ -99,7 +101,7 @@ function Registration({ navigation }) {
     );
   };
 
-  // ✅ Checkbox toggle
+  // Checkbox toggle
   const handleToggleCheck = (id, newValue) => {
     setProducts((prev) =>
       prev.map((p) =>
@@ -109,6 +111,37 @@ function Registration({ navigation }) {
   };
 
   const selectedCount = products.filter((p) => p.checked).length;
+  const [showSelectedBar, setShowSelectedBar] = useState(false);
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+
+  // Selected item apper timing add
+  useEffect(() => {
+    if (selectedCount > 0) {
+      setShowSelectedBar(true);
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 400, // fade-in duration
+        useNativeDriver: true,
+      }).start();
+
+      const timer = setTimeout(() => {
+        Animated.timing(fadeAnim, {
+          toValue: 0,
+          duration: 400, // fade-out duration
+          useNativeDriver: true,
+        }).start(() => setShowSelectedBar(false));
+      }, 3000); // visible for 3 seconds
+
+      return () => clearTimeout(timer);
+    } else {
+      Animated.timing(fadeAnim, {
+        toValue: 0,
+        duration: 400,
+        useNativeDriver: true,
+      }).start(() => setShowSelectedBar(false));
+    }
+  }, [selectedCount]);
+  // Selected item apper timing add End
 
   // Tab Content Start //
   const renderTabContent = () => {
@@ -394,14 +427,17 @@ function Registration({ navigation }) {
                   />
                 )}
               />
-            </GestureHandlerRootView>
 
-            <TouchableOpacity style={styles.addDoctor}>
-              <Text style={styles.addDoctorText}>Upload Clinical History</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={GlobalStyles.applyBtnFullWidth} onPress={handleNextTab}>
-              <Text style={GlobalStyles.applyBtnTextNew}>{activeTab === tabs.length - 1 ? 'Finish' : 'Next'}</Text>
-            </TouchableOpacity>
+            </GestureHandlerRootView>
+            
+            <View style={{position:'static', bottom:0, }}>
+              <TouchableOpacity style={styles.addDoctor}>
+                <Text style={styles.addDoctorText}>Upload Clinical History</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={GlobalStyles.applyBtnFullWidth} onPress={handleNextTab}>
+                <Text style={GlobalStyles.applyBtnTextNew}>{activeTab === tabs.length - 1 ? 'Finish' : 'Next'}</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         );
       case 4:
@@ -421,7 +457,7 @@ function Registration({ navigation }) {
   // Tab Content End //
 
   return (
-    <SafeAreaView style={{ flex: 1, position: 'relative', paddingBottom:80, }}>
+    <SafeAreaView style={{ flex: 1, }}>
       <ScrollView style={{ flex: 1, }}>
         {/* Header */}
         <ImageBackground
@@ -601,12 +637,12 @@ function Registration({ navigation }) {
 
       </ScrollView>
 
-      {selectedCount > 0 && (
-        <View style={styles.selectedBar}>
+      {showSelectedBar && (
+        <Animated.View style={[styles.selectedBar, { opacity: fadeAnim }]}>
           <Text style={styles.selectedText}>{selectedCount} items selected</Text>
           <View style={styles.selectedActions}>
 
-            {/* ✅ URGENT BUTTON */}
+            {/* URGENT BUTTON */}
             <TouchableOpacity
               style={styles.actionCircle}
               onPress={() => {
@@ -620,7 +656,7 @@ function Registration({ navigation }) {
               <Icon name="time-outline" size={20} color="#fff" />
             </TouchableOpacity>
 
-            {/* ✅ DELETE SELECTED */}
+            {/* DELETE SELECTED */}
             <TouchableOpacity
               style={styles.actionCircle}
               onPress={() => {
@@ -630,8 +666,9 @@ function Registration({ navigation }) {
               <Icon name="trash-outline" size={20} color="#fff" />
             </TouchableOpacity>
           </View>
-        </View>
+        </Animated.View>
       )}
+
     </SafeAreaView>
   );
 }

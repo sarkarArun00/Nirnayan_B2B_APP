@@ -130,7 +130,7 @@ const ListProduct = ({ item, onDelete, onLeftAction, onToggleCheck }) => {
           </View>
 
           <View style={styles.rightBox}>
-            <Icon name="warning-outline" size={22} color="#FF7A00" />
+            <Icon name="warning-outline" size={20} color="#FF7A00" />
             <Text style={styles.invsRate}>₹{item.price || '500'}</Text>
           </View>
         </View>
@@ -162,7 +162,7 @@ const styles = StyleSheet.create({
   rightBox: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 5,
+    gap: 6,
   },
   invsIcon: {
     width: 28,
@@ -177,7 +177,8 @@ const styles = StyleSheet.create({
   },
   invsRate: {
     fontFamily: 'Poppins-Medium',
-    fontSize: 12,
+    fontSize: 13,
+    lineHeight:16,
     color: '#222',
   },
 
