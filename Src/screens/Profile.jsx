@@ -19,20 +19,20 @@ const ProfileScreen = () => {
   const [userName, setUserName] = useState('');
   const [userEmail, setUserEmail] = useState('');
   const [userLastLogin, setUserLastLogin] = useState('');
-  
+
   useEffect(() => {
     const fetchData = async () => {
       const name = await AsyncStorage.getItem('user_name');
       const email = await AsyncStorage.getItem('user_email');
       const lastLogin = await AsyncStorage.getItem('lastLogin');
-  
+
       setUserName(name);
       setUserEmail(email);
       setUserLastLogin(lastLogin);
 
       console.log('useerrrrrr', userName)
     };
-  
+
     fetchData();
   }, []);
 
@@ -129,14 +129,14 @@ const ProfileScreen = () => {
               <Text style={styles.menuText}>Settings</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.menuItem}
-            onPress={async () => {
-              await AsyncStorage.removeItem('token');
-              await AsyncStorage.removeItem('user_id');
-              await AsyncStorage.removeItem('user_name');
-              await AsyncStorage.removeItem('user_email');
-              await AsyncStorage.removeItem('lastLogin');
-              navigation.replace('Login');
-            }}
+              onPress={async () => {
+                await AsyncStorage.removeItem('token');
+                await AsyncStorage.removeItem('user_id');
+                await AsyncStorage.removeItem('user_name');
+                await AsyncStorage.removeItem('user_email');
+                await AsyncStorage.removeItem('lastLogin');
+                navigation.replace('Login');
+              }}
             >
               <Image style={styles.menuImg} source={require('../../assets/logout.png')} />
               <Text style={styles.menuText}>Log Out</Text>
@@ -225,7 +225,7 @@ const styles = StyleSheet.create({
   sideProfile: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingTop:20,
+    paddingTop: 20,
     paddingHorizontal: 20,
   },
   sdProImg: {

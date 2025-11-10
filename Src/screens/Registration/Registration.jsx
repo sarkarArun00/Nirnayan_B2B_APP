@@ -1,9 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, SafeAreaView, ScrollView, ImageBackground, Modal, TouchableOpacity, Image, StyleSheet, Dimensions, Animated, TextInput } from 'react-native';
+import { View, Text, SafeAreaView, ScrollView, ImageBackground, Modal, TouchableOpacity, Image, StyleSheet, Dimensions, Animated, TextInput, FlatList } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { GlobalStyles } from '../../GlobalStyles';
 import { Picker } from '@react-native-picker/picker';
+import ListProduct from './ListProduct';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -17,7 +19,7 @@ function Registration({ navigation }) {
   const [bloodGroup, setBloodGroup] = useState('');
   const [addDoctor, setAddDoctor] = useState('');
   const [degree, setDegree] = useState('');
-  const [checked, setChecked] = useState(false);
+  const [checked, setChecked] = useState('');
 
   const scrollRef = useRef(null);
   const progressAnim = useRef(new Animated.Value(0)).current;
@@ -71,6 +73,35 @@ function Registration({ navigation }) {
 
     return () => clearInterval(interval);
   }, []);
+
+  const [products, setProducts] = useState([
+    { id: '1', title: 'Complete Blood Count (CBC)', price: 500, checked: false, selected: false },
+    { id: '2', title: 'Liver Function Test', price: 700, checked: false, selected: false },
+    { id: '3', title: 'Thyroid Profile', price: 650, checked: false, selected: false },
+  ]);
+
+  // ✅ Delete item
+  const handleDelete = (id) => {
+    setProducts((prev) => prev.filter((p) => p.id !== id));
+  };
+
+  // ✅ Toggle left border (orange)
+  const handleLeftAction = (id, newState) => {
+    setProducts((prev) =>
+      prev.map((p) =>
+        p.id === id ? { ...p, selected: newState } : p
+      )
+    );
+  };
+
+  // ✅ Checkbox toggle
+  const handleToggleCheck = (id, newValue) => {
+    setProducts((prev) =>
+      prev.map((p) =>
+        p.id === id ? { ...p, checked: newValue } : p
+      )
+    );
+  };
 
   // Tab Content Start //
   const renderTabContent = () => {
@@ -343,7 +374,7 @@ function Registration({ navigation }) {
               </View>
             </View>
 
-            <View style={styles.invsMainBox}>
+            {/* <View style={styles.invsMainBox}>
               <View style={styles.leftBox}>
                 <TouchableOpacity
                   style={styles.checkboxContainer}
@@ -361,7 +392,24 @@ function Registration({ navigation }) {
                 <Icon name="warning-outline" size={22} color="#FF7A00" />
                 <Text style={styles.invsRate}>₹500</Text>
               </View>
-            </View>
+            </View> */}
+
+            {/* <ListProduct /> */}
+            <GestureHandlerRootView style={{ flex: 1 }}>
+              <FlatList
+                data={products}
+                keyExtractor={(item) => item.id}
+                renderItem={({ item }) => (
+                  <ListProduct
+                    item={item}
+                    onDelete={handleDelete}
+                    onLeftAction={handleLeftAction}
+                    onToggleCheck={handleToggleCheck}
+                  />
+                )}
+              />
+            </GestureHandlerRootView>
+
 
 
             <TouchableOpacity style={styles.addDoctor}>
@@ -594,56 +642,7 @@ const styles = StyleSheet.create({
     color: '#000',
     textAlign: 'center',
   },
-  invsMainBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    borderWidth: 1,
-    borderColor: '#EEEEEE',
-    borderRadius: 9,
-    backgroundColor: '#fff',
-    marginTop: 13,
-    paddingHorizontal: 12,
-    paddingVertical: 15,
-  },
-  leftBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-    gap: 10,
-  },
-  invsIcon: {
-    width: 25,
-    height: 25,
-    resizeMode: 'contain',
-  },
-  invsTitle: {
-    fontFamily: 'Poppins-Medium',
-    fontSize: 12,
-    color: '#3B3B3B',
-    flexShrink: 1,  
-  },
-  rightBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-  },
-  invsRate: {
-    fontFamily: 'Poppins-Medium',
-    fontSize: 12,
-    color: '#3B3B3B',
-  },
 
-  checkbox: {
-    width:18,
-    height: 18,
-    borderWidth: 1,
-    borderColor: '#00A651',
-    borderRadius: 4,
-  },
-  checkedBox: {
-    backgroundColor: '#00A651',
-  },
 
   // 
   container: {
@@ -744,6 +743,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     position: 'relative',
+    marginBottom: 14,
   },
   searchIcon: {
     position: 'absolute',
