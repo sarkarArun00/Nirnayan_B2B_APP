@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Text,
   StyleSheet,
@@ -9,6 +9,9 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
+import { BASE_API_URL } from '../services/API';
+import ClientService from '../services/client_service';
 
 const Header = () => {
   const navigation = useNavigation();
@@ -18,20 +21,61 @@ const Header = () => {
   const [userName, setUserName] = useState('');
   const [userEmail, setUserEmail] = useState('');
   const [userLastLogin, setUserLastLogin] = useState('');
-  
+  const [clientId, setClientId] = useState("");
+  const [propic, setPropic] = useState('');
+  const [displayName, setDisplayName] = useState("");
+
+  useEffect(() => {
+    AsyncStorage.getItem("user_id").then(id => setClientId(id));
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (clientId) {
+        fetchClientDetails();
+      }
+    }, [clientId])
+  );
+
+
+  const fetchClientDetails = async () => {
+    const payload = {
+      schemaName: "nir1691144565",
+      clientId: clientId
+    };
+
+    try {
+      const response = await ClientService.getClientById(payload);
+      console.log("Auto API Success:", response);
+      if (response.status == 1) {
+        setDisplayName(response.data.profileName || "");
+        setPropic(
+          response.data.profilePic
+            ? `${BASE_API_URL}${response.data.profilePic}`
+            : ""
+        );
+        console.log('hitt', propic);
+
+      }
+    } catch (error) {
+      console.log("Auto API Error:", error);
+    }
+  };
+
+
   useEffect(() => {
     const fetchData = async () => {
       const name = await AsyncStorage.getItem('user_name');
       const email = await AsyncStorage.getItem('user_email');
       const lastLogin = await AsyncStorage.getItem('lastLogin');
-  
+
       setUserName(name);
       setUserEmail(email);
       setUserLastLogin(lastLogin);
 
       console.log('useerrrrrr', userName)
     };
-  
+
     fetchData();
   }, []);
   return (
@@ -45,11 +89,15 @@ const Header = () => {
           {/* Profile Section */}
           <View style={styles.leftSection}>
             <View style={styles.profileImg}>
-              <Image source={require('../../assets/profile.png')} style={styles.proLogo} />
+              <Image source={
+                propic
+                  ? { uri: propic }
+                  : require('../../assets/profile.png')
+              } style={styles.proLogo} />
             </View>
             <View style={styles.textBlock}>
               <Text style={styles.title}>Welcome back</Text>
-              <Text style={styles.subTitle}>{userName}</Text>
+              <Text style={styles.subTitle}>{displayName}</Text>
             </View>
           </View>
 
