@@ -242,6 +242,102 @@ function Registration({ navigation }) {
                 <Text style={GlobalStyles.applyBtnTextNew}>{activeTab === tabs.length - 1 ? 'Finish' : 'Next'}</Text>
               </TouchableOpacity>
             </View>
+
+            {/* Search Patient */}
+            <View>
+              <View style={styles.patientCard}>
+                {/* Top Row */}
+                <View style={styles.patientTopRow}>
+                  <View style={styles.patientIdBox}>
+                    <Text style={styles.patientIdText}>SE/CL/250117/0007</Text>
+                  </View>
+                  <View style={styles.patientReferBox}>
+                    <Image source={require('../../../assets/handshake.png')} style={{ width: 24, height: 14, objectFit: "contain", }} />
+                    <Text style={styles.patientReferText}> Souvik Mitra</Text>
+                  </View>
+                </View>
+
+                {/* Middle Row */}
+                <View style={styles.patientMiddleRow}>
+                  <View style={styles.patientLeftColumn}>
+                    <View style={styles.patientRow}>
+                      <Image source={require('../../../assets/bbdoct.png')} style={{ width: 18, height: 20, objectFit: "contain", }} />
+                      <Text style={styles.patientName}>Arun Sarkar</Text>
+                      <Icon
+                        name="male-outline"
+                        size={16}
+                        color="#3C82F6"
+                        style={{ marginLeft: 4 }}
+                      />
+                    </View>
+                    <Text style={styles.patientAge}>45Y-0M-0D</Text>
+                  </View>
+
+                  <View style={styles.patientRightColumn}>
+                    <View style={styles.patientRow}>
+                      <Image source={require('../../../assets/bbdoct2.png')} style={{ width: 22, height: 22, objectFit: "contain", }} />
+                      <View style={styles.refTextPnl}>
+                        <Text style={styles.patientReferBy}>Refer by</Text>
+                        <Text style={styles.patientDoctorLabel}>Dr. Shiv Prasad</Text>
+                      </View>
+                    </View>
+                  </View>
+                </View>
+
+                {/* Bottom Row */}
+                <View style={styles.patientBottomRow}>
+                  <Icon name="time-outline" size={15} color="#777" />
+                  <Text style={styles.patientTimeText}> 7 days ago</Text>
+                </View>
+              </View>
+              <View style={styles.patientCard}>
+                {/* Top Row */}
+                <View style={styles.patientTopRow}>
+                  <View style={styles.patientIdBox}>
+                    <Text style={styles.patientIdText}>SE/CL/250117/0007</Text>
+                  </View>
+                  <View style={styles.patientReferBox}>
+                    <Image source={require('../../../assets/handshake.png')} style={{ width: 24, height: 14, objectFit: "contain", }} />
+                    <Text style={styles.patientReferText}> Souvik Mitra</Text>
+                  </View>
+                </View>
+
+                {/* Middle Row */}
+                <View style={styles.patientMiddleRow}>
+                  <View style={styles.patientLeftColumn}>
+                    <View style={styles.patientRow}>
+                      <Image source={require('../../../assets/bbdoct.png')} style={{ width: 18, height: 20, objectFit: "contain", }} />
+                      <Text style={styles.patientName}>Arun Sarkar</Text>
+                      <Icon
+                        name="male-outline"
+                        size={16}
+                        color="#3C82F6"
+                        style={{ marginLeft: 4 }}
+                      />
+                    </View>
+                    <Text style={styles.patientAge}>45Y-0M-0D</Text>
+                  </View>
+
+                  <View style={styles.patientRightColumn}>
+                    <View style={styles.patientRow}>
+                      <Image source={require('../../../assets/bbdoct2.png')} style={{ width: 22, height: 22, objectFit: "contain", }} />
+                      <View style={styles.refTextPnl}>
+                        <Text style={styles.patientReferBy}>Refer by</Text>
+                        <Text style={styles.patientDoctorLabel}>Dr. Shiv Prasad</Text>
+                      </View>
+                    </View>
+                  </View>
+                </View>
+
+                {/* Bottom Row */}
+                <View style={styles.patientBottomRow}>
+                  <Icon name="time-outline" size={15} color="#777" />
+                  <Text style={styles.patientTimeText}> 7 days ago</Text>
+                </View>
+              </View>
+            </View>
+            {/* Search Patient */}
+
           </View>
         );
       case 1:
@@ -429,8 +525,8 @@ function Registration({ navigation }) {
               />
 
             </GestureHandlerRootView>
-            
-            <View style={{position:'static', bottom:0, }}>
+
+            <View style={{ position: 'static', bottom: 0, }}>
               <TouchableOpacity style={styles.addDoctor}>
                 <Text style={styles.addDoctorText}>Upload Clinical History</Text>
               </TouchableOpacity>
@@ -676,6 +772,98 @@ function Registration({ navigation }) {
 export default Registration;
 
 const styles = StyleSheet.create({
+  // Search Patient
+  patientCard: {
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    padding: 10,
+    borderBottomWidth: 2,
+    borderBottomColor: "#2ECC71",
+    marginTop: 10,
+  },
+  patientTopRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  patientIdBox: {
+    backgroundColor: "#EAF0FF",
+    borderRadius: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+  },
+  patientIdText: {
+    fontFamily: 'Poppins-Medium',
+    color: "#2C6EF2",
+    fontSize: 12,
+  },
+  patientReferBox: {
+    backgroundColor: "#E9FAEF",
+    borderRadius: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  patientReferText: {
+    fontFamily: 'Poppins-Medium',
+    color: "#26A65B",
+    fontSize: 12,
+  },
+  patientMiddleRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 10,
+  },
+  patientLeftColumn: {
+    flex: 1,
+  },
+  patientRow: {
+    flexDirection: "row",
+  },
+  patientName: {
+    fontFamily: 'Poppins-Medium',
+    fontSize: 14,
+    color: "#000",
+    marginLeft: 6,
+  },
+  patientAge: {
+    fontFamily: 'Poppins-Regular',
+    fontSize: 13,
+    color: "#777",
+    marginLeft: 22,
+  },
+  patientRightColumn: {
+    flex: 1,
+    alignItems: "flex-end",
+  },
+  refTextPnl:{
+    paddingLeft:8,
+  },
+  patientDoctorLabel: {
+    fontFamily: 'Poppins-Medium',
+    fontSize: 14,
+    lineHeight:17,
+    color: "#000",
+  },
+  patientReferBy: {
+    fontFamily: 'Poppins-Regular',
+    fontSize: 13,
+    lineHeight:16,
+    color: "#888",
+  },
+  patientBottomRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 7,
+  },
+  patientTimeText: {
+    fontFamily: 'Poppins-Medium',
+    color: "#8E8E8E",
+    fontSize: 12,
+    lineHeight:15,
+  },
+  // Search Patient
   contentBox: {
     paddingHorizontal: 16,
     paddingVertical: 18,

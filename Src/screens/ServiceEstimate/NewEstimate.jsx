@@ -86,7 +86,7 @@ function NewEstimate({ navigation }) {
                     </View>
                 </View>
 
-                <View style={{ margin: 16, }}>
+                <View style={{ margin: 16, paddingBottom:80, }}>
                     <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#fff', borderWidth: 1, borderColor: '#00A635', paddingVertical: 12, paddingHorizontal: 16, borderRadius: 10, }}
                         onPress={toggleAccordion}>
                         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, }}>
@@ -199,6 +199,170 @@ function NewEstimate({ navigation }) {
                         </TouchableOpacity>
                     </Collapsible>
 
+                    <View style={styles.patCard}>
+                        <View style={styles.packageSection}>
+                            <Text style={styles.packageTitle}>
+                                Suswastham 17.0 - Pre Operative Check Up Basic Package
+                            </Text>
+                            <TouchableOpacity onPress={() => navigation.navigate('ServiceInvestigations')}>
+                                <Ionicons name="eye" size={22} color="#B8B8B8" />
+                                {/* <Text style={styles.addTestBtn}>+7</Text> */}
+                            </TouchableOpacity>
+                        </View>
+                        <View style={styles.rateSection}>
+                            <View style={styles.rateLeftWrap}>
+                                <View style={styles.rateBox}>
+                                    <View style={styles.rateIconWrap}>
+                                        <Image source={require('../../../assets/partnerrate-icn1.png')} style={styles.rateIcon} />
+                                    </View>
+                                    <View style={styles.rateText}>
+                                        <Text style={styles.rateLabel}>Total Rate</Text>
+                                        <Text style={styles.rateValue}>550</Text>
+                                    </View>
+                                </View>
+                                <View style={styles.rateBox}>
+                                    <View style={styles.rateIconWrap}>
+                                        <Image source={require('../../../assets/partnerrate-icn2.png')} style={styles.rateIcon} />
+                                    </View>
+                                    <View style={styles.rateText}>
+                                        <Text style={styles.rateLabel}>Gross MRP</Text>
+                                        <Text style={styles.rateValue}>550</Text>
+                                    </View>
+                                </View>
+                            </View>
+                            <View style={styles.iconWrapSection}>
+                                <TouchableOpacity>
+                                    <Ionicons name="download-outline" size={24} color="#00A651" />
+                                </TouchableOpacity>
+                                <TouchableOpacity>
+                                    <Ionicons name="trash-outline" size={24} color="#F44336" />
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </View>
+                    <View style={styles.patCard}>
+                        <View style={styles.packageSection}>
+                            <Text style={styles.packageTitle}>
+                                Suswastham 17.0 - Pre Operative Check Up Basic Package
+                            </Text>
+                            <TouchableOpacity onPress={() => navigation.navigate('ServiceInvestigations')}>
+                                <Ionicons name="eye" size={22} color="#B8B8B8" />
+                                {/* <Text style={styles.addTestBtn}>+7</Text> */}
+                            </TouchableOpacity>
+                        </View>
+                        <View style={styles.rateSection}>
+                            <View style={styles.rateLeftWrap}>
+                                <View style={styles.rateBox}>
+                                    <View style={styles.rateIconWrap}>
+                                        <Image source={require('../../../assets/partnerrate-icn1.png')} style={styles.rateIcon} />
+                                    </View>
+                                    <View style={styles.rateText}>
+                                        <Text style={styles.rateLabel}>Total Rate</Text>
+                                        <Text style={styles.rateValue}>550</Text>
+                                    </View>
+                                </View>
+                                <View style={styles.rateBox}>
+                                    <View style={styles.rateIconWrap}>
+                                        <Image source={require('../../../assets/partnerrate-icn2.png')} style={styles.rateIcon} />
+                                    </View>
+                                    <View style={styles.rateText}>
+                                        <Text style={styles.rateLabel}>Gross MRP</Text>
+                                        <Text style={styles.rateValue}>550</Text>
+                                    </View>
+                                </View>
+                            </View>
+                            <View style={styles.iconWrapSection}>
+                                <TouchableOpacity>
+                                    <Ionicons name="download-outline" size={24} color="#00A651" />
+                                </TouchableOpacity>
+                                <TouchableOpacity>
+                                    <Ionicons name="trash-outline" size={24} color="#F44336" />
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </View>
+                    <View style={styles.patCard}>
+                        <View style={styles.packageSection}>
+                            <Text style={styles.packageTitle}>
+                                Suswastham 17.0 - Pre Operative Check Up Basic Package
+                            </Text>
+                            <TouchableOpacity onPress={() => navigation.navigate('ServiceInvestigations')}>
+                                <Ionicons name="eye" size={22} color="#B8B8B8" />
+                                {/* <Text style={styles.addTestBtn}>+7</Text> */}
+                            </TouchableOpacity>
+                        </View>
+                        <View style={styles.rateSection}>
+                            <View style={styles.rateLeftWrap}>
+                                <View style={styles.rateBox}>
+                                    <View style={styles.rateIconWrap}>
+                                        <Image source={require('../../../assets/partnerrate-icn1.png')} style={styles.rateIcon} />
+                                    </View>
+                                    <View style={styles.rateText}>
+                                        <Text style={styles.rateLabel}>Total Rate</Text>
+                                        <Text style={styles.rateValue}>550</Text>
+                                    </View>
+                                </View>
+                                <View style={styles.rateBox}>
+                                    <View style={styles.rateIconWrap}>
+                                        <Image source={require('../../../assets/partnerrate-icn2.png')} style={styles.rateIcon} />
+                                    </View>
+                                    <View style={styles.rateText}>
+                                        <Text style={styles.rateLabel}>Gross MRP</Text>
+                                        <Text style={styles.rateValue}>550</Text>
+                                    </View>
+                                </View>
+                            </View>
+                            <View style={styles.iconWrapSection}>
+                                <TouchableOpacity>
+                                    <Ionicons name="download-outline" size={24} color="#00A651" />
+                                </TouchableOpacity>
+                                <TouchableOpacity>
+                                    <Ionicons name="trash-outline" size={24} color="#F44336" />
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </View>
+                    <View style={styles.patCard}>
+                        <View style={styles.packageSection}>
+                            <Text style={styles.packageTitle}>
+                                Suswastham 17.0 - Pre Operative Check Up Basic Package
+                            </Text>
+                            <TouchableOpacity onPress={() => navigation.navigate('ServiceInvestigations')}>
+                                <Ionicons name="eye" size={22} color="#B8B8B8" />
+                                {/* <Text style={styles.addTestBtn}>+7</Text> */}
+                            </TouchableOpacity>
+                        </View>
+                        <View style={styles.rateSection}>
+                            <View style={styles.rateLeftWrap}>
+                                <View style={styles.rateBox}>
+                                    <View style={styles.rateIconWrap}>
+                                        <Image source={require('../../../assets/partnerrate-icn1.png')} style={styles.rateIcon} />
+                                    </View>
+                                    <View style={styles.rateText}>
+                                        <Text style={styles.rateLabel}>Total Rate</Text>
+                                        <Text style={styles.rateValue}>550</Text>
+                                    </View>
+                                </View>
+                                <View style={styles.rateBox}>
+                                    <View style={styles.rateIconWrap}>
+                                        <Image source={require('../../../assets/partnerrate-icn2.png')} style={styles.rateIcon} />
+                                    </View>
+                                    <View style={styles.rateText}>
+                                        <Text style={styles.rateLabel}>Gross MRP</Text>
+                                        <Text style={styles.rateValue}>550</Text>
+                                    </View>
+                                </View>
+                            </View>
+                            <View style={styles.iconWrapSection}>
+                                <TouchableOpacity>
+                                    <Ionicons name="download-outline" size={24} color="#00A651" />
+                                </TouchableOpacity>
+                                <TouchableOpacity>
+                                    <Ionicons name="trash-outline" size={24} color="#F44336" />
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </View>
                     <View style={styles.patCard}>
                         <View style={styles.packageSection}>
                             <Text style={styles.packageTitle}>
