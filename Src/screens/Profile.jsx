@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -12,6 +12,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Feather';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
+import { BASE_API_URL } from '../services/API';
+import ClientService from '../services/client_service';
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
@@ -19,6 +22,13 @@ const ProfileScreen = () => {
   const [userName, setUserName] = useState('');
   const [userEmail, setUserEmail] = useState('');
   const [userLastLogin, setUserLastLogin] = useState('');
+  const [clientId, setClientId] = useState("");
+  const [propic, setPropic] = useState('');
+  const [displayName, setDisplayName] = useState("");
+
+  useEffect(() => {
+    AsyncStorage.getItem("user_id").then(id => setClientId(id));
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -35,6 +45,38 @@ const ProfileScreen = () => {
 
     fetchData();
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (clientId) {
+        fetchClientDetails();
+      }
+    }, [clientId])
+  );
+
+
+  const fetchClientDetails = async () => {
+    const payload = {
+      schemaName: "nir1691144565",
+      clientId: clientId
+    };
+
+    try {
+      const response = await ClientService.getClientById(payload);
+      console.log("Auto API Success:", response);
+      if (response.success == true) {
+        setDisplayName(response.data.profileName || "");
+        setPropic(
+          response.data.profilePic
+            ? `${BASE_API_URL}${response.data.profilePic}`
+            : ""
+        );
+
+      }
+    } catch (error) {
+      console.log("Auto API Error:", error);
+    }
+  };
 
 
 
@@ -58,11 +100,18 @@ const ProfileScreen = () => {
         {/* Profile Section */}
         <View style={styles.sideProfile}>
           <View style={styles.sdProImg}>
-            <Image source={require('../../assets/profile.png')} style={styles.sdProLogo} />
+            <Image
+              style={styles.sdProLogo}
+              source={
+                propic
+                  ? { uri: propic }
+                  : require('../../assets/profile.png')
+              }
+            />
           </View>
           <View style={styles.sdProfileTextBlock}>
             <Text style={styles.sdProTitle}>Welcome back</Text>
-            <Text style={styles.sdProSubTitle}>{userName}</Text>
+            <Text style={styles.sdProSubTitle}>{displayName}</Text>
             <Text style={styles.sdProLoginTime}>
               Last sign In on {userLastLogin}
             </Text>

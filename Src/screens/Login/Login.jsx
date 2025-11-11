@@ -84,6 +84,7 @@ function Login() {
                     await AsyncStorage.setItem("user_id", response.userData?.id?.toString() || '');
                     await AsyncStorage.setItem("user_name", response.userData?.client_name || '');
                     await AsyncStorage.setItem("user_email", response.userData?.email || '');
+                    await AsyncStorage.setItem("PASSWORD_EXPIRED_IN", response.userData?.passwordExpiresInDays || '');
 
                     const lastLoginFormatted = formatLoginDate();
                     await AsyncStorage.setItem("lastLogin", lastLoginFormatted);

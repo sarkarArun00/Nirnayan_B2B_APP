@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -10,6 +10,8 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { GlobalStyles, theme } from '../GlobalStyles';
 import Header from '../componenets/Header';
+import PasswordWarningModal from '../screens/sliderScreens/PasswordWarningModal';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const HomeScreen = () => {
   const navigation = useNavigation();
@@ -22,6 +24,28 @@ const HomeScreen = () => {
     { title: 'Raise Ticket', icon: require('../../assets/qc-icon4.png') },
   ];
   const [scrollEnabled, setScrollEnabled] = useState(true);
+  const [expDay, setExpday] = useState("");
+  const [showPasswordWarning, setShowPasswordWarning] = useState(false);
+
+useEffect(() => {
+  const fetchExpiry = async () => {
+    const days = await AsyncStorage.getItem("PASSWORD_EXPIRED_IN");
+
+    if (days) {
+      setExpDay(days);
+
+      // Convert to number and check condition
+      if (Number(days) < 7) {
+        setShowPasswordWarning(true);
+      } else {
+        setShowPasswordWarning(false);
+      }
+    }
+  };
+
+  fetchExpiry();
+}, []);
+
   return (
     // style={[GlobalStyles.SafeAreaView]}
     <SafeAreaView>
@@ -259,6 +283,16 @@ const HomeScreen = () => {
           </ImageBackground>
         </View>
       </ScrollView>
+      <PasswordWarningModal
+        visible={showPasswordWarning}
+        message={`Password will expire in ${expDay} days`}
+        onClose={() => setShowPasswordWarning(false)}
+        onChangePassword={() => {
+          setShowPasswordWarning(false);
+          navigation.navigate("ProfilePage", { openModal: true });
+        }}
+      />
+
     </SafeAreaView>
 
   );
