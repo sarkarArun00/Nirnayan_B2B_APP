@@ -28,6 +28,7 @@ import ServiceInvestigations from '../screens/ServiceEstimate/ServiceInvestigati
 import ProfilePage from '../screens/Profile/ProfilePage';
 import LocationPage from '../screens/Profile/LocationPage';
 import ListProduct from '../screens/Registration/ListProduct';
+import AppointmentSelector from '../screens/Registration/AppointmentSelector';
 
 
 const Tab = createBottomTabNavigator();
@@ -140,6 +141,7 @@ const AppNavigator = () => {
       <Stack.Screen name="ProfilePage" component={ProfilePage} />
       <Stack.Screen name="LocationPage" component={LocationPage} />
       <Stack.Screen name="ListProduct" component={ListProduct} />
+      <Stack.Screen name="AppointmentSelector" component={AppointmentSelector} />
     </Stack.Navigator>
   );
 };
