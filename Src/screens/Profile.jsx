@@ -149,7 +149,7 @@ const ProfileScreen = () => {
               <Image style={styles.menuImg} source={require('../../assets/menu12.png')} />
               <Text style={styles.menuText}>Partner</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.menuItem} >
+            <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('RequestSample')}>
               <Image style={styles.menuImg} source={require('../../assets/menu5.png')} />
               <Text style={styles.menuText}>Request Sample Pick-up</Text>
             </TouchableOpacity>
@@ -169,7 +169,7 @@ const ProfileScreen = () => {
               <Image style={styles.menuImg} source={require('../../assets/menu9.png')} />
               <Text style={styles.menuText}>Documents</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('AppointmentSelector')}>
+            <TouchableOpacity style={styles.menuItem}>
               <Image style={styles.menuImg} source={require('../../assets/menu10.png')} />
               <Text style={styles.menuText}>Tickets</Text>
             </TouchableOpacity>
