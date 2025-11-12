@@ -151,11 +151,11 @@ const ProfileScreen = () => {
             </TouchableOpacity>
             <TouchableOpacity style={styles.menuItem} >
               <Image style={styles.menuImg} source={require('../../assets/menu5.png')} />
-              <Text style={styles.menuText}>Request Pick-up</Text>
+              <Text style={styles.menuText}>Request Sample Pick-up</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.menuItem}>
               <Image style={styles.menuImg} source={require('../../assets/menu6.png')} />
-              <Text style={styles.menuText}>Request Tracking</Text>
+              <Text style={styles.menuText}>Sample Tracking</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.menuItem}>
               <Image style={styles.menuImg} source={require('../../assets/menu7.png')} />
@@ -244,7 +244,7 @@ const styles = StyleSheet.create({
   menuText: {
     fontFamily: 'Poppins-Medium',
     fontSize: 13,
-    lineHeight: 15,
+    lineHeight: 17,
     color: '#000000',
   },
   appVersion: {
