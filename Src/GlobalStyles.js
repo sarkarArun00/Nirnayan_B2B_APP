@@ -27,8 +27,8 @@ export const GlobalStyles = StyleSheet.create({
   modalContainer: {
     backgroundColor: '#fff',
     paddingHorizontal: 16,
-    paddingTop: 45,
-    paddingBottom: 60,
+    paddingTop: 30,
+    paddingBottom: 30,
     borderTopLeftRadius: 25,
     borderTopRightRadius: 25,
     maxHeight: '80%',

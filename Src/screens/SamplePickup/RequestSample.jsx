@@ -3,11 +3,24 @@ import { useNavigation } from '@react-navigation/native';
 import { View, Text, TouchableOpacity, FlatList, StyleSheet, TextInput, Switch, Modal, Alert, SafeAreaView, ScrollView, ImageBackground, Image, } from "react-native";
 import dayjs from "dayjs";
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import Icon from 'react-native-vector-icons/Ionicons';
 import { GlobalStyles } from "../../GlobalStyles";
+
+
+const patientsData = [
+    { id: "1", name: "Syed Aman Abdullah", gender: "male", code: "PR/20251016/XXXX", age: "45Y-0M-0D" },
+    { id: "2", name: "Maya Sarkar", gender: "female", code: "PR/20251016/XXXX", age: "45Y-0M-0D" },
+    { id: "3", name: "Arun Sarkar", gender: "male", code: "PR/20251016/XXXX", age: "45Y-0M-0D" },
+    { id: "4", name: "Avik Sarkar", gender: "male", code: "PR/20251016/XXXX", age: "45Y-0M-0D" },
+    { id: "5", name: "Jai Sarkar", gender: "male", code: "PR/20251016/XXXX", age: "45Y-0M-0D" },
+];
 
 function RequestSample() {
     const navigation = useNavigation();
     const [patientModal, setPatientModal] = useState(false);
+    const [isEnabled, setIsEnabled] = useState(false);
+    const toggleSwitch = () => setIsEnabled(previousState => !previousState);
+
     const dateListRef = useRef(null);
     const monthListRef = useRef(null);
     const today = dayjs();
@@ -256,6 +269,79 @@ function RequestSample() {
         );
     };
 
+    // Patient Data Start
+    const [selectedIds, setSelectedIds] = useState([]);
+
+    const toggleSelect = (id) => {
+        if (selectedIds.includes(id)) {
+            setSelectedIds(selectedIds.filter((i) => i !== id));
+        } else {
+            setSelectedIds([...selectedIds, id]);
+        }
+    };
+
+    const toggleSelectAll = () => {
+        if (selectedIds.length === patientsData.length) {
+            // Deselect all
+            setSelectedIds([]);
+        } else {
+            // Select all
+            setSelectedIds(patientsData.map((p) => p.id));
+        }
+    };
+
+    const renderItem = ({ item }) => {
+        const isSelected = selectedIds.includes(item.id);
+
+        return (
+            <TouchableOpacity
+                style={[styles.card, isSelected && styles.cardSelected]}
+                onPress={() => toggleSelect(item.id)}
+                activeOpacity={0.8}
+            >
+                <View style={styles.header}>
+                    <Text style={styles.code}>{item.code}</Text>
+                    <Ionicons
+                        name={isSelected ? "checkbox" : "square-outline"}
+                        size={22}
+                        color={isSelected ? "#00C896" : "#999"}
+                        onPress={() => toggleSelect(item.id)}
+                    />
+                </View>
+                <View style={styles.row}>
+                    <Text style={styles.name}>{item.name}</Text>
+                    <Ionicons
+                        name={item.gender === "male" ? "male" : "female"}
+                        size={18}
+                        color={item.gender === "male" ? "#007bff" : "#e83e8c"}
+                    />
+                </View>
+                <Text style={styles.age}>{item.age}</Text>
+            </TouchableOpacity>
+        );
+    };
+
+    const allSelected = selectedIds.length === patientsData.length;
+    // Patient Data Start End
+
+    // Search Placeholder change Start
+    const placeholders = [
+        'Search by Patient Name',
+        'Search by Investigation ID',
+        'Search by Pick-up',
+    ];
+
+    const [placeholderIndex, setPlaceholderIndex] = useState(0);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setPlaceholderIndex((prev) => (prev + 1) % placeholders.length);
+        }, 1500);
+
+        return () => clearInterval(interval);
+    }, []);
+    // Search Placeholder change End
+
     return (
         <SafeAreaView style={{ flex: 1 }}>
             <ScrollView style={{ flex: 1, }}>
@@ -385,20 +471,75 @@ function RequestSample() {
                             >
                                 <Text style={GlobalStyles.closeIcon}>✕</Text>
                             </TouchableOpacity>
-                            <Text style={GlobalStyles.mdlTitle2}>Select Patients</Text>
-                            <ScrollView
-                                showsVerticalScrollIndicator={false}
-                                showsHorizontalScrollIndicator={false}
-                            >
+                            
+                            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent:'space-between', marginBottom:15, }}>
+                                <Text style={GlobalStyles.mdlTitle2}>Select Patients</Text>
+                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 7, }}>
+                                    <Text style={styles.sampleLabel}>
+                                        {isEnabled ? 'Requested Samples' : 'Pending Samples'}
+                                    </Text>
+                                    <Switch
+                                        value={isEnabled}
+                                        onValueChange={toggleSwitch}
+                                        trackColor={{ false: "#BEBEBE", true: "#00A651" }}
+                                        thumbColor="#fff"
+                                    />
+                                </View>
+                            </View>
 
-                                <TouchableOpacity style={GlobalStyles.applyBtnFullWidth}>
-                                    <Text style={GlobalStyles.applyBtnTextNew}>Select</Text>
-                                </TouchableOpacity>
-                            </ScrollView>
+                            {/*  need to add from time */}
+                            
+                            {/* need to add to time */}
+
+                            <View style={styles.searchContainer}>
+                                <View style={styles.searchBox}>
+                                    <Icon name="search" size={20} color="#aaa" style={styles.searchIcon} />
+                                    <TextInput
+                                        placeholder={placeholders[placeholderIndex]}
+                                        placeholderTextColor="#999"
+                                        style={styles.input}
+                                    />
+                                </View>
+                            </View>
+
+                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 10, }}>
+                                <Image source={require('../../../assets/filtericon.png')} style={styles.filtIconMdl} />
+                                <Text style={styles.filtTextMdl}>8 Result Found</Text>
+                            </View>
+
+                            <View>
+                                <FlatList
+                                    data={patientsData}
+                                    renderItem={renderItem}
+                                    keyExtractor={(item) => item.id}
+                                    showsVerticalScrollIndicator={true}
+                                    style={{ maxHeight: 350, paddingRight:5, }}
+                                    ListFooterComponent={
+                                        <>
+                                            <TouchableOpacity
+                                                style={styles.selectAllContainer}
+                                                onPress={toggleSelectAll}
+                                                activeOpacity={0.8}
+                                            >
+                                                <Ionicons
+                                                    name={allSelected ? "checkbox" : "square-outline"}
+                                                    size={20}
+                                                    color={allSelected ? "#00C896" : "#555"}
+                                                />
+                                                <Text style={styles.selectAllText}> Select All</Text>
+                                            </TouchableOpacity>
+                                        </>
+                                    }
+                                />
+                            </View>
+
+                            <TouchableOpacity style={GlobalStyles.applyBtnFullWidth}>
+                                <Text style={GlobalStyles.applyBtnTextNew}>Select</Text>
+                            </TouchableOpacity>
                         </View>
                     </View>
                 </Modal>
-     
+
             </ScrollView>
         </SafeAreaView>
     );
@@ -406,6 +547,78 @@ function RequestSample() {
 export default RequestSample;
 
 const styles = StyleSheet.create({
+    // Modal Start
+    card: {
+        borderBottomWidth: 1,
+        borderBottomColor: "#00A635",
+        borderRadius: 15,
+        padding: 12,
+        marginHorizontal: 4,
+        marginBottom: 12,
+        backgroundColor: "#fff",
+        shadowColor: '#808080',
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 0.25,
+        shadowRadius: 15,
+        elevation: 6,
+    },
+    cardSelected: {
+        backgroundColor: "#E6FFF7",
+    },
+    header: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        marginBottom: 6,
+    },
+    code: {
+        fontFamily: "Poppins-Regular",
+        fontSize: 12,
+        lineHeight: 15,
+        color: "#2C68FF",
+        backgroundColor: "rgba(44, 104, 255, 0.15)",
+        paddingHorizontal: 6,
+        paddingVertical: 3,
+        borderRadius: 4,
+    },
+    row: {
+        flexDirection: "row",
+        alignItems: "center",
+        marginBottom: 4,
+    },
+    name: {
+        fontFamily: "Poppins-Medium",
+        fontSize: 14,
+        marginRight: 6,
+    },
+    age: {
+        fontFamily: "Poppins-Regular",
+        color: "#9F9F9F",
+        fontSize: 13,
+        lineHeight: 16,
+    },
+    selectAllContainer: {
+        flexDirection: "row",
+        alignItems: "center",
+        marginVertical: 10,
+    },
+    selectAllText: {
+        fontFamily: "Poppins-Regular",
+        marginLeft: 4,
+        fontSize: 14,
+        lineHeight: 16,
+    },
+    filtIconMdl: {
+        width: 18,
+        height: 15,
+        objectFit: 'contain',
+    },
+    filtTextMdl: {
+        fontFamily: "Poppins-Medium",
+        fontSize: 14,
+        lineHeight: 16,
+        color: '#7D7B7B',
+    },
+    // Modal End
     // 
     chPtBtn: {
         flexDirection: 'row',
@@ -464,6 +677,12 @@ const styles = StyleSheet.create({
     label: {
         fontFamily: "Poppins-Medium",
         fontSize: 14,
+        color: "#7D7B7B",
+    },
+    sampleLabel: {
+        fontFamily: "Poppins-Medium",
+        fontSize: 12,
+        lineHeight:15,
         color: "#7D7B7B",
     },
     required: {
@@ -632,4 +851,38 @@ const styles = StyleSheet.create({
         top: 0,
     },
     // Header
+
+    //  Search Bar Start
+    searchContainer: {
+        flexDirection: 'row',
+    },
+    searchBox: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        position: 'relative',
+        marginBottom: 20,
+        borderWidth: 1,
+        borderColor: '#C5C5C5',
+        borderRadius: 10,
+    },
+    searchIcon: {
+        position: 'absolute',
+        left: 15,
+        top: 11,
+        zIndex: 1,
+        color: '#DEDEDE',
+    },
+    input: {
+        flex: 1,
+        height: 45,
+        fontFamily: 'Poppins-Medium',
+        fontSize: 14,
+        color: '#333',
+        backgroundColor: '#fff',
+        borderRadius: 25,
+        paddingLeft: 42,
+        paddingRight: 10,
+    },
+    // Search Bar End
 });
