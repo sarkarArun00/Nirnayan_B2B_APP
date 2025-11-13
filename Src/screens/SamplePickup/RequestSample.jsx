@@ -472,7 +472,7 @@ function RequestSample() {
                                 <Text style={GlobalStyles.closeIcon}>✕</Text>
                             </TouchableOpacity>
                             
-                            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent:'space-between', marginBottom:15, }}>
+                            <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent:'space-between', marginBottom:15, }}>
                                 <Text style={GlobalStyles.mdlTitle2}>Select Patients</Text>
                                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 7, }}>
                                     <Text style={styles.sampleLabel}>
@@ -487,9 +487,9 @@ function RequestSample() {
                                 </View>
                             </View>
 
-                            {/*  need to add from time */}
+                            {/*  need to add from date to time */}
                             
-                            {/* need to add to time */}
+                            {/* need to add from date to time */}
 
                             <View style={styles.searchContainer}>
                                 <View style={styles.searchBox}>
