@@ -153,7 +153,7 @@ const ProfileScreen = () => {
               <Image style={styles.menuImg} source={require('../../assets/menu5.png')} />
               <Text style={styles.menuText}>Request Sample Pick-up</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.menuItem}>
+            <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('TrackingSample')}>
               <Image style={styles.menuImg} source={require('../../assets/menu6.png')} />
               <Text style={styles.menuText}>Sample Tracking</Text>
             </TouchableOpacity>

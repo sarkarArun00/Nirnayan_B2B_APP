@@ -29,6 +29,7 @@ import ProfilePage from '../screens/Profile/ProfilePage';
 import LocationPage from '../screens/Profile/LocationPage';
 import ListProduct from '../screens/Registration/ListProduct';
 import RequestSample from '../screens/SamplePickup/RequestSample';
+import TrackingSample from '../screens/TrackingSample/TrackingSample';
 
 
 const Tab = createBottomTabNavigator();
@@ -142,6 +143,7 @@ const AppNavigator = () => {
       <Stack.Screen name="LocationPage" component={LocationPage} />
       <Stack.Screen name="ListProduct" component={ListProduct} />
       <Stack.Screen name="RequestSample" component={RequestSample} />
+      <Stack.Screen name="TrackingSample" component={TrackingSample} />
     </Stack.Navigator>
   );
 };

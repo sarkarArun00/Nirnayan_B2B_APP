@@ -87,8 +87,8 @@ export const GlobalStyles = StyleSheet.create({
     color: '#7D7B7B',
     marginBottom: 10,
   },
-  regText:{
-    color:'#FA2C2C',
+  regText: {
+    color: '#FA2C2C',
   },
   inputContainer: {
     position: 'relative',
@@ -110,8 +110,8 @@ export const GlobalStyles = StyleSheet.create({
     paddingRight: 10,
     color: '#C2C2C2',
   },
-  disabledInput:{
-    backgroundColor:'#F6F6F6',
+  disabledInput: {
+    backgroundColor: '#F6F6F6',
   },
   textArea: {
     fontFamily: 'Poppins-Regular',
@@ -192,20 +192,108 @@ export const GlobalStyles = StyleSheet.create({
     paddingTop: 8,
   },
 
-
-
-
-
-
-
-
-
-
-
   // Common Modal End
 
 
+  // Common Header Start
+  background: {
+    flex: 1,
+    width: '100%',
+    paddingTop: 58,
+    paddingBottom: 20,
+  },
+  flexdv: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+  },
+  leftArrow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 15,
+  },
+  arrowBox: {
+    width: 32,
+    height: 32,
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#AFAFAF',
+    borderRadius: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  titleText: {
+    fontFamily: 'Poppins-SemiBold',
+    fontSize: 16,
+    lineHeight: 18,
+    color: '#000',
+  },
+  rightSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 18,
+  },
+  notiDot: {
+    width: 8,
+    height: 8,
+    backgroundColor: '#F82525',
+    borderRadius: 4,
+    position: 'absolute',
+    right: 0,
+    top: 0,
+  },
+  // Common Header End
 
+  // Common Search Bar Start
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginHorizontal: 16,
+    gap: 9,
+  },
+  searchBox: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    position: 'relative',
+  },
+  searchIcon: {
+    position: 'absolute',
+    left: 15,
+    top: 11,
+    zIndex: 1,
+    color: '#DEDEDE',
+  },
+  searchinput: {
+    flex: 1,
+    height: 45,
+    fontFamily: 'Poppins-Medium',
+    fontSize: 14,
+    color: '#333',
+    backgroundColor: '#fff',
+    borderRadius: 25,
+    paddingLeft: 42,
+    paddingRight: 10,
+  },
+  filterButton: {
+    backgroundColor: '#00A651',
+    width: 45,
+    height: 45,
+    borderRadius: 22.5,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  newEstimate: {
+    backgroundColor: '#4B5550',
+    width: 45,
+    height: 45,
+    borderRadius: 22.5,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  // Common Search Bar End
 
 
 

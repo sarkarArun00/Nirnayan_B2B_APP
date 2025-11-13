@@ -176,17 +176,17 @@ function billReceipt() {
             <ScrollView style={{ flex: 1, }}>
                 <ImageBackground
                     source={require('../../../assets/partnerbg.png')}
-                    style={styles.background}
+                    style={GlobalStyles.background}
                     resizeMode="stretch">
-                    <View style={styles.flexdv}>
-                        <TouchableOpacity style={styles.leftArrow} onPress={() => navigation.goBack()}>
-                            <View style={styles.arrowBox}><Image source={require('../../../assets/arrow1.png')} /></View>
-                            <Text style={styles.titleText}>Patient receipts</Text>
+                    <View style={GlobalStyles.flexdv}>
+                        <TouchableOpacity style={GlobalStyles.leftArrow} onPress={() => navigation.goBack()}>
+                            <View style={GlobalStyles.arrowBox}><Image source={require('../../../assets/arrow1.png')} /></View>
+                            <Text style={GlobalStyles.titleText}>Patient receipts</Text>
                         </TouchableOpacity>
-                        <View style={styles.rightSection}>
+                        <View style={GlobalStyles.rightSection}>
                             <TouchableOpacity style={{ position: 'relative' }}>
                                 <Image source={require('../../../assets/notification.png')} />
-                                <View style={styles.notiDot}></View>
+                                <View style={GlobalStyles.notiDot}></View>
                             </TouchableOpacity>
                             <TouchableOpacity>
                                 <Image source={require('../../../assets/menu-bar.png')} />
@@ -195,16 +195,16 @@ function billReceipt() {
                     </View>
                 </ImageBackground>
 
-                <View style={styles.searchContainer}>
-                    <View style={styles.searchBox}>
-                        <Icon name="search" size={20} color="#aaa" style={styles.searchIcon} />
+                <View style={GlobalStyles.searchContainer}>
+                    <View style={GlobalStyles.searchBox}>
+                        <Icon name="search" size={20} color="#aaa" style={GlobalStyles.searchIcon} />
                         <TextInput
                             placeholder="Search"
                             placeholderTextColor="#999"
-                            style={styles.input}
+                            style={GlobalStyles.searchinput}
                         />
                     </View>
-                    <TouchableOpacity style={styles.filterButton} onPress={() => setFilterModalVisible(true)}>
+                    <TouchableOpacity style={GlobalStyles.filterButton} onPress={() => setFilterModalVisible(true)}>
                         <Icon name="options-outline" size={24} color="#fff" />
                     </TouchableOpacity>
                 </View>
@@ -859,9 +859,6 @@ const styles = StyleSheet.create({
         lineHeight: 14,
         color: '#000',
     },
-
-
-
     // Edit Modal End
     cardContainer: {
         padding: 15,
@@ -970,98 +967,6 @@ const styles = StyleSheet.create({
         color: '#fff',
         textAlign: 'center',
     },
-
-    // Header
-    background: {
-        flex: 1,
-        width: '100%',
-        paddingTop: 58,
-        paddingBottom: 20,
-    },
-    flexdv: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: 20,
-    },
-    leftArrow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 15,
-    },
-    arrowBox: {
-        width: 32,
-        height: 32,
-        backgroundColor: '#fff',
-        borderWidth: 1,
-        borderColor: '#AFAFAF',
-        borderRadius: 10,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    titleText: {
-        fontFamily: 'Poppins-SemiBold',
-        fontSize: 16,
-        lineHeight: 18,
-        color: '#000',
-    },
-    rightSection: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 18,
-    },
-    notiDot: {
-        width: 8,
-        height: 8,
-        backgroundColor: '#F82525',
-        borderRadius: 4,
-        position: 'absolute',
-        right: 0,
-        top: 0,
-    },
-    // Header
-
-    //  Search Bar
-    searchContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginHorizontal: 16,
-        gap: 9,
-    },
-    searchBox: {
-        flex: 1,
-        flexDirection: 'row',
-        alignItems: 'center',
-        position: 'relative',
-    },
-    searchIcon: {
-        position: 'absolute',
-        left: 15,
-        top: 11,
-        zIndex: 1,
-        color: '#DEDEDE',
-    },
-    input: {
-        flex: 1,
-        height: 45,
-        fontFamily: 'Poppins-Medium',
-        fontSize: 14,
-        color: '#333',
-        backgroundColor: '#fff',
-        borderRadius: 25,
-        paddingLeft: 42,
-        paddingRight: 10,
-    },
-    filterButton: {
-        backgroundColor: '#00A651',
-        width: 45,
-        height: 45,
-        borderRadius: 22.5,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    // Search Bar
     // Upload Documents Start
     modalOverlay: {
         flex: 1,

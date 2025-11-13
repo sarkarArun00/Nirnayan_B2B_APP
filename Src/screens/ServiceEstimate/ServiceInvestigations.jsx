@@ -98,19 +98,19 @@ function ServiceInvestigations() {
             <ScrollView style={{ flex: 1, }}>
                 <ImageBackground
                     source={require('../../../assets/partnerbg.png')}
-                    style={styles.background}
+                    style={GlobalStyles.background}
                     resizeMode="stretch">
-                    <View style={styles.flexdv}>
-                        <TouchableOpacity style={styles.leftArrow} onPress={() => navigation.goBack()}>
-                            <View style={styles.arrowBox}>
+                    <View style={GlobalStyles.flexdv}>
+                        <TouchableOpacity style={GlobalStyles.leftArrow} onPress={() => navigation.goBack()}>
+                            <View style={GlobalStyles.arrowBox}>
                                 <Image source={require('../../../assets/arrow1.png')} />
                             </View>
-                            <Text style={styles.titleText}>Investigation Details</Text>
+                            <Text style={GlobalStyles.titleText}>Investigation Details</Text>
                         </TouchableOpacity>
-                        <View style={styles.rightSection}>
+                        <View style={GlobalStyles.rightSection}>
                             <TouchableOpacity style={{ position: 'relative' }}>
                                 <Image source={require('../../../assets/notification.png')} />
-                                <View style={styles.notiDot}></View>
+                                <View style={GlobalStyles.notiDot}></View>
                             </TouchableOpacity>
                             <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
                                 <Image source={require('../../../assets/menu-bar.png')} />
@@ -276,7 +276,6 @@ const styles = StyleSheet.create({
         lineHeight: 14,
         color: '#000',
     },
-
     paramerText:{
         fontFamily: 'Poppins-Regular',
         fontSize: 16,
@@ -330,56 +329,6 @@ const styles = StyleSheet.create({
         color: '#000000',
     },
     // Investigation Modal Css End
-    // Header
-    background: {
-        flex: 1,
-        width: '100%',
-        paddingTop: 58,
-        paddingBottom: 20,
-    },
-    flexdv: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: 20,
-    },
-    leftArrow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 15,
-    },
-    arrowBox: {
-        width: 32,
-        height: 32,
-        backgroundColor: '#fff',
-        borderWidth: 1,
-        borderColor: '#AFAFAF',
-        borderRadius: 10,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    titleText: {
-        fontFamily: 'Poppins-SemiBold',
-        fontSize: 16,
-        lineHeight: 18,
-        color: '#000',
-    },
-    rightSection: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 18,
-    },
-    notiDot: {
-        width: 8,
-        height: 8,
-        backgroundColor: '#F82525',
-        borderRadius: 4,
-        position: 'absolute',
-        right: 0,
-        top: 0,
-    },
-    // Header
 
     // Edit Delete Print Modal Start
     editIcon: {
@@ -415,15 +364,6 @@ const styles = StyleSheet.create({
         paddingTop: 10,
     },
     // Edit Delete Print Modal End
-
-
-
-
-
-
-
-
-
 
 
 })
