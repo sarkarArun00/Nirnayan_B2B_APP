@@ -304,41 +304,41 @@ function RequestSample() {
 
     useEffect(() => {
         if (fromDate) {
-          console.log('📅 From Date updated:', fromDate.toLocaleString());
-          console.log('ISO Format:', fromDate.toISOString());
-          console.log('Timestamp:', fromDate.getTime());
+            console.log('📅 From Date updated:', fromDate.toLocaleString());
+            console.log('ISO Format:', fromDate.toISOString());
+            console.log('Timestamp:', fromDate.getTime());
         }
-      }, [fromDate]);
-      
-      useEffect(() => {
-        if (toDate) {
-          console.log('📅 To Date updated:', toDate.toLocaleString());
-          console.log('ISO Format:', toDate.toISOString());
-          console.log('Timestamp:', toDate.getTime());
-        }
-      }, [toDate]);
+    }, [fromDate]);
 
-    
-      const showDatePicker = (type) => {
+    useEffect(() => {
+        if (toDate) {
+            console.log('📅 To Date updated:', toDate.toLocaleString());
+            console.log('ISO Format:', toDate.toISOString());
+            console.log('Timestamp:', toDate.getTime());
+        }
+    }, [toDate]);
+
+
+    const showDatePicker = (type) => {
         setPickerType(type);
         setDatePickerVisibility(true);
-      };
-    
-      const hideDatePicker = () => {
+    };
+
+    const hideDatePicker = () => {
         setDatePickerVisibility(false);
-      };
-    
-      const handleConfirm = (date) => {
+    };
+
+    const handleConfirm = (date) => {
         console.log('Selected date:', date);
         if (pickerType === 'from') {
-          setFromDate(date);
-          console.log('From Date:', date.toLocaleString());
+            setFromDate(date);
+            console.log('From Date:', date.toLocaleString());
         } else {
-          setToDate(date);
-          console.log('To Date:', date.toLocaleString());
+            setToDate(date);
+            console.log('To Date:', date.toLocaleString());
         }
         hideDatePicker();
-      };
+    };
 
     const renderItem = ({ item }) => {
         const isSelected = selectedIds.includes(item.id);
@@ -399,19 +399,19 @@ function RequestSample() {
             <ScrollView style={{ flex: 1, }}>
                 <ImageBackground
                     source={require('../../../assets/partnerbg.png')}
-                    style={styles.background}
+                    style={GlobalStyles.background}
                     resizeMode="stretch">
-                    <View style={styles.flexdv}>
-                        <TouchableOpacity style={styles.leftArrow} onPress={() => navigation.goBack()}>
-                            <View style={styles.arrowBox}>
+                    <View style={GlobalStyles.flexdv}>
+                        <TouchableOpacity style={GlobalStyles.leftArrow} onPress={() => navigation.goBack()}>
+                            <View style={GlobalStyles.arrowBox}>
                                 <Image source={require('../../../assets/arrow1.png')} />
                             </View>
-                            <Text style={styles.titleText}>Request Sample Pickup</Text>
+                            <Text style={GlobalStyles.titleText}>Request Sample Pickup</Text>
                         </TouchableOpacity>
-                        <View style={styles.rightSection}>
+                        <View style={GlobalStyles.rightSection}>
                             <TouchableOpacity style={{ position: 'relative' }}>
                                 <Image source={require('../../../assets/notification.png')} />
-                                <View style={styles.notiDot}></View>
+                                <View style={GlobalStyles.notiDot}></View>
                             </TouchableOpacity>
                             <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
                                 <Image source={require('../../../assets/menu-bar.png')} />
@@ -524,7 +524,7 @@ function RequestSample() {
                                 <Text style={GlobalStyles.closeIcon}>✕</Text>
                             </TouchableOpacity>
 
-                            {/* <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent:'space-between', marginBottom:15, }}>
+                            <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent:'space-between', marginBottom:15, }}>
                                 <Text style={GlobalStyles.mdlTitle2}>Select Patients</Text>
                                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 7, }}>
                                     <Text style={styles.sampleLabel}>
@@ -537,43 +537,40 @@ function RequestSample() {
                                         thumbColor="#fff"
                                     />
                                 </View>
-                            </View> */}
-                            <View style={{ padding: 16, marginTop: 10 }}>
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 }}>
-        
-        {/* From Date */}
-        <View style={{ flex: 1, marginRight: 10 }}>
-          <Text style={{ fontWeight: 'bold', marginBottom: 6 }}>From Date & Time</Text>
-          <TouchableOpacity
-            style={{ borderWidth: 1, borderColor: '#ccc', padding: 10, borderRadius: 6 }}
-            onPress={() => showDatePicker('from')}
-          >
-            <Text>{fromDate ? fromDate.toLocaleString() : 'Select date & time'}</Text>
-          </TouchableOpacity>
-        </View>
+                            </View>
 
-        {/* To Date */}
-        <View style={{ flex: 1, marginLeft: 10 }}>
-          <Text style={{ fontWeight: 'bold', marginBottom: 6 }}>To Date & Time</Text>
-          <TouchableOpacity
-            style={{ borderWidth: 1, borderColor: '#ccc', padding: 10, borderRadius: 6 }}
-            onPress={() => showDatePicker('to')}
-          >
-            <Text>{toDate ? toDate.toLocaleString() : 'Select date & time'}</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+                                {/* From Date */}
+                                <View style={GlobalStyles.inpBox}>
+                                    <Text style={GlobalStyles.label}>From Date & Time</Text>
+                                    <TouchableOpacity
+                                        style={GlobalStyles.inputv2}
+                                        onPress={() => showDatePicker('from')}
+                                    >
+                                        <Text>{fromDate ? fromDate.toLocaleString() : 'Select date & time'}</Text>
+                                        <Image source={require('../../../assets/mdl-calender.png')} style={styles.calenderIcon} />
+                                    </TouchableOpacity>
+                                </View>
 
-      {/* DateTimePicker Modal */}
-      <DateTimePickerModal
-        isVisible={isDatePickerVisible}
-        mode="datetime"
-        onConfirm={handleConfirm}
-        onCancel={hideDatePicker}
-        date={pickerType === 'from' ? (fromDate || new Date()) : (toDate || new Date())}
-      />
-    </View>
-                            {/* need to add from date to time */}
+                                {/* To Date */}
+                                <View style={GlobalStyles.inpBox}>
+                                    <Text style={GlobalStyles.label}>To Date & Time</Text>
+                                    <TouchableOpacity
+                                        style={GlobalStyles.inputv2}
+                                        onPress={() => showDatePicker('to')}
+                                    >
+                                        <Text>{toDate ? toDate.toLocaleString() : 'Select date & time'}</Text>
+                                        <Image source={require('../../../assets/mdl-calender.png')} style={styles.calenderIcon} />
+                                    </TouchableOpacity>
+                                </View>
+
+                                {/* DateTimePicker Modal */}
+                                <DateTimePickerModal
+                                    isVisible={isDatePickerVisible}
+                                    mode="datetime"
+                                    onConfirm={handleConfirm}
+                                    onCancel={hideDatePicker}
+                                    date={pickerType === 'from' ? (fromDate || new Date()) : (toDate || new Date())}
+                                />
 
                             <View style={styles.searchContainer}>
                                 <View style={styles.searchBox}>
@@ -596,7 +593,7 @@ function RequestSample() {
                                     data={patientsData}
                                     renderItem={renderItem}
                                     keyExtractor={(item) => item.id}
-                                    showsVerticalScrollIndicator={true}
+                                    // showsVerticalScrollIndicator={true}
                                     style={{ maxHeight: 350, paddingRight: 5, }}
                                     ListFooterComponent={
                                         <>
@@ -631,39 +628,25 @@ function RequestSample() {
 export default RequestSample;
 
 const styles = StyleSheet.create({
-    label: {
-        fontSize: 14,
-        fontWeight: '600',
-        color: '#333',
-        marginBottom: 6,
-    },
-    input: {
-        borderWidth: 1,
-        borderColor: '#D9D9D9',
-        borderRadius: 8,
-        paddingVertical: 10,
-        paddingHorizontal: 12,
-        justifyContent: 'center',
-        backgroundColor: '#fff',
-    },
-    value: {
-        fontSize: 14,
-        color: '#555',
-    },
     // Modal Start
+    calenderIcon:{
+        position:'absolute',
+        right:12,
+        top:15,
+        tintColor:'#00A635',
+    },
     card: {
         borderBottomWidth: 1,
         borderBottomColor: "#00A635",
         borderRadius: 15,
         padding: 12,
-        marginHorizontal: 4,
         marginBottom: 12,
+        marginHorizontal:1,
         backgroundColor: "#fff",
-        shadowColor: '#808080',
-        shadowOffset: { width: 0, height: 3 },
-        shadowOpacity: 0.25,
-        shadowRadius: 15,
-        elevation: 6,
+        shadowColor: "#000",
+        shadowOpacity: 0.05,
+        shadowRadius: 4,
+        elevation: 3,
     },
     cardSelected: {
         backgroundColor: "#E6FFF7",
@@ -904,88 +887,4 @@ const styles = StyleSheet.create({
         color: "#fff",
         fontSize: 16,
     },
-    // Header
-    background: {
-        flex: 1,
-        width: '100%',
-        paddingTop: 58,
-        paddingBottom: 20,
-    },
-    flexdv: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: 20,
-    },
-    leftArrow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 15,
-    },
-    arrowBox: {
-        width: 32,
-        height: 32,
-        backgroundColor: '#fff',
-        borderWidth: 1,
-        borderColor: '#AFAFAF',
-        borderRadius: 10,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    titleText: {
-        fontFamily: 'Poppins-SemiBold',
-        fontSize: 16,
-        lineHeight: 18,
-        color: '#000',
-    },
-    rightSection: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 18,
-    },
-    notiDot: {
-        width: 8,
-        height: 8,
-        backgroundColor: '#F82525',
-        borderRadius: 4,
-        position: 'absolute',
-        right: 0,
-        top: 0,
-    },
-    // Header
-
-    //  Search Bar Start
-    searchContainer: {
-        flexDirection: 'row',
-    },
-    searchBox: {
-        flex: 1,
-        flexDirection: 'row',
-        alignItems: 'center',
-        position: 'relative',
-        marginBottom: 20,
-        borderWidth: 1,
-        borderColor: '#C5C5C5',
-        borderRadius: 10,
-    },
-    searchIcon: {
-        position: 'absolute',
-        left: 15,
-        top: 11,
-        zIndex: 1,
-        color: '#DEDEDE',
-    },
-    input: {
-        flex: 1,
-        height: 45,
-        fontFamily: 'Poppins-Medium',
-        fontSize: 14,
-        color: '#333',
-        backgroundColor: '#fff',
-        borderRadius: 25,
-        paddingLeft: 42,
-        paddingRight: 10,
-    },
-    // Search Bar End
 });

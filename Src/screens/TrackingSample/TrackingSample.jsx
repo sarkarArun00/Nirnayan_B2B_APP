@@ -1,33 +1,162 @@
-import React, { useState, useEffect, } from "react";
-import { useNavigation } from '@react-navigation/native';
-import { View, Text, TouchableOpacity, FlatList, StyleSheet, TextInput, Switch, Modal, Alert, SafeAreaView, ScrollView, ImageBackground, Image, } from "react-native";
-import { GlobalStyles } from '../../GlobalStyles';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import Icon from 'react-native-vector-icons/Ionicons';
+import React, { useEffect, useRef } from "react";
+import { View, Text, TouchableOpacity, StyleSheet, TextInput, SafeAreaView, ScrollView, ImageBackground, Image, Animated, Easing, FlatList, } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { GlobalStyles } from "../../GlobalStyles";
+import Icon from "react-native-vector-icons/Ionicons";
+
+const STATUS_STYLES = {
+    assigned: { color: "#2C68FF", label: "Assigned", dot: "#2C68FF", arrow: "arrow-up", urgentItem: true, },
+    pending: { color: "#CD0000", label: "Pending", dot: "#CD0000", arrow: "arrow-up", urgentItem: false, },
+    received: { color: "#006633", label: "Received", dot: "#006633", arrow: "arrow-up", urgentItem: false, },
+    accepted: { color: "#00A651", label: "Accepted", dot: "#00A651", arrow: "arrow-up", urgentItem: false, },
+    inprogress: { color: "#AC8B1F", label: "In Progress", dot: "#AC8B1F", arrow: "arrow-up", urgentItem: true, },
+    collected: { color: "#00C9FF", label: "Collected", dot: "#00C9FF", arrow: "arrow-up", urgentItem: false, },
+};
+
+const TrackingCard = ({ item }) => {
+    const statusKey = item.status.replace(/\s+/g, "").toLowerCase();
+    const statusStyle = STATUS_STYLES[statusKey] || STATUS_STYLES.assigned;
+
+    // Blinking animation
+    const blinkAnim = useRef(new Animated.Value(1)).current;
+
+    useEffect(() => {
+        Animated.loop(
+            Animated.sequence([
+                Animated.timing(blinkAnim, {
+                    toValue: 0.2,
+                    duration: 500,
+                    useNativeDriver: true,
+                    easing: Easing.linear,
+                }),
+                Animated.timing(blinkAnim, {
+                    toValue: 1,
+                    duration: 500,
+                    useNativeDriver: true,
+                    easing: Easing.linear,
+                }),
+            ])
+        ).start();
+    }, [blinkAnim]);
+
+    return (
+        <View style={styles.card}>
+            <View style={styles.header}>
+                <View style={styles.leftHeader}>
+                    <Text style={styles.requestId}>{item.requestId}</Text>
+                    {statusStyle.urgentItem && (
+                        <Image source={require('../../../assets/urgent.png')} style={styles.urgentIcon} />
+                    )}
+
+                </View>
+                <View style={styles.statusContainer}>
+                    <View style={styles.statusContainerInn}>
+                        <Animated.View
+                            style={[
+                                styles.statusDot,
+                                { backgroundColor: statusStyle.dot, opacity: blinkAnim },
+                            ]}
+                        />
+                        <Text style={[styles.statusText, { color: statusStyle.color }]}>
+                            {statusStyle.label}
+                        </Text>
+                    </View>
+                    <TouchableOpacity style={styles.dotInfo}>
+                        <Icon name="ellipsis-vertical" size={16} color="#000" />
+                    </TouchableOpacity>
+                </View>
+            </View>
+            <View style={styles.row}>
+                <View style={styles.info}>
+                    <Image source={require('../../../assets/schedule.png')} style={styles.cardIcon} />
+                    <View>
+                        <Text style={styles.label}>Request Date</Text>
+                        <Text style={styles.value}>{item.requestDate}</Text>
+                    </View>
+                </View>
+
+                <View style={styles.info}>
+                    <Image source={require('../../../assets/save-time.png')} style={styles.cardIcon2} />
+                    <View>
+                        <Text style={styles.label}>Slot Time</Text>
+                        <Text style={styles.value}>{item.slotTime}</Text>
+                    </View>
+                </View>
+            </View>
+            <TouchableOpacity style={styles.trackButton}>
+                <Text style={styles.trackText}>Track</Text>
+            </TouchableOpacity>
+        </View>
+    );
+};
 
 function TrackingSample() {
     const navigation = useNavigation();
+
+    const sampleData = [
+        {
+            requestId: "SE/CL/250117/0001",
+            requestDate: "10 Nov, 2025",
+            slotTime: "10AM - 11AM",
+            status: "Assigned",
+        },
+        {
+            requestId: "SE/CL/250117/0002",
+            requestDate: "11 Nov, 2025",
+            slotTime: "11AM - 12PM",
+            status: "Pending",
+        },
+        {
+            requestId: "SE/CL/250117/0003",
+            requestDate: "12 Nov, 2025",
+            slotTime: "12PM - 1PM",
+            status: "In Progress",
+        },
+        {
+            requestId: "SE/CL/250117/0004",
+            requestDate: "13 Nov, 2025",
+            slotTime: "1PM - 2PM",
+            status: "Collected",
+        },
+        {
+            requestId: "SE/CL/250117/0005",
+            requestDate: "12 Nov, 2025",
+            slotTime: "12PM - 1PM",
+            status: "accepted",
+        },
+        {
+            requestId: "SE/CL/250117/0006",
+            requestDate: "12 Nov, 2025",
+            slotTime: "12PM - 1PM",
+            status: "received",
+        },
+    ];
+
     return (
         <SafeAreaView style={{ flex: 1 }}>
-            <ScrollView style={{ flex: 1, }}>
+            <ScrollView style={{ flex: 1 }}>
                 <ImageBackground
-                    source={require('../../../assets/partnerbg.png')}
+                    source={require("../../../assets/partnerbg.png")}
                     style={GlobalStyles.background}
-                    resizeMode="stretch">
+                    resizeMode="stretch"
+                >
                     <View style={GlobalStyles.flexdv}>
-                        <TouchableOpacity style={GlobalStyles.leftArrow} onPress={() => navigation.goBack()}>
+                        <TouchableOpacity
+                            style={GlobalStyles.leftArrow}
+                            onPress={() => navigation.goBack()}
+                        >
                             <View style={GlobalStyles.arrowBox}>
-                                <Image source={require('../../../assets/arrow1.png')} />
+                                <Image source={require("../../../assets/arrow1.png")} />
                             </View>
                             <Text style={GlobalStyles.titleText}>Tracking Sample</Text>
                         </TouchableOpacity>
                         <View style={GlobalStyles.rightSection}>
-                            <TouchableOpacity style={{ position: 'relative' }}>
-                                <Image source={require('../../../assets/notification.png')} />
+                            <TouchableOpacity style={{ position: "relative" }}>
+                                <Image source={require("../../../assets/notification.png")} />
                                 <View style={GlobalStyles.notiDot}></View>
                             </TouchableOpacity>
-                            <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
-                                <Image source={require('../../../assets/menu-bar.png')} />
+                            <TouchableOpacity onPress={() => navigation.navigate("Profile")}>
+                                <Image source={require("../../../assets/menu-bar.png")} />
                             </TouchableOpacity>
                         </View>
                     </View>
@@ -42,30 +171,147 @@ function TrackingSample() {
                             style={GlobalStyles.searchinput}
                         />
                     </View>
-                    <View style={{ flexDirection: 'row', gap: 5, }}>
-                        <TouchableOpacity style={GlobalStyles.newEstimate} onPress={() => navigation.navigate('NewEstimate')}>
-                            <Image source={require('../../../assets/new-est.png')} style={{ width: 22, height: 22, objectFit: 'contain', }} />
+                    <View style={{ flexDirection: "row", gap: 5 }}>
+                        <TouchableOpacity style={GlobalStyles.newEstimate}>
+                            <Image
+                                source={require("../../../assets/pipeicn.png")}
+                                style={{ width: 22, height: 22, resizeMode: "contain" }}
+                            />
                         </TouchableOpacity>
-                        <TouchableOpacity style={GlobalStyles.filterButton} onPress={() => setFilterModalVisible(true)}>
-                            <Icon name="options-outline" size={24} color="#fff" />
+                        <TouchableOpacity style={GlobalStyles.filterButton}>
+                            <Image
+                                source={require("../../../assets/mapicnv2.png")}
+                                style={{ width: 22, height: 22, resizeMode: "contain" }}
+                            />
                         </TouchableOpacity>
                     </View>
                 </View>
 
-
-
+                <FlatList
+                    data={sampleData}
+                    keyExtractor={(item) => item.requestId}
+                    renderItem={({ item }) => <TrackingCard item={item} />}
+                    contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 24, paddingBottom:20, }}
+                />
 
 
 
             </ScrollView>
         </SafeAreaView>
-    )
+    );
 }
 
-export default TrackingSample
+export default TrackingSample;
 
 const styles = StyleSheet.create({
-    
+    card: {
+        backgroundColor: "#fff",
+        borderRadius: 12,
+        padding: 16,
+        marginBottom: 16,
+        shadowColor: "#000",
+        shadowOpacity: 0.05,
+        shadowRadius: 4,
+        elevation: 3,
+    },
+    header: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+    },
+    leftHeader: {
+        flexDirection: "row",
+        alignItems: "center",
+    },
+    requestId: {
+        fontFamily: 'Poppins-Medium',
+        fontSize: 12,
+        lineHeight: 15,
+        color: "#2C68FF",
+        backgroundColor: "rgba(44, 104, 255, 0.15)",
+        borderRadius: 5,
+        paddingHorizontal: 8,
+        paddingVertical: 5,
+    },
+    urgentIcon: { 
+        width: 14, 
+        height: 14, 
+        objectFit: 'contain', 
+        marginLeft: 10, 
+    },
+    statusContainer: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 14,
+    },
+    statusContainerInn: {
+        flexDirection:'row',
+        alignItems:'center',
+        gap:8,
+    },
+    statusDot: {
+        width: 7,
+        height: 7,
+        borderRadius: 3.5,
+    },
+    statusText: {
+        fontFamily: 'Poppins-Medium',
+        fontSize: 12,
+        lineHeight:15,
+    },
+    dotInfo:{
+        width:26,
+        height:26,
+        backgroundColor:'#F0F0F0',
+        borderRadius:13,
+        alignItems:'center',
+        justifyContent:'center',
+    },
+    row: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        marginTop: 15,
+    },
+    info: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap:10,
+    },
+    cardIcon:{
+        width:20,
+        height:20,
+        resizeMode:'contain',
+    },
+    cardIcon2:{
+        width:24,
+        height:24,
+        resizeMode:'contain',
+    },
+    label: {
+        fontFamily: 'Poppins-Medium',
+        fontSize:14,
+        lineHeight:17,
+        color: "#000",
+    },
+    value: {
+        fontFamily: 'Poppins-Regular',
+        fontSize:14,
+        lineHeight:17,
+        color: "#9F9F9F",
+        marginTop: 2,
+    },
 
-
-})
+    trackButton: {
+        backgroundColor: "#00A651",
+        borderRadius:30,
+        marginTop: 14,
+        paddingVertical: 12,
+        alignItems: "center",
+    },
+    trackText: {
+        fontFamily: 'Poppins-SemiBold',
+        color: "#fff",
+        fontSize: 16,
+        lineHeight:19,
+    },
+});

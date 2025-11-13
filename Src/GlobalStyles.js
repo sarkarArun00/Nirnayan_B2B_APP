@@ -110,6 +110,18 @@ export const GlobalStyles = StyleSheet.create({
     paddingRight: 10,
     color: '#C2C2C2',
   },
+  inputv2: {
+    fontFamily: 'Poppins-Regular',
+    fontSize: 12,
+    lineHeight: 14,
+    borderWidth: 1,
+    borderColor: '#C5C5C5',
+    borderRadius: 10,
+    paddingLeft: 10,
+    paddingRight: 10,
+    paddingVertical:12,
+    color: '#C2C2C2',
+  },
   disabledInput: {
     backgroundColor: '#F6F6F6',
   },
