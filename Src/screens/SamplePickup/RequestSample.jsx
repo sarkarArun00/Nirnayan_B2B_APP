@@ -5,6 +5,8 @@ import dayjs from "dayjs";
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { GlobalStyles } from "../../GlobalStyles";
+import DateTimePicker, { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
 
 
 const patientsData = [
@@ -33,6 +35,13 @@ function RequestSample() {
     const [priority, setPriority] = useState(false);
     const [isDateListReady, setIsDateListReady] = useState(false);
 
+    const [fromDate, setFromDate] = useState(null);
+    const [toDate, setToDate] = useState(null);
+    const [showPicker, setShowPicker] = useState({ visible: false, type: '' });
+
+    const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+    const [pickerType, setPickerType] = useState(''); // '
+
     // Months list
     const allMonths = useMemo(
         () =>
@@ -42,6 +51,9 @@ function RequestSample() {
             })),
         []
     );
+
+
+
 
     // Generate dates for selected month
     const monthDates = useMemo(() => {
@@ -290,6 +302,44 @@ function RequestSample() {
         }
     };
 
+    useEffect(() => {
+        if (fromDate) {
+          console.log('📅 From Date updated:', fromDate.toLocaleString());
+          console.log('ISO Format:', fromDate.toISOString());
+          console.log('Timestamp:', fromDate.getTime());
+        }
+      }, [fromDate]);
+      
+      useEffect(() => {
+        if (toDate) {
+          console.log('📅 To Date updated:', toDate.toLocaleString());
+          console.log('ISO Format:', toDate.toISOString());
+          console.log('Timestamp:', toDate.getTime());
+        }
+      }, [toDate]);
+
+    
+      const showDatePicker = (type) => {
+        setPickerType(type);
+        setDatePickerVisibility(true);
+      };
+    
+      const hideDatePicker = () => {
+        setDatePickerVisibility(false);
+      };
+    
+      const handleConfirm = (date) => {
+        console.log('Selected date:', date);
+        if (pickerType === 'from') {
+          setFromDate(date);
+          console.log('From Date:', date.toLocaleString());
+        } else {
+          setToDate(date);
+          console.log('To Date:', date.toLocaleString());
+        }
+        hideDatePicker();
+      };
+
     const renderItem = ({ item }) => {
         const isSelected = selectedIds.includes(item.id);
 
@@ -341,6 +391,8 @@ function RequestSample() {
         return () => clearInterval(interval);
     }, []);
     // Search Placeholder change End
+
+
 
     return (
         <SafeAreaView style={{ flex: 1 }}>
@@ -471,8 +523,8 @@ function RequestSample() {
                             >
                                 <Text style={GlobalStyles.closeIcon}>✕</Text>
                             </TouchableOpacity>
-                            
-                            <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent:'space-between', marginBottom:15, }}>
+
+                            {/* <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent:'space-between', marginBottom:15, }}>
                                 <Text style={GlobalStyles.mdlTitle2}>Select Patients</Text>
                                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 7, }}>
                                     <Text style={styles.sampleLabel}>
@@ -485,10 +537,42 @@ function RequestSample() {
                                         thumbColor="#fff"
                                     />
                                 </View>
-                            </View>
+                            </View> */}
+                            <View style={{ padding: 16, marginTop: 10 }}>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 }}>
+        
+        {/* From Date */}
+        <View style={{ flex: 1, marginRight: 10 }}>
+          <Text style={{ fontWeight: 'bold', marginBottom: 6 }}>From Date & Time</Text>
+          <TouchableOpacity
+            style={{ borderWidth: 1, borderColor: '#ccc', padding: 10, borderRadius: 6 }}
+            onPress={() => showDatePicker('from')}
+          >
+            <Text>{fromDate ? fromDate.toLocaleString() : 'Select date & time'}</Text>
+          </TouchableOpacity>
+        </View>
 
-                            {/*  need to add from date to time */}
-                            
+        {/* To Date */}
+        <View style={{ flex: 1, marginLeft: 10 }}>
+          <Text style={{ fontWeight: 'bold', marginBottom: 6 }}>To Date & Time</Text>
+          <TouchableOpacity
+            style={{ borderWidth: 1, borderColor: '#ccc', padding: 10, borderRadius: 6 }}
+            onPress={() => showDatePicker('to')}
+          >
+            <Text>{toDate ? toDate.toLocaleString() : 'Select date & time'}</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      {/* DateTimePicker Modal */}
+      <DateTimePickerModal
+        isVisible={isDatePickerVisible}
+        mode="datetime"
+        onConfirm={handleConfirm}
+        onCancel={hideDatePicker}
+        date={pickerType === 'from' ? (fromDate || new Date()) : (toDate || new Date())}
+      />
+    </View>
                             {/* need to add from date to time */}
 
                             <View style={styles.searchContainer}>
@@ -513,7 +597,7 @@ function RequestSample() {
                                     renderItem={renderItem}
                                     keyExtractor={(item) => item.id}
                                     showsVerticalScrollIndicator={true}
-                                    style={{ maxHeight: 350, paddingRight:5, }}
+                                    style={{ maxHeight: 350, paddingRight: 5, }}
                                     ListFooterComponent={
                                         <>
                                             <TouchableOpacity
@@ -547,6 +631,25 @@ function RequestSample() {
 export default RequestSample;
 
 const styles = StyleSheet.create({
+    label: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: '#333',
+        marginBottom: 6,
+    },
+    input: {
+        borderWidth: 1,
+        borderColor: '#D9D9D9',
+        borderRadius: 8,
+        paddingVertical: 10,
+        paddingHorizontal: 12,
+        justifyContent: 'center',
+        backgroundColor: '#fff',
+    },
+    value: {
+        fontSize: 14,
+        color: '#555',
+    },
     // Modal Start
     card: {
         borderBottomWidth: 1,
@@ -682,7 +785,7 @@ const styles = StyleSheet.create({
     sampleLabel: {
         fontFamily: "Poppins-Medium",
         fontSize: 12,
-        lineHeight:15,
+        lineHeight: 15,
         color: "#7D7B7B",
     },
     required: {
