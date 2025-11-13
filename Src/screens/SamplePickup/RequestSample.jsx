@@ -304,7 +304,7 @@ function RequestSample() {
                     <Ionicons
                         name={isSelected ? "checkbox" : "square-outline"}
                         size={22}
-                        color={isSelected ? "#00C896" : "#999"}
+                        color={isSelected ? "#00A635" : "#999"}
                         onPress={() => toggleSelect(item.id)}
                     />
                 </View>
