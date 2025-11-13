@@ -524,7 +524,7 @@ function RequestSample() {
                                                 <Ionicons
                                                     name={allSelected ? "checkbox" : "square-outline"}
                                                     size={20}
-                                                    color={allSelected ? "#00C896" : "#555"}
+                                                    color={allSelected ? "#00A635" : "#555"}
                                                 />
                                                 <Text style={styles.selectAllText}> Select All</Text>
                                             </TouchableOpacity>
