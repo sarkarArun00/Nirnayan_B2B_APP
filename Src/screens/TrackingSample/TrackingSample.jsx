@@ -1,27 +1,29 @@
-import React, { useEffect, useRef } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, TextInput, SafeAreaView, ScrollView, ImageBackground, Image, Animated, Easing, FlatList, } from "react-native";
+import React, { useEffect, useRef, useState } from "react";
+import { View, Text, TouchableOpacity, StyleSheet, TextInput, SafeAreaView, ScrollView, ImageBackground, Image, Animated, Easing, FlatList, Modal, } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { GlobalStyles } from "../../GlobalStyles";
 import Icon from "react-native-vector-icons/Ionicons";
+import Ionicons from "react-native-vector-icons/Ionicons";
 
 const STATUS_STYLES = {
-    assigned: { color: "#2C68FF", label: "Assigned", dot: "#2C68FF", arrow: "arrow-up", urgentItem: true, },
-    pending: { color: "#CD0000", label: "Pending", dot: "#CD0000", arrow: "arrow-up", urgentItem: false, },
-    received: { color: "#006633", label: "Received", dot: "#006633", arrow: "arrow-up", urgentItem: false, },
-    accepted: { color: "#00A651", label: "Accepted", dot: "#00A651", arrow: "arrow-up", urgentItem: false, },
-    inprogress: { color: "#AC8B1F", label: "In Progress", dot: "#AC8B1F", arrow: "arrow-up", urgentItem: true, },
-    collected: { color: "#00C9FF", label: "Collected", dot: "#00C9FF", arrow: "arrow-up", urgentItem: false, },
+    assigned: { color: "#2C68FF", label: "Assigned", dot: "#2C68FF", urgentItem: true },
+    pending: { color: "#CD0000", label: "Pending", dot: "#CD0000", urgentItem: false },
+    received: { color: "#006633", label: "Received", dot: "#006633", urgentItem: false },
+    accepted: { color: "#00A651", label: "Accepted", dot: "#00A651", urgentItem: false },
+    inprogress: { color: "#AC8B1F", label: "In Progress", dot: "#AC8B1F", urgentItem: true },
+    collected: { color: "#00C9FF", label: "Collected", dot: "#00C9FF", urgentItem: false },
 };
 
-const TrackingCard = ({ item }) => {
+const TrackingCard = ({ item, onOpenEditModal }) => {
+    const navigation = useNavigation();
     const statusKey = item.status.replace(/\s+/g, "").toLowerCase();
     const statusStyle = STATUS_STYLES[statusKey] || STATUS_STYLES.assigned;
 
-    // Blinking animation
+    // Blinking animation for urgent dot
     const blinkAnim = useRef(new Animated.Value(1)).current;
 
     useEffect(() => {
-        Animated.loop(
+        const loop = Animated.loop(
             Animated.sequence([
                 Animated.timing(blinkAnim, {
                     toValue: 0.2,
@@ -36,19 +38,24 @@ const TrackingCard = ({ item }) => {
                     easing: Easing.linear,
                 }),
             ])
-        ).start();
+        );
+        loop.start();
+        return () => loop.stop();
     }, [blinkAnim]);
 
     return (
-        <View style={styles.card}>
+        <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('TrackingInvestigation')}>
             <View style={styles.header}>
                 <View style={styles.leftHeader}>
                     <Text style={styles.requestId}>{item.requestId}</Text>
                     {statusStyle.urgentItem && (
-                        <Image source={require('../../../assets/urgent.png')} style={styles.urgentIcon} />
+                        <Image
+                            source={require("../../../assets/urgent.png")}
+                            style={styles.urgentIcon}
+                        />
                     )}
-
                 </View>
+
                 <View style={styles.statusContainer}>
                     <View style={styles.statusContainerInn}>
                         <Animated.View
@@ -61,14 +68,25 @@ const TrackingCard = ({ item }) => {
                             {statusStyle.label}
                         </Text>
                     </View>
-                    <TouchableOpacity style={styles.dotInfo}>
+
+                    <TouchableOpacity
+                        style={styles.dotInfo}
+                        onPress={() => {
+                            onOpenEditModal(item);
+                        }}
+                    >
                         <Icon name="ellipsis-vertical" size={16} color="#000" />
                     </TouchableOpacity>
                 </View>
             </View>
+
             <View style={styles.row}>
                 <View style={styles.info}>
-                    <Image source={require('../../../assets/schedule.png')} style={styles.cardIcon} />
+                    <Image
+                        source={require("../../../assets/schedule.png")}
+                        style={styles.cardIcon}
+                        resizeMode="contain"
+                    />
                     <View>
                         <Text style={styles.label}>Request Date</Text>
                         <Text style={styles.value}>{item.requestDate}</Text>
@@ -76,61 +94,45 @@ const TrackingCard = ({ item }) => {
                 </View>
 
                 <View style={styles.info}>
-                    <Image source={require('../../../assets/save-time.png')} style={styles.cardIcon2} />
+                    <Image
+                        source={require("../../../assets/save-time.png")}
+                        style={styles.cardIcon2}
+                        resizeMode="contain"
+                    />
                     <View>
                         <Text style={styles.label}>Slot Time</Text>
                         <Text style={styles.value}>{item.slotTime}</Text>
                     </View>
                 </View>
             </View>
+
             <TouchableOpacity style={styles.trackButton}>
                 <Text style={styles.trackText}>Track</Text>
             </TouchableOpacity>
-        </View>
+        </TouchableOpacity>
     );
 };
 
 function TrackingSample() {
     const navigation = useNavigation();
+    const [editModalVisible, setEditModalVisible] = useState(false);
+    const [detailsModalVisible, setDetailsModalVisible] = useState(false);
+    const [moreInfoModal, setMoreInfoModal] = useState(false);
+    const [selectedItem, setSelectedItem] = useState(null);
 
     const sampleData = [
-        {
-            requestId: "SE/CL/250117/0001",
-            requestDate: "10 Nov, 2025",
-            slotTime: "10AM - 11AM",
-            status: "Assigned",
-        },
-        {
-            requestId: "SE/CL/250117/0002",
-            requestDate: "11 Nov, 2025",
-            slotTime: "11AM - 12PM",
-            status: "Pending",
-        },
-        {
-            requestId: "SE/CL/250117/0003",
-            requestDate: "12 Nov, 2025",
-            slotTime: "12PM - 1PM",
-            status: "In Progress",
-        },
-        {
-            requestId: "SE/CL/250117/0004",
-            requestDate: "13 Nov, 2025",
-            slotTime: "1PM - 2PM",
-            status: "Collected",
-        },
-        {
-            requestId: "SE/CL/250117/0005",
-            requestDate: "12 Nov, 2025",
-            slotTime: "12PM - 1PM",
-            status: "accepted",
-        },
-        {
-            requestId: "SE/CL/250117/0006",
-            requestDate: "12 Nov, 2025",
-            slotTime: "12PM - 1PM",
-            status: "received",
-        },
+        { requestId: "SE/CL/250117/0001", requestDate: "10 Nov, 2025", slotTime: "10AM - 11AM", status: "Assigned" },
+        { requestId: "SE/CL/250117/0002", requestDate: "11 Nov, 2025", slotTime: "11AM - 12PM", status: "Pending" },
+        { requestId: "SE/CL/250117/0003", requestDate: "12 Nov, 2025", slotTime: "12PM - 1PM", status: "In Progress" },
+        { requestId: "SE/CL/250117/0004", requestDate: "13 Nov, 2025", slotTime: "1PM - 2PM", status: "Collected" },
+        { requestId: "SE/CL/250117/0005", requestDate: "12 Nov, 2025", slotTime: "12PM - 1PM", status: "accepted" },
+        { requestId: "SE/CL/250117/0006", requestDate: "12 Nov, 2025", slotTime: "12PM - 1PM", status: "received" },
     ];
+
+    const handleOpenEditModal = (item) => {
+        setSelectedItem(item);
+        setEditModalVisible(true);
+    };
 
     return (
         <SafeAreaView style={{ flex: 1 }}>
@@ -141,10 +143,7 @@ function TrackingSample() {
                     resizeMode="stretch"
                 >
                     <View style={GlobalStyles.flexdv}>
-                        <TouchableOpacity
-                            style={GlobalStyles.leftArrow}
-                            onPress={() => navigation.goBack()}
-                        >
+                        <TouchableOpacity style={GlobalStyles.leftArrow} onPress={() => navigation.goBack()}>
                             <View style={GlobalStyles.arrowBox}>
                                 <Image source={require("../../../assets/arrow1.png")} />
                             </View>
@@ -153,7 +152,7 @@ function TrackingSample() {
                         <View style={GlobalStyles.rightSection}>
                             <TouchableOpacity style={{ position: "relative" }}>
                                 <Image source={require("../../../assets/notification.png")} />
-                                <View style={GlobalStyles.notiDot}></View>
+                                <View style={GlobalStyles.notiDot} />
                             </TouchableOpacity>
                             <TouchableOpacity onPress={() => navigation.navigate("Profile")}>
                                 <Image source={require("../../../assets/menu-bar.png")} />
@@ -165,36 +164,69 @@ function TrackingSample() {
                 <View style={GlobalStyles.searchContainer}>
                     <View style={GlobalStyles.searchBox}>
                         <Icon name="search" size={20} color="#aaa" style={GlobalStyles.searchIcon} />
-                        <TextInput
-                            placeholder="Search by Estimates"
-                            placeholderTextColor="#999"
-                            style={GlobalStyles.searchinput}
-                        />
+                        <TextInput placeholder="Search by Estimates" placeholderTextColor="#999" style={GlobalStyles.searchinput} />
                     </View>
                     <View style={{ flexDirection: "row", gap: 5 }}>
                         <TouchableOpacity style={GlobalStyles.newEstimate}>
-                            <Image
-                                source={require("../../../assets/pipeicn.png")}
-                                style={{ width: 22, height: 22, resizeMode: "contain" }}
-                            />
+                            <Image source={require("../../../assets/pipeicn.png")} style={{ width: 22, height: 22 }} resizeMode="contain" />
                         </TouchableOpacity>
                         <TouchableOpacity style={GlobalStyles.filterButton}>
-                            <Image
-                                source={require("../../../assets/mapicnv2.png")}
-                                style={{ width: 22, height: 22, resizeMode: "contain" }}
-                            />
+                            <Image source={require("../../../assets/mapicnv2.png")} style={{ width: 22, height: 22 }} resizeMode="contain" />
                         </TouchableOpacity>
                     </View>
                 </View>
 
                 <FlatList
                     data={sampleData}
+                    scrollEnabled={false}
                     keyExtractor={(item) => item.requestId}
-                    renderItem={({ item }) => <TrackingCard item={item} />}
-                    contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 24, paddingBottom:20, }}
+                    renderItem={({ item }) => (
+                        <TrackingCard
+                            item={item}
+                            onOpenEditModal={handleOpenEditModal}
+                        // onOpenDetailsModal={handleOpenDetailsModal}
+                        />
+                    )}
+                    contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 24, paddingBottom: 20 }}
                 />
 
+                {/* Edit/Delete/Print Modal */}
+                <Modal
+                    transparent={true}
+                    visible={editModalVisible}
+                    animationType="slide"
+                    onRequestClose={() => setEditModalVisible(false)}>
+                    <View style={GlobalStyles.modalOverlay}>
+                        <View style={GlobalStyles.modalContainer}>
+                            <TouchableOpacity style={GlobalStyles.modalClose} onPress={() => setEditModalVisible(false)}>
+                                <Text style={GlobalStyles.closeIcon}>✕</Text>
+                            </TouchableOpacity>
 
+                            <View style={{ flexDirection: "row", justifyContent: "space-around", paddingVertical: 10 }}>
+                                <TouchableOpacity>
+                                    <View style={styles.editIcon}>
+                                        <Image source={require("../../../assets/estimate-edit.png")} style={{ width: 28, height: 28 }} resizeMode="contain" />
+                                    </View>
+                                    <Text style={styles.editModalText}>Edit</Text>
+                                </TouchableOpacity>
+
+                                <TouchableOpacity onPress={() => navigation.navigate('TrackingInvestigation')}>
+                                    <View style={styles.printIcon}>
+                                        <Image source={require("../../../assets/moreInfo.png")} style={{ width: 28, height: 28 }} resizeMode="contain" />
+                                    </View>
+                                    <Text style={styles.editModalText}>More Info</Text>
+                                </TouchableOpacity>
+
+                                <TouchableOpacity>
+                                    <View style={styles.deleteIcon}>
+                                        <Image source={require("../../../assets/estimate-delete.png")} style={{ width: 28, height: 28 }} resizeMode="contain" />
+                                    </View>
+                                    <Text style={styles.editModalText}>Delete</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </View>
+                </Modal>
 
             </ScrollView>
         </SafeAreaView>
@@ -204,6 +236,40 @@ function TrackingSample() {
 export default TrackingSample;
 
 const styles = StyleSheet.create({
+    // Edit Delete Print Modal Start
+    editIcon: {
+        width: 55,
+        height: 55,
+        backgroundColor: '#00A635',
+        borderRadius: 27.5,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    printIcon: {
+        width: 55,
+        height: 55,
+        backgroundColor: '#B59A3E',
+        borderRadius: 27.5,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    deleteIcon: {
+        width: 55,
+        height: 55,
+        backgroundColor: '#D20000',
+        borderRadius: 27.5,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    editModalText: {
+        fontFamily: 'Poppins-Medium',
+        fontSize: 14,
+        lineHeight: 16,
+        color: '#4E4E4E',
+        textAlign: 'center',
+        paddingTop: 10,
+    },
+    // Edit Delete Print Modal End
     card: {
         backgroundColor: "#fff",
         borderRadius: 12,
@@ -233,11 +299,11 @@ const styles = StyleSheet.create({
         paddingHorizontal: 8,
         paddingVertical: 5,
     },
-    urgentIcon: { 
-        width: 14, 
-        height: 14, 
-        objectFit: 'contain', 
-        marginLeft: 10, 
+    urgentIcon: {
+        width: 14,
+        height: 14,
+        objectFit: 'contain',
+        marginLeft: 10,
     },
     statusContainer: {
         flexDirection: "row",
@@ -245,9 +311,9 @@ const styles = StyleSheet.create({
         gap: 14,
     },
     statusContainerInn: {
-        flexDirection:'row',
-        alignItems:'center',
-        gap:8,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
     },
     statusDot: {
         width: 7,
@@ -257,15 +323,15 @@ const styles = StyleSheet.create({
     statusText: {
         fontFamily: 'Poppins-Medium',
         fontSize: 12,
-        lineHeight:15,
+        lineHeight: 16,
     },
-    dotInfo:{
-        width:26,
-        height:26,
-        backgroundColor:'#F0F0F0',
-        borderRadius:13,
-        alignItems:'center',
-        justifyContent:'center',
+    dotInfo: {
+        width: 26,
+        height: 26,
+        backgroundColor: '#F0F0F0',
+        borderRadius: 13,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     row: {
         flexDirection: "row",
@@ -275,35 +341,35 @@ const styles = StyleSheet.create({
     info: {
         flexDirection: "row",
         alignItems: "center",
-        gap:10,
+        gap: 10,
     },
-    cardIcon:{
-        width:20,
-        height:20,
-        resizeMode:'contain',
+    cardIcon: {
+        width: 20,
+        height: 20,
+        resizeMode: 'contain',
     },
-    cardIcon2:{
-        width:24,
-        height:24,
-        resizeMode:'contain',
+    cardIcon2: {
+        width: 24,
+        height: 24,
+        resizeMode: 'contain',
     },
     label: {
         fontFamily: 'Poppins-Medium',
-        fontSize:14,
-        lineHeight:17,
+        fontSize: 14,
+        lineHeight: 17,
         color: "#000",
     },
     value: {
         fontFamily: 'Poppins-Regular',
-        fontSize:14,
-        lineHeight:17,
+        fontSize: 14,
+        lineHeight: 17,
         color: "#9F9F9F",
         marginTop: 2,
     },
 
     trackButton: {
         backgroundColor: "#00A651",
-        borderRadius:30,
+        borderRadius: 30,
         marginTop: 14,
         paddingVertical: 12,
         alignItems: "center",
@@ -312,6 +378,6 @@ const styles = StyleSheet.create({
         fontFamily: 'Poppins-SemiBold',
         color: "#fff",
         fontSize: 16,
-        lineHeight:19,
+        lineHeight: 19,
     },
 });
