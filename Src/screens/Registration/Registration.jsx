@@ -1,13 +1,22 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, SafeAreaView, ScrollView, ImageBackground, Modal, TouchableOpacity, Image, StyleSheet, Dimensions, Animated, TextInput, FlatList } from 'react-native';
+import { View, Text, SafeAreaView, ScrollView, ImageBackground, Modal, Switch, TouchableOpacity, Image, StyleSheet, Dimensions, Animated, TextInput, FlatList } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { GlobalStyles } from '../../GlobalStyles';
 import { Picker } from '@react-native-picker/picker';
 import ListProduct from './ListProduct';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import Collapsible from 'react-native-collapsible';
+import Ionicons from "react-native-vector-icons/Ionicons";
 
 const screenWidth = Dimensions.get('window').width;
+
+const DATA = [
+  { id: 1, title: "Cash", price: '5000', content: "This is section 1 content", img: require('../../../assets/cash2.png') },
+  // { id: 2, title: "UPI", price: '5000', content: "This is section 2 content", img: require('../../../assets/upi.png') },
+  // { id: 3, title: "Card", price: '5000', content: "This is section 2 content", img: require('../../../assets/ .png') },
+  // { id: 4, title: "Cheque", price: '5000', content: "This is section 2 content", img: require('../../../assets/cheque.png') },
+];
 
 function Registration({ navigation }) {
   const [activeTab, setActiveTab] = useState(0);
@@ -21,6 +30,9 @@ function Registration({ navigation }) {
   const [degree, setDegree] = useState('');
   // const [checked, setChecked] = useState('');
   const [showBar, setShowBar] = useState(false);
+  const [isEnabled, setIsEnabled] = useState(false);
+  const [activePaymentTab, setActivePaymentTab] = useState("cash");
+  const [chargesAdded, setChargesAdded] = useState(false);
 
   const scrollRef = useRef(null);
   const progressAnim = useRef(new Animated.Value(0)).current;
@@ -142,6 +154,49 @@ function Registration({ navigation }) {
     }
   }, [selectedCount]);
   // Selected item apper timing add End
+
+  // Payment Accordian Start
+  const [activeId, setActiveId] = useState(null);
+
+  const toggle = (id) => {
+    setActiveId(activeId === id ? null : id);
+  };
+
+  const renderItem = ({ item }) => (
+    <View style={styles.splitBox}>
+      <TouchableOpacity onPress={() => toggle(item.id)} style={styles.splitBoxInn}>
+        <View style={styles.splitBoxLeft}>
+          <Image source={item.img} style={styles.splitBoxImg} />
+          <Text style={styles.splitBoxTitle}>{item.title}</Text>
+        </View>
+
+        <View style={styles.splitBoxRight}>
+          <View style={styles.splitBoxPriceBox}>
+            <Image source={require('../../../assets/patientrecimg4.png')} style={styles.splitBoxPriceIcon} />
+            <Text style={styles.splitBoxPrice}>{item.price}</Text>
+          </View>
+          <View style={styles.splitBoxArrow}>
+            {activeId === item.id ? (
+              <Icon name="chevron-down-outline" size={17} color="#000" />
+            ) : (
+              <Icon name="chevron-forward-outline" size={17} color="#000" />
+            )}
+          </View>
+        </View>
+      </TouchableOpacity>
+
+      {/* Content */}
+      <Collapsible collapsed={activeId !== item.id}>
+        <View style={styles.SplitContent}>
+          <Text style={styles.SplitContentText}>{item.content}</Text>
+        </View>
+      </Collapsible>
+    </View>
+  );
+  // Payment Accordian End
+
+
+
 
   // Tab Content Start //
   const renderTabContent = () => {
@@ -498,19 +553,19 @@ function Registration({ navigation }) {
         );
       case 3:
         return (
-          <View style={styles.contentBox}>
-            <View style={styles.searchContainer}>
-              <View style={styles.searchBox}>
-                <Icon name="search" size={20} color="#aaa" style={styles.searchIcon} />
+          <View style={[GlobalStyles.contentBox, { paddingTop: 20, }]}>
+            <View style={GlobalStyles.searchContainer}>
+              <View style={GlobalStyles.searchBox}>
+                <Icon name="search" size={20} color="#aaa" style={GlobalStyles.searchIcon} />
                 <TextInput
                   placeholder={placeholders[placeholderIndex]}
                   placeholderTextColor="#999"
-                  style={styles.input}
+                  style={GlobalStyles.searchinput}
                 />
               </View>
             </View>
 
-            <GestureHandlerRootView style={{ flex: 1 }}>
+            <GestureHandlerRootView style={{ flex: 1, paddingTop: 20, paddingHorizontal: 16, }}>
               <FlatList
                 data={products}
                 keyExtractor={(item) => item.id.toString()}
@@ -520,13 +575,14 @@ function Registration({ navigation }) {
                     onDelete={handleDelete}
                     onLeftAction={handleLeftAction}
                     onToggleCheck={handleToggleCheck}
+                    scrollEnabled={false}
                   />
                 )}
               />
 
             </GestureHandlerRootView>
 
-            <View style={{ position: 'static', bottom: 0, }}>
+            <View style={{ paddingHorizontal: 16, paddingBottom: 30, }}>
               <TouchableOpacity style={styles.addDoctor}>
                 <Text style={styles.addDoctorText}>Upload Clinical History</Text>
               </TouchableOpacity>
@@ -539,10 +595,181 @@ function Registration({ navigation }) {
       case 4:
         return (
           <View style={styles.contentBox}>
+            <View style={styles.pmntTop}>
+              <View style={styles.pmntTopFlex}>
+                <Image source={require('../../../assets/menu2.png')} style={styles.pmntTopIcon} />
+                <Text style={styles.pmntTopTitle}>Investigation Items</Text>
+              </View>
+              <Text style={styles.pmntTopAdItem}>4 items</Text>
+            </View>
+
+            <View style={styles.pmntSummary}>
+              <View style={styles.pmntSummaryFlex}>
+                <Image source={require('../../../assets/card.png')} style={styles.pmntSummaryIcon} />
+                <Text style={styles.pmntSummaryTitle}>Investigation Items</Text>
+              </View>
+
+              <View style={styles.pmntSummaryBox}>
+                <Text style={styles.pmntSummaryLeft}>Gross Total</Text>
+                <View style={styles.pmntSummaryInn}>
+                  <Image source={require('../../../assets/rupee2.png')} style={styles.rupeeIcon} />
+                  <Text style={styles.pmntSummaryRight}>11,200.45</Text>
+                </View>
+              </View>
+              <View style={styles.pmntSummaryBox}>
+                <Text style={styles.pmntSummaryLeft}>Discount Amount</Text>
+                <View style={styles.pmntSummaryInn}>
+                  {/* <Image source={require('../../../assets/rupee2.png')} style={styles.rupeeIcon} />  */}
+                  <Text style={styles.pmntSummaryRight}>5%</Text>
+                </View>
+              </View>
+              <View style={styles.pmntSummaryBox}>
+                <Text style={styles.pmntSummaryLeft}>Collection Charges</Text>
+                <View style={styles.pmntSummaryInn}>
+                  <Image source={require('../../../assets/rupee2.png')} style={styles.rupeeIcon} />
+                  <Text style={styles.pmntSummaryRight}>50</Text>
+                </View>
+              </View>
+              <View style={styles.pmntSummaryBox}>
+                <Text style={styles.pmntSummaryLeft}>Net Amount</Text>
+                <View style={styles.pmntSummaryInn}>
+                  <Image source={require('../../../assets/rupee2.png')} style={styles.rupeeIcon} />
+                  <Text style={styles.pmntSummaryRight}>10,200.45</Text>
+                </View>
+              </View>
+              <View style={styles.pmntSummaryBox}>
+                <Text style={[styles.pmntSummaryLeft, { fontFamily: 'Poppins-SemiBold', }]}>Due Amount</Text>
+                <View style={styles.pmntSummaryInn}>
+                  <Image source={require('../../../assets/rupee2.png')} style={[styles.rupeeIcon, { tintColor: '#E00F0F' }]} />
+                  <Text style={[styles.pmntSummaryRight, { color: '#E00F0F' }]}>5000</Text>
+                </View>
+              </View>
+
+
+
+            </View>
+
+            <View>
+              <FlatList
+                data={DATA}
+                renderItem={renderItem}
+                keyExtractor={(item) => item.id.toString()}
+                scrollEnabled={false}
+              />
+            </View>
+
+            <View style={styles.pmntOptBox}>
+              <View style={styles.pmntOptBoxInn}>
+                <View style={styles.pmntOptBoxLeft}>
+                  <Image source={require('../../../assets/cash.png')} style={styles.pmntOptBoxIcon} />
+                  <Text style={styles.pmntOptBoxTitle}>Payment Option</Text>
+                </View>
+                <View style={styles.pmntOptBoxRight}>
+                  <Text style={styles.pmntOptBoxSplitTitle}>Split Payment</Text>
+                  <Switch
+                    value={isEnabled}
+                    onValueChange={setIsEnabled}
+                    thumbColor={isEnabled ? "#fff" : "#fff"}
+                    trackColor={{ false: "#C6C6C6", true: "#34C759" }}
+                  />
+                </View>
+              </View>
+              <ScrollView
+                horizontal={true}
+                contentContainerStyle={styles.pmntMethodSec}
+                showsHorizontalScrollIndicator={false}
+              >
+                <TouchableOpacity
+                  style={[
+                    styles.pmntOptBoxBtn,
+                    activePaymentTab === "cash" && styles.activeBtn
+                  ]}
+                  onPress={() => setActivePaymentTab("cash")}
+                >
+                  <Image source={require('../../../assets/cash2.png')} style={styles.pmntOptBoxIcon} />
+                  <Text style={styles.pmntOptBoxText}>Cash</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[
+                    styles.pmntOptBoxBtn,
+                    activePaymentTab === "upi" && styles.activeBtn
+                  ]}
+                  onPress={() => setActivePaymentTab("upi")}
+                >
+                  <Image source={require('../../../assets/upi.png')} style={styles.pmntOptBoxIcon} />
+                  <Text style={styles.pmntOptBoxText}>UPI</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[
+                    styles.pmntOptBoxBtn,
+                    activePaymentTab === "card" && styles.activeBtn
+                  ]}
+                  onPress={() => setActivePaymentTab("card")}
+                >
+                  <Image source={require('../../../assets/card5.png')} style={styles.pmntOptBoxIcon} />
+                  <Text style={styles.pmntOptBoxText}>Debit/Credit Card</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[
+                    styles.pmntOptBoxBtn,
+                    activePaymentTab === "cheque" && styles.activeBtn
+                  ]}
+                  onPress={() => setActivePaymentTab("cheque")}
+                >
+                  <Image source={require('../../../assets/cheque.png')} style={styles.pmntOptBoxIcon} />
+                  <Text style={styles.pmntOptBoxText}>Cheque</Text>
+                </TouchableOpacity>
+              </ScrollView>
+
+              <View style={styles.tabContentBox}>
+                {activePaymentTab === "cash" && (
+                  <View>
+                    <View>
+                      <Text>Discount Amount</Text>
+                    </View>
+                    <View>
+                      <Text>Collection Charges</Text>
+                    </View>
+                    <View>
+                      <Text>Receive Amount<Text>*</Text></Text>
+                    </View>
+                  </View>
+                )}
+
+                {activePaymentTab === "upi" && (
+                  <Text style={styles.tabContent}>UPI details here</Text>
+                )}
+
+                {activePaymentTab === "card" && (
+                  <Text style={styles.tabContent}>Card payment form here</Text>
+                )}
+
+                {activePaymentTab === "cheque" && (
+                  <Text style={styles.tabContent}>Cheque instructions here</Text>
+                )}
+              </View>
+              <TouchableOpacity onPress={() => setChargesAdded(!chargesAdded)} style={{flexDirection:'row', alignItems:'center', gap:5, }}>
+                <View style={styles.addCollectionChargesBtn}>
+                  <Ionicons
+                    name={chargesAdded ? "remove-outline" : "add-outline"}
+                    size={20}
+                    color={chargesAdded ? "#E53935" : "#00A651"}
+                  />
+                </View>
+                <Text style={[styles.addCollectionChargesText, {color: chargesAdded ? "#E53935" : "#00A651",}]}>
+                  {chargesAdded
+                    ? "Remove Collection Charges"
+                    : "Add Collection Charges"}
+                </Text>
+              </TouchableOpacity>
+            </View>
 
 
             <TouchableOpacity style={GlobalStyles.applyBtnFullWidth} onPress={handleNextTab}>
-              <Text style={GlobalStyles.applyBtnTextNew}>{activeTab === tabs.length - 1 ? 'Finish' : 'Next'}</Text>
+              <Text style={GlobalStyles.applyBtnTextNew}>{activeTab === tabs.length - 1 ? 'Register' : 'Next'}</Text>
             </TouchableOpacity>
           </View>
         );
@@ -772,6 +999,253 @@ function Registration({ navigation }) {
 export default Registration;
 
 const styles = StyleSheet.create({
+  // SplitBox Accordian Start
+  splitBox: {
+    marginBottom: 10,
+  },
+  splitBoxInn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#00A635',
+    borderRadius: 15,
+    padding: 12,
+  },
+  splitBoxLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  splitBoxImg: {
+    width: 25,
+    height: 25,
+    resizeMode: 'contain',
+  },
+  splitBoxTitle: {
+    fontFamily: 'Poppins-SemiBold',
+    color: "#000",
+    fontSize: 14,
+    lineHeight: 17,
+  },
+  splitBoxRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  splitBoxPriceBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+  },
+  splitBoxPriceIcon: {
+    tintColor: '#00A635',
+    width: 11,
+    height: 13,
+    objectFit: 'contain',
+  },
+  splitBoxPrice: {
+    fontFamily: 'Poppins-SemiBold',
+    color: "#00A635",
+    fontSize: 14,
+    lineHeight: 17,
+  },
+  splitBoxArrow: {
+    width: 28,
+    height: 28,
+    backgroundColor: '#B9DFCB',
+    borderRadius: 28,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  SplitContent: {
+    padding: 12,
+  },
+  SplitContentText: {
+    fontFamily: 'Poppins-Medium',
+    color: "#000",
+    fontSize: 14,
+    lineHeight: 17,
+  },
+  // SplitBox Accordian End
+  pmntOptBox: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#00A635',
+    padding: 12,
+    marginBottom: 10,
+  },
+  pmntOptBoxInn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderBottomWidth: 1,
+    borderBottomColor: '#93ADA0',
+    paddingBottom: 12,
+    marginBottom: 15,
+  },
+  pmntOptBoxLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 7,
+  },
+  pmntOptBoxIcon: {
+    width: 28,
+    height: 28,
+    resizeMode: 'contain',
+  },
+  pmntOptBoxTitle: {
+    fontFamily: 'Poppins-SemiBold',
+    color: "#000",
+    fontSize: 14,
+    lineHeight: 17,
+  },
+  pmntOptBoxRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  pmntOptBoxSplitTitle: {
+    fontFamily: 'Poppins-Regular',
+    color: "#B8B8B8",
+    fontSize: 12,
+    lineHeight: 15,
+  },
+  pmntMethodSec: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  pmntOptBoxBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 7,
+    backgroundColor: '#00A651',
+    borderRadius: 10,
+    padding: 8,
+  },
+  pmntOptBoxIcon: {
+    tintColor: '#FFFFFF',
+    width: 26,
+    height: 26,
+    resizeMode: 'contain',
+  },
+  pmntOptBoxText: {
+    fontFamily: 'Poppins-Medium',
+    color: "#fff",
+    fontSize: 14,
+    lineHeight: 17,
+  },
+
+  // Payment Details Design Start
+  pmntTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderBottomWidth: 1,
+    borderBottomColor: '#93ADA0',
+    marginBottom: 15,
+    paddingBottom: 12,
+  },
+  pmntTopFlex: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  pmntTopIcon: {
+    width: 22,
+    height: 22,
+    resizeMode: 'contain',
+  },
+  pmntTopTitle: {
+    fontFamily: 'Poppins-SemiBold',
+    color: "#000",
+    fontSize: 14,
+  },
+  pmntTopAdItem: {
+    fontFamily: 'Poppins-Regular',
+    color: "#000",
+    fontSize: 14,
+  },
+  pmntSummary: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#00A635',
+    padding: 12,
+    marginBottom: 10,
+  },
+  pmntSummaryFlex: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#93ADA0',
+    paddingBottom: 12,
+  },
+  pmntSummaryIcon: {
+    width: 24,
+    height: 24,
+    resizeMode: 'contain',
+  },
+  pmntSummaryTitle: {
+    fontFamily: 'Poppins-SemiBold',
+    color: "#000",
+    fontSize: 14,
+  },
+  pmntSummaryBox: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 15,
+  },
+  pmntSummaryLeft: {
+    fontFamily: 'Poppins-Regular',
+    color: "#000",
+    fontSize: 14,
+  },
+  pmntSummaryInn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  pmntSummaryRight: {
+    fontFamily: 'Poppins-Medium',
+    color: "#000",
+    fontSize: 14,
+    lineHeight: 17,
+  },
+  rupeeIcon: {
+    width: 9,
+    height: 13,
+    resizeMode: 'contain',
+  },
+  addCollectionChargesBtn:{
+    width:15,
+    height:15,
+    borderWidth:1,
+    borderColor:'#00A651',
+    borderRadius:5,
+    alignItems:'center',
+    justifyContent:'center',
+  },
+  addCollectionChargesText:{
+    fontFamily: 'Poppins-Medium',
+    fontSize: 14,
+  },
+
+
+
+
+
+
+
+
+
+
+
+
+  // Payment Details Design End
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
