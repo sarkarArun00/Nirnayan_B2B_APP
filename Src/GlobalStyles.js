@@ -51,7 +51,7 @@ export const GlobalStyles = StyleSheet.create({
   mdlTitle: {
     fontFamily: 'Poppins-SemiBold',
     fontSize: 22,
-    lineHeight: 24,
+    lineHeight: 25,
     color: '#535353',
     marginBottom: 2,
   },
@@ -65,7 +65,7 @@ export const GlobalStyles = StyleSheet.create({
   mdlCenterTitle: {
     fontFamily: 'Poppins-SemiBold',
     fontSize: 22,
-    lineHeight: 24,
+    lineHeight: 25,
     color: '#535353',
     textAlign: 'center',
     marginBottom: 2,
@@ -73,7 +73,7 @@ export const GlobalStyles = StyleSheet.create({
   mdlSubTitle: {
     fontFamily: 'Poppins-Regular',
     fontSize: 12,
-    lineHeight: 14,
+    lineHeight: 15,
     color: '#A4A4A4',
     marginBottom: 20,
   },
@@ -83,7 +83,7 @@ export const GlobalStyles = StyleSheet.create({
   label: {
     fontFamily: 'Poppins-Regular',
     fontSize: 12,
-    lineHeight: 14,
+    lineHeight: 15,
     color: '#7D7B7B',
     marginBottom: 10,
   },
@@ -113,17 +113,20 @@ export const GlobalStyles = StyleSheet.create({
   inputv2: {
     fontFamily: 'Poppins-Regular',
     fontSize: 12,
-    lineHeight: 14,
+    lineHeight: 15,
     borderWidth: 1,
     borderColor: '#C5C5C5',
     borderRadius: 10,
     paddingLeft: 10,
     paddingRight: 10,
-    paddingVertical:12,
+    paddingVertical:13,
     color: '#C2C2C2',
   },
   disabledInput: {
     backgroundColor: '#F6F6F6',
+  },
+  placeholderColor:{
+    color: '#C2C2C2',
   },
   textArea: {
     fontFamily: 'Poppins-Regular',
@@ -173,15 +176,15 @@ export const GlobalStyles = StyleSheet.create({
     marginTop: 10,
   },
   applyBtnText: {
-    fontFamily: 'Poppins-Medium',
-    fontSize: 14,
-    lineHeight: 17,
+    fontFamily: 'Poppins-SemiBold',
+    fontSize: 15,
+    lineHeight: 18,
     color: '#fff',
   },
   applyBtnTextNew: {
-    fontFamily: 'Poppins-Medium',
-    fontSize: 14,
-    lineHeight: 17,
+    fontFamily: 'Poppins-SemiBold',
+    fontSize: 15,
+    lineHeight: 18,
     color: '#fff',
     textAlign: 'center',
   },

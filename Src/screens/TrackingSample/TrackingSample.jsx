@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, TextInput, SafeAreaView, Scro
 import { useNavigation } from "@react-navigation/native";
 import { GlobalStyles } from "../../GlobalStyles";
 import Icon from "react-native-vector-icons/Ionicons";
-import Ionicons from "react-native-vector-icons/Ionicons";
+import DateTimePickerModal from "react-native-modal-datetime-picker";
 
 const STATUS_STYLES = {
     assigned: { color: "#2C68FF", label: "Assigned", dot: "#2C68FF", urgentItem: true },
@@ -106,7 +106,7 @@ const TrackingCard = ({ item, onOpenEditModal }) => {
                 </View>
             </View>
 
-            <TouchableOpacity style={styles.trackButton}>
+            <TouchableOpacity style={styles.trackButton} onPress={() => navigation.navigate('TrackingMap')}>
                 <Text style={styles.trackText}>Track</Text>
             </TouchableOpacity>
         </TouchableOpacity>
@@ -116,9 +116,14 @@ const TrackingCard = ({ item, onOpenEditModal }) => {
 function TrackingSample() {
     const navigation = useNavigation();
     const [editModalVisible, setEditModalVisible] = useState(false);
-    const [detailsModalVisible, setDetailsModalVisible] = useState(false);
-    const [moreInfoModal, setMoreInfoModal] = useState(false);
+    const [filterModal, setFilterModal] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
+    const [fromDate, setFromDate] = useState(null);
+    const [toDate, setToDate] = useState(null);
+
+    const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+    const [pickerType, setPickerType] = useState("");
+
 
     const sampleData = [
         { requestId: "SE/CL/250117/0001", requestDate: "10 Nov, 2025", slotTime: "10AM - 11AM", status: "Assigned" },
@@ -132,6 +137,24 @@ function TrackingSample() {
     const handleOpenEditModal = (item) => {
         setSelectedItem(item);
         setEditModalVisible(true);
+    };
+
+    const showDatePicker = (type) => {
+        setPickerType(type);
+        setDatePickerVisibility(true);
+    };
+
+    const hideDatePicker = () => {
+        setDatePickerVisibility(false);
+    };
+
+    const handleConfirm = (date) => {
+        if (pickerType === "from") {
+            setFromDate(date);
+        } else {
+            setToDate(date);
+        }
+        hideDatePicker();
     };
 
     return (
@@ -167,10 +190,10 @@ function TrackingSample() {
                         <TextInput placeholder="Search by Estimates" placeholderTextColor="#999" style={GlobalStyles.searchinput} />
                     </View>
                     <View style={{ flexDirection: "row", gap: 5 }}>
-                        <TouchableOpacity style={GlobalStyles.newEstimate}>
+                        <TouchableOpacity style={GlobalStyles.newEstimate} onPress={() => setFilterModal(true)}>
                             <Image source={require("../../../assets/pipeicn.png")} style={{ width: 22, height: 22 }} resizeMode="contain" />
                         </TouchableOpacity>
-                        <TouchableOpacity style={GlobalStyles.filterButton}>
+                        <TouchableOpacity style={GlobalStyles.filterButton} onPress={() => navigation.navigate('RequestSample')}>
                             <Image source={require("../../../assets/mapicnv2.png")} style={{ width: 22, height: 22 }} resizeMode="contain" />
                         </TouchableOpacity>
                     </View>
@@ -184,7 +207,6 @@ function TrackingSample() {
                         <TrackingCard
                             item={item}
                             onOpenEditModal={handleOpenEditModal}
-                        // onOpenDetailsModal={handleOpenDetailsModal}
                         />
                     )}
                     contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 24, paddingBottom: 20 }}
@@ -227,6 +249,72 @@ function TrackingSample() {
                         </View>
                     </View>
                 </Modal>
+
+                {/* Filter Modal */}
+                <Modal
+                    transparent={true}
+                    visible={filterModal}
+                    animationType="slide"
+                    onRequestClose={() => setFilterModal(false)}>
+                    <View style={GlobalStyles.modalOverlay}>
+                        <View style={GlobalStyles.modalContainer}>
+                            <TouchableOpacity style={GlobalStyles.modalClose} onPress={() => setFilterModal(false)}>
+                                <Text style={GlobalStyles.closeIcon}>✕</Text>
+                            </TouchableOpacity>
+                            <Text style={GlobalStyles.mdlTitle}>Filter</Text>
+                            <Text style={GlobalStyles.mdlSubTitle}>Create your customized data</Text>
+                            <View style={GlobalStyles.inpBox}>
+                                <Text style={GlobalStyles.label}>From Date<Text style={GlobalStyles.regText}>*</Text></Text>
+                                <TouchableOpacity
+                                    style={GlobalStyles.inputv2}
+                                    onPress={() => showDatePicker("from")}
+                                >
+                                    <Text style={GlobalStyles.placeholderColor}>
+                                        {fromDate ? fromDate.toDateString() : "Select date"}
+                                    </Text>
+                                </TouchableOpacity>
+                            </View>
+                            <View style={GlobalStyles.inpBox}>
+                                <Text style={GlobalStyles.label}>To Date<Text style={GlobalStyles.regText}>*</Text></Text>
+                                <TouchableOpacity
+                                    style={GlobalStyles.inputv2}
+                                    onPress={() => showDatePicker("to")}
+                                >
+                                    <Text style={GlobalStyles.placeholderColor}>
+                                        {toDate ? toDate.toDateString() : "Select date"}
+                                    </Text>
+
+                                </TouchableOpacity>
+                            </View>
+                            <View style={GlobalStyles.inpBox}>
+                                <Text style={GlobalStyles.label}>Partner</Text>
+                                <TextInput
+                                    placeholder="Enter Name"
+                                    placeholderTextColor="#999"
+                                    style={GlobalStyles.input}
+                                />
+                            </View>
+                            <View style={GlobalStyles.inpBox}>
+                                <Text style={GlobalStyles.label}>Doctor</Text>
+                                <TextInput
+                                    placeholder="Enter Name"
+                                    placeholderTextColor="#999"
+                                    style={GlobalStyles.input}
+                                />
+                            </View>
+                            <TouchableOpacity style={GlobalStyles.applyBtnFullWidth}>
+                                <Text style={GlobalStyles.applyBtnTextNew}>Apply</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </Modal>
+
+                <DateTimePickerModal
+                    isVisible={isDatePickerVisible}
+                    mode="date"
+                    onConfirm={handleConfirm}
+                    onCancel={hideDatePicker}
+                />
 
             </ScrollView>
         </SafeAreaView>

@@ -31,6 +31,7 @@ import ListProduct from '../screens/Registration/ListProduct';
 import RequestSample from '../screens/SamplePickup/RequestSample';
 import TrackingSample from '../screens/TrackingSample/TrackingSample';
 import TrackingInvestigation from '../screens/TrackingSample/TrackingInvestigation';
+import TrackingMap from '../screens/TrackingSample/TrackingMap';
 
 
 const Tab = createBottomTabNavigator();
@@ -146,6 +147,7 @@ const AppNavigator = () => {
       <Stack.Screen name="RequestSample" component={RequestSample} />
       <Stack.Screen name="TrackingSample" component={TrackingSample} />
       <Stack.Screen name="TrackingInvestigation" component={TrackingInvestigation} />
+      <Stack.Screen name="TrackingMap" component={TrackingMap} />
     </Stack.Navigator>
   );
 };

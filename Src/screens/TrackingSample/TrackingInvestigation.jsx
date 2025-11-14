@@ -100,7 +100,7 @@ function TrackingInvestigation() {
                     </TouchableOpacity>
                 </View>
 
-                <View style={{ paddingHorizontal: 16, paddingTop: 15, }}>
+                <View style={styles.remBox}>
                     <Text style={styles.remTitle}>Remarks</Text>
                     <Text style={styles.remDesc}>Nunc feugiat tempus sem, placerat sagittis turpis dapibus id. Integer eleifend quis ligula vel pulvinar. Phasellus placerat elit ut nisi rhoncus accumsan.</Text>
                 </View>
@@ -156,6 +156,14 @@ export default TrackingInvestigation
 
 
 const styles = StyleSheet.create({
+    remBox:{
+        borderWidth:1,
+        borderColor:'#EEEEEE',
+        borderRadius:6,
+        marginTop:20,
+        marginHorizontal:16,
+        padding:10,
+    },
     ptTitle: {
         fontFamily: 'Poppins-Medium',
         fontSize: 16,
