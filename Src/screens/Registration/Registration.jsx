@@ -8,6 +8,7 @@ import ListProduct from './ListProduct';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import Collapsible from 'react-native-collapsible';
 import Ionicons from "react-native-vector-icons/Ionicons";
+import DateTimePickerModal from "react-native-modal-datetime-picker";
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -34,6 +35,22 @@ function Registration({ navigation }) {
   const [activePaymentTab, setActivePaymentTab] = useState("cash");
   const [chargesAdded, setChargesAdded] = useState(false);
   const [bankName, setBankName] = useState("");
+  const [chequeDate, setChequeDate] = useState(null);
+  const [isChequeDatePickerVisible, setChequeDatePickerVisible] = useState(false);
+
+  const showChequeDatePicker = () => {
+    setChequeDatePickerVisible(true);
+  };
+
+  const hideChequeDatePicker = () => {
+    setChequeDatePickerVisible(false);
+  };
+
+  const handleChequeDateConfirm = (date) => {
+    setChequeDate(date);
+    hideChequeDatePicker();
+  };
+
 
   const scrollRef = useRef(null);
   const progressAnim = useRef(new Animated.Value(0)).current;
@@ -195,9 +212,6 @@ function Registration({ navigation }) {
     </View>
   );
   // Payment Accordian End
-
-
-
 
   // Tab Content Start //
   const renderTabContent = () => {
@@ -869,7 +883,19 @@ function Registration({ navigation }) {
                     </View>
                     <View style={styles.pmntInpRow}>
                       <Text style={styles.pmntLabelv2}>Cheque Date<Text style={GlobalStyles.regText}>*</Text></Text>
-                      
+                      <TouchableOpacity
+                        style={[styles.pmntInputv2, { flexDirection: "row", alignItems: "center", justifyContent: "space-between" }]}
+                        onPress={showChequeDatePicker}
+                      >
+                        <Text style={{ color: chequeDate ? "#000" : "#9A9A9A" }}>
+                          {chequeDate ? chequeDate.toLocaleDateString() : "Select Cheque Date"}
+                        </Text>
+
+                        <Image
+                          source={require("../../../assets/mdl-calender.png")}
+                          style={{ width: 18, height: 18, tintColor: '#00A651' }}
+                        />
+                      </TouchableOpacity>
                     </View>
                     <View style={styles.pmntInpRow}>
                       <Text style={styles.pmntLabelv2}>Bank Name<Text style={GlobalStyles.regText}>*</Text></Text>
@@ -905,6 +931,7 @@ function Registration({ navigation }) {
                       />
                     </View>
                   </View>
+                  
                 )}
               </View>
 
@@ -928,11 +955,20 @@ function Registration({ navigation }) {
             <TouchableOpacity style={GlobalStyles.applyBtnFullWidth} onPress={handleNextTab}>
               <Text style={GlobalStyles.applyBtnTextNew}>{activeTab === tabs.length - 1 ? 'Register' : 'Next'}</Text>
             </TouchableOpacity>
+<DateTimePickerModal
+                            isVisible={isChequeDatePickerVisible}
+                            mode="date"
+                            onConfirm={handleChequeDateConfirm}
+                            onCancel={hideChequeDatePicker}
+                            date={chequeDate || new Date()}
+                        />
           </View>
         );
+
       default:
         return null;
     }
+
   };
   // Tab Content End //
 
