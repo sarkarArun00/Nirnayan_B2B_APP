@@ -169,7 +169,7 @@ const ProfileScreen = () => {
               <Image style={styles.menuImg} source={require('../../assets/menu9.png')} />
               <Text style={styles.menuText}>Documents</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.menuItem}>
+            <TouchableOpacity style={styles.menuItem} onPress={()=> navigation.navigate('TicketDashboard')}>
               <Image style={styles.menuImg} source={require('../../assets/menu10.png')} />
               <Text style={styles.menuText}>Tickets</Text>
             </TouchableOpacity>

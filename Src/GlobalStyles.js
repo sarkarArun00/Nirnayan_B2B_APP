@@ -110,6 +110,18 @@ export const GlobalStyles = StyleSheet.create({
     paddingRight: 10,
     color: '#C2C2C2',
   },
+  pickerInput: {
+    fontFamily: 'Poppins-Regular',
+    fontSize: 12,
+    lineHeight: 14,
+    height: 50,
+    borderWidth: 1,
+    borderColor: '#C5C5C5',
+    borderRadius: 10,
+    paddingLeft: 10,
+    paddingRight: 0,
+    color: '#C2C2C2',
+  },
   inputv2: {
     fontFamily: 'Poppins-Regular',
     fontSize: 12,
@@ -207,6 +219,21 @@ export const GlobalStyles = StyleSheet.create({
     paddingTop: 8,
   },
 
+  reOpenBtn: {
+    borderWidth:1,
+    borderColor: '#00A651',
+    borderRadius: 6,
+    paddingVertical: 15,
+    paddingHorizontal: 38,
+    marginTop: 10,
+  },
+   reOpenBtnText: {
+    fontFamily: 'Poppins-SemiBold',
+    fontSize: 15,
+    lineHeight: 18,
+    color: '#000',
+    textAlign: 'center',
+  },
   // Common Modal End
 
 

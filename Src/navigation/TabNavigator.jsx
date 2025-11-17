@@ -32,6 +32,9 @@ import RequestSample from '../screens/SamplePickup/RequestSample';
 import TrackingSample from '../screens/TrackingSample/TrackingSample';
 import TrackingInvestigation from '../screens/TrackingSample/TrackingInvestigation';
 import TrackingMap from '../screens/TrackingSample/TrackingMap';
+import CreateTicket from '../screens/Ticket/CreateTicket';
+import TicketDashboard from '../screens/Ticket/TicketDashboard';
+import TicketDetails from '../screens/Ticket/TicketDetails';
 
 
 const Tab = createBottomTabNavigator();
@@ -148,6 +151,9 @@ const AppNavigator = () => {
       <Stack.Screen name="TrackingSample" component={TrackingSample} />
       <Stack.Screen name="TrackingInvestigation" component={TrackingInvestigation} />
       <Stack.Screen name="TrackingMap" component={TrackingMap} />
+      <Stack.Screen name="CreateTicket" component={CreateTicket} />
+      <Stack.Screen name="TicketDashboard" component={TicketDashboard} />
+      <Stack.Screen name="TicketDetails" component={TicketDetails} />
     </Stack.Navigator>
   );
 };
