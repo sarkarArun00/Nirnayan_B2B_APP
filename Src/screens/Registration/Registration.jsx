@@ -582,6 +582,7 @@ function Registration({ navigation }) {
 
             <GestureHandlerRootView style={{ flex: 1, paddingTop: 20, paddingHorizontal: 16, }}>
               <FlatList
+                scrollEnabled={false}
                 data={products}
                 keyExtractor={(item) => item.id.toString()}
                 renderItem={({ item }) => (
@@ -590,7 +591,6 @@ function Registration({ navigation }) {
                     onDelete={handleDelete}
                     onLeftAction={handleLeftAction}
                     onToggleCheck={handleToggleCheck}
-                    scrollEnabled={false}
                   />
                 )}
               />
@@ -931,7 +931,7 @@ function Registration({ navigation }) {
                       />
                     </View>
                   </View>
-                  
+
                 )}
               </View>
 
@@ -955,16 +955,15 @@ function Registration({ navigation }) {
             <TouchableOpacity style={GlobalStyles.applyBtnFullWidth} onPress={handleNextTab}>
               <Text style={GlobalStyles.applyBtnTextNew}>{activeTab === tabs.length - 1 ? 'Register' : 'Next'}</Text>
             </TouchableOpacity>
-<DateTimePickerModal
-                            isVisible={isChequeDatePickerVisible}
-                            mode="date"
-                            onConfirm={handleChequeDateConfirm}
-                            onCancel={hideChequeDatePicker}
-                            date={chequeDate || new Date()}
-                        />
+            <DateTimePickerModal
+              isVisible={isChequeDatePickerVisible}
+              mode="date"
+              onConfirm={handleChequeDateConfirm}
+              onCancel={hideChequeDatePicker}
+              date={chequeDate || new Date()}
+            />
           </View>
         );
-
       default:
         return null;
     }
