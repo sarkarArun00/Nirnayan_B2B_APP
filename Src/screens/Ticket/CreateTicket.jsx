@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, SafeAreaView, ScrollView, ImageBackground, Modal, TouchableOpacity, Image, StyleSheet, TextInput, } from "react-native";
+import { View, Text, SafeAreaView, ScrollView, ImageBackground, Modal, TouchableOpacity, Image, StyleSheet, TextInput, FlatList } from "react-native";
 import { GlobalStyles } from "../../GlobalStyles";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
@@ -10,6 +10,8 @@ function CreateTicket({ navigation }) {
     const [priority, setPriority] = useState("low");
     const [placeholderIndex, setPlaceholderIndex] = useState(0);
     const [ticketSubject, setTicketSubject] = useState("");
+    const [selectedIds, setSelectedIds] = useState([]);
+
 
     // Date Picker States
     const [selectedDate, setSelectedDate] = useState(null);
@@ -27,7 +29,6 @@ function CreateTicket({ navigation }) {
     const placeholders = [
         "Search by Patient Name",
         "Search by Investigation ID",
-        "Search by Pick-up",
     ];
 
     useEffect(() => {
@@ -39,8 +40,80 @@ function CreateTicket({ navigation }) {
     }, []);
     // Search Placeholder Animation End
 
+    const patientsData = [
+        { id: "1", name: "Syed Aman Abdullah", gender: "male", code: "PR/20251016/XXXX", age: "45Y-0M-0D" },
+        { id: "2", name: "Maya Sarkar", gender: "female", code: "PR/20251016/XXXX", age: "45Y-0M-0D" },
+        { id: "3", name: "Arun Sarkar", gender: "male", code: "PR/20251016/XXXX", age: "45Y-0M-0D" },
+        { id: "4", name: "Avik Sarkar", gender: "male", code: "PR/20251016/XXXX", age: "45Y-0M-0D" },
+        { id: "5", name: "Jai Sarkar", gender: "male", code: "PR/20251016/XXXX", age: "45Y-0M-0D" },
+    ];
+
+    const toggleSelect = (id) => {
+        if (selectedIds.includes(id)) {
+            setSelectedIds(selectedIds.filter((item) => item !== id));
+        } else {
+            setSelectedIds([...selectedIds, id]);
+        }
+    };
+
+    const CustomCheck = ({ selected }) => {
+        return (
+            <View style={[
+                {
+                    width: 15,
+                    height: 15,
+                    borderRadius: 7.5,
+                    borderWidth: 1,
+                    borderColor: selected ? "#00A635" : "#C5C5C5",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    backgroundColor: selected ? "#E6FFF3" : "transparent",
+                }
+            ]}>
+                {selected && (
+                    <View style={{
+                        width: 9,
+                        height: 9,
+                        borderRadius: 5,
+                        backgroundColor: "#00A635",
+                    }} />
+                )}
+            </View>
+        );
+    };
+
+
+    const renderItem = ({ item }) => {
+        const isSelected = selectedIds.includes(item.id);
+
+        return (
+            <TouchableOpacity
+                style={[styles.card, isSelected && styles.cardSelected]}
+                onPress={() => toggleSelect(item.id)}
+                activeOpacity={0.8}
+            >
+                <View style={styles.header}>
+                    <Text style={styles.code}>{item.code}</Text>
+                    <CustomCheck selected={isSelected} />
+                </View>
+
+                <View style={styles.row}>
+                    <Text style={styles.name}>{item.name}</Text>
+                    <Ionicons
+                        name={item.gender === "male" ? "male" : "female"}
+                        size={18}
+                        color={item.gender === "male" ? "#007bff" : "#e83e8c"}
+                    />
+                </View>
+
+                <Text style={styles.age}>{item.age}</Text>
+            </TouchableOpacity>
+        );
+    };
+
+
     return (
-        <SafeAreaView style={{ flex: 1, backgroundColor:'#FFF', }}>
+        <SafeAreaView style={{ flex: 1, backgroundColor: '#FFF', }}>
             <ScrollView style={{ flex: 1 }}>
                 <ImageBackground
                     source={require("../../../assets/partnerbg.png")}
@@ -100,7 +173,6 @@ function CreateTicket({ navigation }) {
                         </View>
                     </TouchableOpacity>
 
-
                     <View style={GlobalStyles.inpBox}>
                         <Text style={GlobalStyles.label}>Select Priority<Text style={GlobalStyles.regText}>*</Text></Text>
                         <View style={styles.priorityContainer}>
@@ -135,22 +207,15 @@ function CreateTicket({ navigation }) {
                             numberOfLines={4}
                         />
                     </View>
+
                     <TouchableOpacity style={GlobalStyles.reOpenBtn}>
                         <Text style={GlobalStyles.reOpenBtnText}>Upload Attachment</Text>
                     </TouchableOpacity>
+
                     <TouchableOpacity style={GlobalStyles.applyBtnFullWidth}>
                         <Text style={GlobalStyles.applyBtnTextNew}>Submit Ticket</Text>
                     </TouchableOpacity>
                 </View>
-
-
-
-
-
-
-
-
-
 
                 {/* Patient Modal */}
                 <Modal
@@ -170,7 +235,7 @@ function CreateTicket({ navigation }) {
                             <Text style={GlobalStyles.mdlTitle2}>Select Patients</Text>
                             <ScrollView style={{ marginBottom: 20 }}>
                                 <View style={GlobalStyles.inpBox}>
-                                    <Text style={GlobalStyles.label}>From Date</Text>
+                                    <Text style={GlobalStyles.label}>Select Date</Text>
                                     <TouchableOpacity
                                         style={GlobalStyles.inputv2}
                                         onPress={showDatePicker}
@@ -241,12 +306,12 @@ function CreateTicket({ navigation }) {
                                     </Text>
                                 </View>
 
-
-
-
-
-
-
+                                <FlatList
+                                    data={patientsData}
+                                    renderItem={renderItem}
+                                    keyExtractor={(item) => item.id}
+                                    showsVerticalScrollIndicator={true}
+                                />
                             </ScrollView>
 
                             <TouchableOpacity
@@ -323,6 +388,76 @@ const styles = StyleSheet.create({
         padding: 10,
         textAlignVertical: 'top',
         color: '#C2C2C2',
+    },
+
+    card: {
+        borderBottomWidth: 1,
+        borderBottomColor: "#00A635",
+        borderRadius: 15,
+        padding: 12,
+        marginBottom: 12,
+        marginHorizontal: 1,
+        backgroundColor: "#fff",
+        shadowColor: "#000",
+        shadowOpacity: 0.05,
+        shadowRadius: 4,
+        elevation: 3,
+    },
+    cardSelected: {
+        backgroundColor: "#E6FFF7",
+    },
+    header: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        marginBottom: 6,
+    },
+    code: {
+        fontFamily: "Poppins-Regular",
+        fontSize: 12,
+        lineHeight: 15,
+        color: "#2C68FF",
+        backgroundColor: "rgba(44, 104, 255, 0.15)",
+        paddingHorizontal: 6,
+        paddingVertical: 3,
+        borderRadius: 4,
+    },
+    row: {
+        flexDirection: "row",
+        alignItems: "center",
+        marginBottom: 4,
+    },
+    name: {
+        fontFamily: "Poppins-Medium",
+        fontSize: 14,
+        marginRight: 6,
+    },
+    age: {
+        fontFamily: "Poppins-Regular",
+        color: "#9F9F9F",
+        fontSize: 13,
+        lineHeight: 16,
+    },
+    selectAllContainer: {
+        flexDirection: "row",
+        alignItems: "center",
+        marginVertical: 10,
+    },
+    selectAllText: {
+        fontFamily: "Poppins-Regular",
+        marginLeft: 4,
+        fontSize: 14,
+        lineHeight: 16,
+    },
+    filtIconMdl: {
+        width: 18,
+        height: 15,
+        objectFit: 'contain',
+    },
+    filtTextMdl: {
+        fontFamily: "Poppins-Medium",
+        fontSize: 14,
+        lineHeight: 16,
+        color: '#7D7B7B',
     },
     // Select Patient Modal End
 
