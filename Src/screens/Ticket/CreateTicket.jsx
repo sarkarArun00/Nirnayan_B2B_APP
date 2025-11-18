@@ -226,100 +226,98 @@ function CreateTicket({ navigation }) {
                 >
                     <View style={GlobalStyles.modalOverlay}>
                         <View style={GlobalStyles.modalContainer}>
+
                             <TouchableOpacity
                                 style={GlobalStyles.modalClose}
                                 onPress={() => setPatientModal(false)}
                             >
                                 <Text style={GlobalStyles.closeIcon}>✕</Text>
                             </TouchableOpacity>
+
                             <Text style={GlobalStyles.mdlTitle2}>Select Patients</Text>
-                            <ScrollView style={{ marginBottom: 20 }}>
-                                <View style={GlobalStyles.inpBox}>
-                                    <Text style={GlobalStyles.label}>Select Date</Text>
-                                    <TouchableOpacity
-                                        style={GlobalStyles.inputv2}
-                                        onPress={showDatePicker}
-                                    >
-                                        <Text>
-                                            {selectedDate
-                                                ? selectedDate.toDateString()
-                                                : "Select date"}
-                                        </Text>
-                                        <Image source={require("../../../assets/mdl-calender.png")} style={styles.calenderIcon} />
-                                    </TouchableOpacity>
-                                </View>
-                                {/* Date Picker */}
-                                <DateTimePickerModal
-                                    isVisible={isDatePickerVisible}
-                                    mode="date"
-                                    onConfirm={handleConfirm}
-                                    onCancel={hideDatePicker}
-                                    date={selectedDate || new Date()}
-                                />
-                                {/* Search Input */}
-                                <View
-                                    style={[
-                                        GlobalStyles.searchContainer,
-                                        {
-                                            marginHorizontal: 0,
-                                            marginBottom: 25,
-                                        },
-                                    ]}
-                                >
-                                    <View style={GlobalStyles.searchBox}>
-                                        <Ionicons
-                                            name="search"
-                                            size={20}
-                                            color="#aaa"
-                                            style={GlobalStyles.searchIcon}
-                                        />
-                                        <TextInput
-                                            placeholder={placeholders[placeholderIndex]}
-                                            placeholderTextColor="#999"
-                                            style={[
-                                                GlobalStyles.searchinput,
-                                                {
-                                                    borderWidth: 1,
-                                                    borderColor: "#C5C5C5",
-                                                    borderRadius: 10,
-                                                },
-                                            ]}
-                                        />
-                                    </View>
-                                </View>
 
-                                {/* Result Count */}
-                                <View
-                                    style={{
-                                        flexDirection: "row",
-                                        alignItems: "center",
-                                        gap: 8,
-                                        marginBottom: 10,
-                                    }}
+                            <View style={GlobalStyles.inpBox}>
+                                <Text style={GlobalStyles.label}>Select Date</Text>
+                                <TouchableOpacity
+                                    style={GlobalStyles.inputv2}
+                                    onPress={showDatePicker}
                                 >
-                                    <Image
-                                        source={require("../../../assets/filtericon.png")}
-                                        style={styles.filtIconMdl}
-                                    />
-                                    <Text style={styles.filtTextMdl}>
-                                        8 Result Found
+                                    <Text>
+                                        {selectedDate
+                                            ? selectedDate.toDateString()
+                                            : "Select date"}
                                     </Text>
-                                </View>
+                                    <Image
+                                        source={require("../../../assets/mdl-calender.png")}
+                                        style={styles.calenderIcon}
+                                    />
+                                </TouchableOpacity>
+                            </View>
 
+                            <DateTimePickerModal
+                                isVisible={isDatePickerVisible}
+                                mode="date"
+                                onConfirm={handleConfirm}
+                                onCancel={hideDatePicker}
+                                date={selectedDate || new Date()}
+                            />
+
+                            {/* Search */}
+                            <View
+                                style={[
+                                    GlobalStyles.searchContainer,
+                                    { marginHorizontal: 0, marginBottom: 25 }
+                                ]}
+                            >
+                                <View style={GlobalStyles.searchBox}>
+                                    <Ionicons
+                                        name="search"
+                                        size={20}
+                                        color="#aaa"
+                                        style={GlobalStyles.searchIcon}
+                                    />
+                                    <TextInput
+                                        placeholder={placeholders[placeholderIndex]}
+                                        placeholderTextColor="#999"
+                                        style={[
+                                            GlobalStyles.searchinput,
+                                            {
+                                                borderWidth: 1,
+                                                borderColor: "#C5C5C5",
+                                                borderRadius: 10
+                                            }
+                                        ]}
+                                    />
+                                </View>
+                            </View>
+
+                            {/* Result Count */}
+                            <View
+                                style={{
+                                    flexDirection: "row",
+                                    alignItems: "center",
+                                    gap: 8,
+                                    marginBottom: 10
+                                }}
+                            >
+                                <Image
+                                    source={require("../../../assets/filtericon.png")}
+                                    style={styles.filtIconMdl}
+                                />
+                                <Text style={styles.filtTextMdl}>8 Result Found</Text>
+                            </View>
+
+                            <View style={{ height: 270, marginTop: 5 }}>
                                 <FlatList
                                     data={patientsData}
                                     renderItem={renderItem}
                                     keyExtractor={(item) => item.id}
                                     showsVerticalScrollIndicator={true}
                                 />
-                            </ScrollView>
+                            </View>
 
-                            <TouchableOpacity
-                                style={GlobalStyles.applyBtnFullWidth}
-                            >
-                                <Text style={GlobalStyles.applyBtnTextNew}>
-                                    Select
-                                </Text>
+                            <TouchableOpacity style={GlobalStyles.applyBtnFullWidth}>
+                                <Text style={GlobalStyles.applyBtnTextNew}>Select</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
