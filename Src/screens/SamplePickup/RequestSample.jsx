@@ -395,7 +395,7 @@ function RequestSample() {
 
 
     return (
-        <SafeAreaView style={{ flex: 1 }}>
+        <SafeAreaView style={{ flex: 1, backgroundColor:'#FFF', }}>
             <ScrollView style={{ flex: 1, }}>
                 <ImageBackground
                     source={require('../../../assets/partnerbg.png')}

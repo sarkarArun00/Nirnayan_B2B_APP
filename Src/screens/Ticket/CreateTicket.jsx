@@ -40,7 +40,7 @@ function CreateTicket({ navigation }) {
     // Search Placeholder Animation End
 
     return (
-        <SafeAreaView style={{ flex: 1 }}>
+        <SafeAreaView style={{ flex: 1, backgroundColor:'#FFF', }}>
             <ScrollView style={{ flex: 1 }}>
                 <ImageBackground
                     source={require("../../../assets/partnerbg.png")}
