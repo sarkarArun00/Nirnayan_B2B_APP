@@ -29,124 +29,126 @@ function TicketDashboard({ navigation }) {
 
     return (
         <SafeAreaView style={{ flex: 1 }}>
-            <ScrollView style={{ flex: 1 }}>
-                <ImageBackground
-                    source={require('../../../assets/partnerbg.png')}
-                    style={GlobalStyles.background}
-                    resizeMode="stretch"
-                >
-                    <View style={GlobalStyles.flexdv}>
-                        <TouchableOpacity
-                            style={GlobalStyles.leftArrow}
-                            onPress={() => navigation.goBack()}
-                        >
-                            <View style={GlobalStyles.arrowBox}>
-                                <Image source={require('../../../assets/arrow1.png')} />
-                            </View>
-                            <Text style={GlobalStyles.titleText}>TK/CL/251107/0001</Text>
-                        </TouchableOpacity>
-
-                        <View style={GlobalStyles.rightSection}>
-                            <TouchableOpacity style={{ position: 'relative' }}>
-                                <Image source={require('../../../assets/notification.png')} />
-                                <View style={GlobalStyles.notiDot}></View>
-                            </TouchableOpacity>
-
-                            <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
-                                <Image source={require('../../../assets/menu-bar.png')} />
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                </ImageBackground>
-
+            <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: "space-between" }} style={{ flex: 1, }}>
                 <View style={styles.ticketDetails}>
-                    {/* Header */}
-                    <View style={styles.headerRow}>
-                        <Image style={styles.dashBoxIcon} source={require('../../../assets/ticket2.png')} />
-                        <View style={styles.titleBlock}>
-                            <Text style={styles.title}>
-                                Received Damaged Product
-                            </Text>
-                            <Image style={styles.dashBoxUrgIcon} source={require('../../../assets/urgent.png')} />
-                        </View>
-                    </View>
-
-                    {/* Description */}
-                    <View style={styles.descSection}>
-                        <Text style={styles.sectionLabel}>Description</Text>
-                        <Text style={styles.description}>
-                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse dignissim
-                        </Text>
-                    </View>
-
-                    {/* Metadata */}
-                    <View style={styles.metaRow}>
-                        <View>
-                            <Text style={styles.metaLabel}>Created by</Text>
-                            <Text style={styles.metaValue}>Saikat Ray (You)</Text>
-                        </View>
-                        <View>
-                            <Text style={styles.metaLabel}>Created on</Text>
-                            <Text style={styles.metaValue}>2 days ago</Text>
-                        </View>
-                    </View>
-
-                    {/* Assignee */}
-                    <View style={styles.assigneSection}>
-                        <Text style={styles.sectionLabel}>Assignee Details</Text>
-                        <View style={styles.assigneeRow}>
-                            <View style={styles.assignRowLeft}>
-                                <Image source={require('../../../assets/screen1.jpg')} style={styles.avatar} />
-                                <View style={{ flex: 1, paddingLeft: 8, }}>
-                                    <Text style={styles.assigneLabel}>Assignee</Text>
-                                    <Text style={styles.assigneeName}>Ratul Bera</Text>
+                    <ImageBackground
+                        source={require('../../../assets/partnerbg.png')}
+                        style={GlobalStyles.background}
+                        resizeMode="stretch"
+                    >
+                        <View style={GlobalStyles.flexdv}>
+                            <TouchableOpacity
+                                style={GlobalStyles.leftArrow}
+                                onPress={() => navigation.goBack()}
+                            >
+                                <View style={GlobalStyles.arrowBox}>
+                                    <Image source={require('../../../assets/arrow1.png')} />
                                 </View>
-                            </View>
-                            <View style={styles.resolvedBadge}>
-                                <Text style={styles.resolvedText}>Resolved</Text>
-                                <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 5, }}>
-                                    <Icon name="time-outline" size={18} color="#999" />
-                                    <Text style={styles.timeAgo}> 2 sec ago</Text>
-                                </View>
-                            </View>
-                        </View>
-                    </View>
+                                <Text style={GlobalStyles.titleText}>TK/CL/251107/0001</Text>
+                            </TouchableOpacity>
 
-                    {/* Patient Details */}
-                    <View style={styles.patientDetail}>
-                        <Text style={styles.sectionLabel}>Patient Details</Text>
-                        <View style={styles.patientDetailInn}>
-                            <Image source={require('../../../assets/menu12.png')} style={styles.patientIcon} />
-                            <View style={styles.patientDetailText}>
-                                <Text style={styles.patientName}>Maya Sarkar <Text style={styles.patientNameSub}>(45y, Female)</Text></Text>
-                                <Text style={styles.patientId}>NH/CL/251107/0001</Text>
-                            </View>
-                        </View>
-                    </View>
-
-
-                    {/* Attachments */}
-                    <View style={styles.attachmentSection}>
-                        <Text style={styles.sectionLabel}>Attachments</Text>
-                        <View style={styles.attachmentRow}>
-                            {/* <Image source={require('../../../assets/screen1.jpg')} style={styles.attachmentImg} />
-                            <Image source={require('../../../assets/screen1.jpg')} style={styles.attachmentImg} /> */}
-                            {images.map((img, index) => (
-                                <TouchableOpacity key={index} onPress={() => openViewer(index)}>
-                                    <Image source={img} style={styles.attachmentImg} />
+                            <View style={GlobalStyles.rightSection}>
+                                <TouchableOpacity style={{ position: 'relative' }}>
+                                    <Image source={require('../../../assets/notification.png')} />
+                                    <View style={GlobalStyles.notiDot}></View>
                                 </TouchableOpacity>
-                            ))}
+
+                                <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
+                                    <Image source={require('../../../assets/menu-bar.png')} />
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </ImageBackground>
+
+                    <View style={styles.ticketDetailsInn}>
+                        {/* Header */}
+                        <View style={styles.headerRow}>
+                            <Image style={styles.dashBoxIcon} source={require('../../../assets/ticket2.png')} />
+                            <View style={styles.titleBlock}>
+                                <Text style={styles.title}>
+                                    Received Damaged Product
+                                </Text>
+                                <Image style={styles.dashBoxUrgIcon} source={require('../../../assets/urgent.png')} />
+                            </View>
+                        </View>
+
+                        {/* Description */}
+                        <View style={styles.descSection}>
+                            <Text style={styles.sectionLabel}>Description</Text>
+                            <Text style={styles.description}>
+                                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse dignissim
+                            </Text>
+                        </View>
+
+                        {/* Metadata */}
+                        <View style={styles.metaRow}>
+                            <View>
+                                <Text style={styles.metaLabel}>Created by</Text>
+                                <Text style={styles.metaValue}>Saikat Ray (You)</Text>
+                            </View>
+                            <View>
+                                <Text style={styles.metaLabel}>Created on</Text>
+                                <Text style={styles.metaValue}>2 days ago</Text>
+                            </View>
+                        </View>
+
+                        {/* Assignee */}
+                        <View style={styles.assigneSection}>
+                            <Text style={styles.sectionLabel}>Assignee Details</Text>
+                            <View style={styles.assigneeRow}>
+                                <View style={styles.assignRowLeft}>
+                                    <Image source={require('../../../assets/screen1.jpg')} style={styles.avatar} />
+                                    <View style={{ flex: 1, paddingLeft: 8, }}>
+                                        <Text style={styles.assigneLabel}>Assignee</Text>
+                                        <Text style={styles.assigneeName}>Ratul Bera</Text>
+                                    </View>
+                                </View>
+                                <View style={styles.resolvedBadge}>
+                                    <Text style={styles.resolvedText}>Resolved</Text>
+                                    <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 5, }}>
+                                        <Icon name="time-outline" size={18} color="#999" />
+                                        <Text style={styles.timeAgo}> 2 sec ago</Text>
+                                    </View>
+                                </View>
+                            </View>
+                        </View>
+
+                        {/* Patient Details */}
+                        <View style={styles.patientDetail}>
+                            <Text style={styles.sectionLabel}>Patient Details</Text>
+                            <View style={styles.patientDetailInn}>
+                                <Image source={require('../../../assets/menu12.png')} style={styles.patientIcon} />
+                                <View style={styles.patientDetailText}>
+                                    <Text style={styles.patientName}>Maya Sarkar <Text style={styles.patientNameSub}>(45y, Female)</Text></Text>
+                                    <Text style={styles.patientId}>NH/CL/251107/0001</Text>
+                                </View>
+                            </View>
+                        </View>
+
+
+                        {/* Attachments */}
+                        <View style={styles.attachmentSection}>
+                            <Text style={styles.sectionLabel}>Attachments</Text>
+                            <View style={styles.attachmentRow}>
+                                {/* <Image source={require('../../../assets/screen1.jpg')} style={styles.attachmentImg} />
+                                <Image source={require('../../../assets/screen1.jpg')} style={styles.attachmentImg} /> */}
+                                {images.map((img, index) => (
+                                    <TouchableOpacity key={index} onPress={() => openViewer(index)}>
+                                        <Image source={img} style={styles.attachmentImg} />
+                                    </TouchableOpacity>
+                                ))}
+                            </View>
                         </View>
                     </View>
+                </View>
 
-
+                <View style={{paddingHorizontal:16, paddingBottom:25, }}>
                     <TouchableOpacity style={GlobalStyles.reOpenBtn}>
                         <Text style={GlobalStyles.reOpenBtnText}>Reopen</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={GlobalStyles.applyBtnFullWidth}>
                         <Text style={GlobalStyles.applyBtnTextNew}>Mark as Closed</Text>
                     </TouchableOpacity>
-
                 </View>
 
                 <Modal visible={showModal} transparent={true}>
@@ -231,7 +233,7 @@ const styles = StyleSheet.create({
     },
 
     //
-    ticketDetails: {
+    ticketDetailsInn: {
         paddingHorizontal: 16,
     },
     headerRow: {

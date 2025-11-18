@@ -114,7 +114,7 @@ export const GlobalStyles = StyleSheet.create({
     fontFamily: 'Poppins-Regular',
     fontSize: 12,
     lineHeight: 14,
-    height: 50,
+    // height: 50,
     borderWidth: 1,
     borderColor: '#C5C5C5',
     borderRadius: 10,

@@ -524,7 +524,7 @@ function RequestSample() {
                                 <Text style={GlobalStyles.closeIcon}>✕</Text>
                             </TouchableOpacity>
 
-                            <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent:'space-between', marginBottom:15, }}>
+                            <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 15, }}>
                                 <Text style={GlobalStyles.mdlTitle2}>Select Patients</Text>
                                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 7, }}>
                                     <Text style={styles.sampleLabel}>
@@ -539,6 +539,7 @@ function RequestSample() {
                                 </View>
                             </View>
 
+                            <ScrollView>
                                 {/* From Date */}
                                 <View style={GlobalStyles.inpBox}>
                                     <Text style={GlobalStyles.label}>From Date & Time</Text>
@@ -572,47 +573,48 @@ function RequestSample() {
                                     date={pickerType === 'from' ? (fromDate || new Date()) : (toDate || new Date())}
                                 />
 
-                            <View style={styles.searchContainer}>
-                                <View style={styles.searchBox}>
-                                    <Icon name="search" size={20} color="#aaa" style={styles.searchIcon} />
-                                    <TextInput
-                                        placeholder={placeholders[placeholderIndex]}
-                                        placeholderTextColor="#999"
-                                        style={styles.input}
+                                <View style={[GlobalStyles.searchContainer, { marginHorizontal:0, marginBottom:25, }]}>
+                                    <View style={GlobalStyles.searchBox}>
+                                        <Icon name="search" size={20} color="#aaa" style={GlobalStyles.searchIcon} />
+                                        <TextInput
+                                            placeholder={placeholders[placeholderIndex]}
+                                            placeholderTextColor="#999"
+                                            style={[GlobalStyles.searchinput, { borderWidth:1, borderColor:'#C5C5C5', borderRadius:10, } ]}
+                                        />
+                                    </View>
+                                </View>
+
+                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 10, }}>
+                                    <Image source={require('../../../assets/filtericon.png')} style={styles.filtIconMdl} />
+                                    <Text style={styles.filtTextMdl}>8 Result Found</Text>
+                                </View>
+
+                                <View>
+                                    <FlatList
+                                        data={patientsData}
+                                        renderItem={renderItem}
+                                        keyExtractor={(item) => item.id}
+                                        showsVerticalScrollIndicator={true}
+                                        style={{ maxHeight: 350, paddingRight: 5, }}
+                                        ListFooterComponent={
+                                            <>
+                                                <TouchableOpacity
+                                                    style={styles.selectAllContainer}
+                                                    onPress={toggleSelectAll}
+                                                    activeOpacity={0.8}
+                                                >
+                                                    <Ionicons
+                                                        name={allSelected ? "checkbox" : "square-outline"}
+                                                        size={20}
+                                                        color={allSelected ? "#00A635" : "#555"}
+                                                    />
+                                                    <Text style={styles.selectAllText}> Select All</Text>
+                                                </TouchableOpacity>
+                                            </>
+                                        }
                                     />
                                 </View>
-                            </View>
-
-                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 10, }}>
-                                <Image source={require('../../../assets/filtericon.png')} style={styles.filtIconMdl} />
-                                <Text style={styles.filtTextMdl}>8 Result Found</Text>
-                            </View>
-
-                            <View>
-                                <FlatList
-                                    data={patientsData}
-                                    renderItem={renderItem}
-                                    keyExtractor={(item) => item.id}
-                                    // showsVerticalScrollIndicator={true}
-                                    style={{ maxHeight: 350, paddingRight: 5, }}
-                                    ListFooterComponent={
-                                        <>
-                                            <TouchableOpacity
-                                                style={styles.selectAllContainer}
-                                                onPress={toggleSelectAll}
-                                                activeOpacity={0.8}
-                                            >
-                                                <Ionicons
-                                                    name={allSelected ? "checkbox" : "square-outline"}
-                                                    size={20}
-                                                    color={allSelected ? "#00A635" : "#555"}
-                                                />
-                                                <Text style={styles.selectAllText}> Select All</Text>
-                                            </TouchableOpacity>
-                                        </>
-                                    }
-                                />
-                            </View>
+                            </ScrollView>
 
                             <TouchableOpacity style={GlobalStyles.applyBtnFullWidth}>
                                 <Text style={GlobalStyles.applyBtnTextNew}>Select</Text>
@@ -629,11 +631,11 @@ export default RequestSample;
 
 const styles = StyleSheet.create({
     // Modal Start
-    calenderIcon:{
-        position:'absolute',
-        right:12,
-        top:15,
-        tintColor:'#00A635',
+    calenderIcon: {
+        position: 'absolute',
+        right: 12,
+        top: 15,
+        tintColor: '#00A635',
     },
     card: {
         borderBottomWidth: 1,
@@ -641,7 +643,7 @@ const styles = StyleSheet.create({
         borderRadius: 15,
         padding: 12,
         marginBottom: 12,
-        marginHorizontal:1,
+        marginHorizontal: 1,
         backgroundColor: "#fff",
         shadowColor: "#000",
         shadowOpacity: 0.05,
