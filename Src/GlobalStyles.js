@@ -70,6 +70,14 @@ export const GlobalStyles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 2,
   },
+  mdlSubTitlev2: {
+    fontFamily: 'Poppins-Regular',
+    fontSize: 12,
+    lineHeight: 15,
+    color: '#A4A4A4',
+    marginBottom: 5,
+    marginTop:5,
+  },
   mdlSubTitle: {
     fontFamily: 'Poppins-Regular',
     fontSize: 12,
@@ -177,7 +185,7 @@ export const GlobalStyles = StyleSheet.create({
     backgroundColor: '#00A651',
     borderRadius: 6,
     paddingVertical: 15,
-    paddingHorizontal: 38,
+    paddingHorizontal: 10,
     marginTop: 10,
   },
   applyBtnNew: {
@@ -304,13 +312,13 @@ export const GlobalStyles = StyleSheet.create({
   searchIcon: {
     position: 'absolute',
     left: 15,
-    top: 11,
+    top: 14,
     zIndex: 1,
     color: '#DEDEDE',
   },
   searchinput: {
     flex: 1,
-    height: 45,
+    height: 50,
     fontFamily: 'Poppins-Medium',
     fontSize: 14,
     color: '#333',
@@ -318,6 +326,7 @@ export const GlobalStyles = StyleSheet.create({
     borderRadius: 25,
     paddingLeft: 42,
     paddingRight: 10,
+    verticalAlign:'middle',
   },
   filterButton: {
     backgroundColor: '#00A651',

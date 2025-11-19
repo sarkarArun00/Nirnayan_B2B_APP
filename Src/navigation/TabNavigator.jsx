@@ -35,6 +35,7 @@ import TrackingMap from '../screens/TrackingSample/TrackingMap';
 import CreateTicket from '../screens/Ticket/CreateTicket';
 import TicketDashboard from '../screens/Ticket/TicketDashboard';
 import TicketDetails from '../screens/Ticket/TicketDetails';
+import CreateDocuments from '../screens/MyDocuments/CreateDocuments';
 
 
 const Tab = createBottomTabNavigator();
@@ -154,6 +155,7 @@ const AppNavigator = () => {
       <Stack.Screen name="CreateTicket" component={CreateTicket} />
       <Stack.Screen name="TicketDashboard" component={TicketDashboard} />
       <Stack.Screen name="TicketDetails" component={TicketDetails} />
+      <Stack.Screen name="CreateDocuments" component={CreateDocuments} />
     </Stack.Navigator>
   );
 };
