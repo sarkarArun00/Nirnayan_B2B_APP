@@ -27,24 +27,22 @@ const HomeScreen = () => {
   const [expDay, setExpday] = useState("");
   const [showPasswordWarning, setShowPasswordWarning] = useState(false);
 
-useEffect(() => {
-  const fetchExpiry = async () => {
-    const days = await AsyncStorage.getItem("PASSWORD_EXPIRED_IN");
+  useEffect(() => {
+    const fetchExpiry = async () => {
+      const days = await AsyncStorage.getItem("PASSWORD_EXPIRED_IN");
 
-    if (days) {
-      setExpDay(days);
-
-      // Convert to number and check condition
-      if (Number(days) < 7) {
-        setShowPasswordWarning(true);
-      } else {
-        setShowPasswordWarning(false);
+      if (days) {
+        setExpDay(days);
+        if (Number(days) < 7) {
+          setShowPasswordWarning(true);
+        } else {
+          setShowPasswordWarning(false);
+        }
       }
-    }
-  };
+    };
 
-  fetchExpiry();
-}, []);
+    fetchExpiry();
+  }, []);
 
   return (
     // style={[GlobalStyles.SafeAreaView]}

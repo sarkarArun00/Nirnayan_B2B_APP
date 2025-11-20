@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { View, Text, SafeAreaView, ScrollView, ImageBackground, TouchableOpacity, Image, StyleSheet, Modal, TextInput } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { GlobalStyles } from '../../GlobalStyles';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import estimateService from "../../services/estimate_service";
+import SkeletonSpinner from "../../screens/SkeletonSpinner";
 
 function ServiceEstimate() {
     const navigation = useNavigation();
@@ -11,6 +13,71 @@ function ServiceEstimate() {
     const [editModalVisible, setEditModalVisible] = useState(false);
     // const [infoModalVisible, setInfoModalVisible] = useState(false);
     // const [packageModalVisible, setPackageModalVisible] = useState(false);
+
+
+
+    const estimateData1 = [
+        {
+            estimateId: "SE/CL/250117/0007",
+            createdOn: "Yesterday",
+            clientName: "Arun Sarkar",
+            age: "45Y-0M-0D",
+            gender: "male",
+            partnerName: "Tarun Sana",
+            packageName: "Suswastham 17.0 - Pre Operative Check Up Basic Package",
+            rates: {
+                partnerRate: 550,
+                totalRate: 550,
+                grossMrp: 550,
+            }
+        },
+        {
+            estimateId: "SE/CL/250118/0012",
+            createdOn: "Today",
+            clientName: "Suman Dutta",
+            age: "30Y-2M-5D",
+            gender: "female",
+            partnerName: "Mitali Rana",
+            packageName: "Healthy Heart Full Screening Package",
+            rates: {
+                partnerRate: 1200,
+                totalRate: 1500,
+                grossMrp: 2000,
+            }
+        }
+    ];
+
+    const [estimateData, setEstimateData] = useState(estimateData1);
+
+    const rectangleLayout = [
+        { width: "100%", height: 120, borderRadius: 12 }, // main rectangle
+    ];
+    // api calling for get estimate start
+    useEffect(() => {
+        // fetchEstimate();
+        setEstimateData(estimateData1);
+    }, []);
+
+    // const fetchEstimate = async () => {
+    //     try {
+    //         const payload = {
+
+    //         };
+
+    //         const response = await estimateService.getEstimate(payload);
+    //         console.log("API Response:", response);
+    //         if (response.status == 1) {
+    //             setEstimateData(response.data)
+    //         } else {
+
+    //         }
+
+    //     } catch (error) {
+    //         console.log("API Error:", error);
+    //     }
+    // };
+
+    // api calling for get estimate end
 
     return (
         <SafeAreaView style={{ flex: 1, }}>
@@ -57,67 +124,80 @@ function ServiceEstimate() {
                     </View>
                 </View>
 
-                <View style={{ paddingHorizontal: 16, paddingTop: 20, }}>
-                    <Text style={styles.crestedText}>Created on Yesterday</Text>
-
-                    <View style={styles.patCard}>
-                        {/* Header */}
-                        <View style={styles.patHeader}>
-                            <Text style={styles.patHeaderRefId}>SE/CL/250117/0007</Text>
-                            <TouchableOpacity style={styles.headerButton} onPress={() => setEditModalVisible(true)}>
-                                <Icon name="ellipsis-vertical" size={18} color="#000" />
-                            </TouchableOpacity>
-                        </View>
-
-                        {/* Patient Info */}
-                        <View style={styles.patientSection}>
-                            <View style={styles.leftRow}>
-                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, }}>
-                                    <Text style={styles.patname}>Arun Sarkar</Text>
-                                    <Ionicons name="male" size={20} color="#1E90FF" />
-                                    {/* <Ionicons name="female" size={20} color="#FF69B4" /> */}
-                                </View>
-                                <Text style={styles.patAge}>45Y-0M-0D</Text>
-                            </View>
-
-                            <View style={styles.rightRow}>
-                                <Text style={styles.partnerLabel}>Partner Name</Text>
-                                <Text style={styles.partnerValue}>Tarun Sana</Text>
-                            </View>
-                        </View>
-
-                        {/* Package Info */}
-                        <View style={styles.packageSection}>
-                            <Text style={styles.packageTitle}>
-                                Suswastham 17.0 - Pre Operative Check Up Basic Package
-                            </Text>
-                            <TouchableOpacity onPress={() => navigation.navigate('ServiceInvestigations')}>
-                                <Ionicons name="eye" size={22} color="#B8B8B8" />
-                                {/* <Text style={styles.addTestBtn}>+7</Text> */}
-                            </TouchableOpacity>
-                        </View>
-
-                        {/* Partner Rates */}
-                        <View style={styles.rateSection}>
-                            {[
-                                { icon: require('../../../assets/partnerrate-icn1.png'), label: 'Partner Rate', value: '550' },
-                                { icon: require('../../../assets/partnerrate-icn2.png'), label: 'Total Rate', value: '550' },
-                                { icon: require('../../../assets/partnerrate-icn3.png'), label: 'Gross MRP', value: '550' },
-                            ].map((item, index) => (
-                                <View key={index} style={styles.rateBox}>
-                                    <View style={styles.rateIconWrap}>
-                                        <Image source={item.icon} style={styles.rateIcon} />
-                                    </View>
-                                    <View style={styles.rateText}>
-                                        <Text style={styles.rateLabel}>{item.label}</Text>
-                                        <Text style={styles.rateValue}>{item.value}</Text>
-                                    </View>
-                                </View>
-                            ))}
-                        </View>
+                {estimateData.length === 0 ? (
+                    <View style={{ flex: 1 }}>
+                        <SkeletonSpinner
+                            items={5}
+                            layout={rectangleLayout}
+                            containerStyle={{
+                                marginVertical: 10,
+                                borderRadius: 12,
+                                overflow: "hidden",
+                            }}
+                        />
                     </View>
+                ) : (
+                    estimateData.map((item, index) => (
+                        <View key={index} style={{ paddingHorizontal: 16, paddingTop: 20 }}>
+                            <Text style={styles.crestedText}>Created on {item.createdOn}</Text>
 
-                </View>
+                            <View style={styles.patCard}>
+                                {/* Header */}
+                                <View style={styles.patHeader}>
+                                    <Text style={styles.patHeaderRefId}>{item.estimateId}</Text>
+                                    <TouchableOpacity style={styles.headerButton} onPress={() => setEditModalVisible(true)}>
+                                        <Icon name="ellipsis-vertical" size={18} color="#000" />
+                                    </TouchableOpacity>
+                                </View>
+
+                                {/* Patient Info */}
+                                <View style={styles.patientSection}>
+                                    <View style={styles.leftRow}>
+                                        <View style={{ flexDirection: "row", alignItems: "center", gap: 5 }}>
+                                            <Text style={styles.patname}>{item.clientName}</Text>
+                                            {item.gender === "male" && <Ionicons name="male" size={20} color="#1E90FF" />}
+                                            {item.gender === "female" && <Ionicons name="female" size={20} color="#FF69B4" />}
+                                        </View>
+                                        <Text style={styles.patAge}>{item.age}</Text>
+                                    </View>
+
+                                    <View style={styles.rightRow}>
+                                        <Text style={styles.partnerLabel}>Partner Name</Text>
+                                        <Text style={styles.partnerValue}>{item.partnerName}</Text>
+                                    </View>
+                                </View>
+
+                                {/* Package Info */}
+                                <View style={styles.packageSection}>
+                                    <Text style={styles.packageTitle}>{item.packageName}</Text>
+                                    <TouchableOpacity onPress={() => navigation.navigate("ServiceInvestigations")}>
+                                        <Ionicons name="eye" size={22} color="#B8B8B8" />
+                                    </TouchableOpacity>
+                                </View>
+
+                                {/* Partner Rates */}
+                                <View style={styles.rateSection}>
+                                    {[
+                                        { icon: require("../../../assets/partnerrate-icn1.png"), label: "Partner Rate", value: item.rates.partnerRate },
+                                        { icon: require("../../../assets/partnerrate-icn2.png"), label: "Total Rate", value: item.rates.totalRate },
+                                        { icon: require("../../../assets/partnerrate-icn3.png"), label: "Gross MRP", value: item.rates.grossMrp }
+                                    ].map((rate, rateIndex) => (
+                                        <View key={rateIndex} style={styles.rateBox}>
+                                            <View style={styles.rateIconWrap}>
+                                                <Image source={rate.icon} style={styles.rateIcon} />
+                                            </View>
+                                            <View style={styles.rateText}>
+                                                <Text style={styles.rateLabel}>{rate.label}</Text>
+                                                <Text style={styles.rateValue}>{rate.value}</Text>
+                                            </View>
+                                        </View>
+                                    ))}
+                                </View>
+                            </View>
+                        </View>
+                    ))
+                )}
+
 
                 {/* Filter Modal */}
                 <Modal
@@ -189,7 +269,7 @@ function ServiceEstimate() {
                             </View>
                         </View>
                     </View>
-                </Modal>                
+                </Modal>
 
             </ScrollView>
         </SafeAreaView>

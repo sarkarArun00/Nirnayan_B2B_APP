@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { View, Text, SafeAreaView, ScrollView, ImageBackground, TouchableOpacity, Image, StyleSheet, Modal, } from 'react-native';
 import { GlobalStyles } from '../../GlobalStyles';
@@ -8,6 +8,8 @@ function ServiceInvestigations() {
     const navigation = useNavigation();
     const [packageModalVisible, setPackageModalVisible] = useState(false);
     const [parameterModalVisible, setParameterModalVisible] = useState(false);
+    const [investigationData, setInvestigationData] = useState([]);
+    const [packagesData, setPackagesData] = useState([]);
 
     const handleItemPress = (item) => {
         if (item.title === "Parameter") {
@@ -93,6 +95,16 @@ function ServiceInvestigations() {
         },
     ];
 
+    useEffect(() => {
+        setInvestigationData(packages);
+    }, []);
+
+    useEffect(() => {
+        if (investigationData.length > 0) {
+            setPackagesData(investigationData);
+        }
+    }, [investigationData]);
+
     return (
         <SafeAreaView style={{ flex: 1, }}>
             <ScrollView style={{ flex: 1, }}>
@@ -119,8 +131,8 @@ function ServiceInvestigations() {
                     </View>
                 </ImageBackground>
 
-                <View style={{paddingHorizontal:16,}}>
-                    {packages.map((item, index) => (
+                <View style={{ paddingHorizontal: 16, }}>
+                    {investigationData.map((item, index) => (
                         <TouchableOpacity key={index} style={styles.invCard} onPress={() => setPackageModalVisible(true)}>
                             <View style={[styles.invCardIconWrap, { backgroundColor: `${item.color}15`, borderWidth: 1, borderColor: `${item.color}25` }]}>
                                 <Image source={item.icon} style={[styles.invCardIcon, { tintColor: item.color }]} />
@@ -188,9 +200,9 @@ function ServiceInvestigations() {
                         </View>
                     </View>
                 </Modal>
-                
+
                 {/* Parameter Modal */}
-                 <Modal
+                <Modal
                     transparent={true}
                     visible={parameterModalVisible}
                     animationType="slide"
@@ -206,13 +218,13 @@ function ServiceInvestigations() {
                             </TouchableOpacity>
 
                             <Text style={GlobalStyles.mdlTitle2}>
-                               Parameter
+                                Parameter
                             </Text>
 
                             <ScrollView
                                 showsVerticalScrollIndicator={false}
                                 showsHorizontalScrollIndicator={false}>
-                                <View style={{flexDirection:'row', flexWrap:'wrap', gap:10, paddingTop:10, }}>
+                                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, paddingTop: 10, }}>
                                     <Text style={styles.paramerText}>Bioavailable Testosterone</Text>
                                     <Text style={styles.paramerText}>DHT</Text>
                                     <Text style={styles.paramerText}>Free Androgen Index</Text>
@@ -276,16 +288,16 @@ const styles = StyleSheet.create({
         lineHeight: 14,
         color: '#000',
     },
-    paramerText:{
+    paramerText: {
         fontFamily: 'Poppins-Regular',
         fontSize: 16,
         lineHeight: 18,
         color: '#000000',
-        borderWidth:1,
-        borderColor:'#AFAFAF',
-        borderRadius:30,
-        paddingVertical:9,
-        paddingHorizontal:12,
+        borderWidth: 1,
+        borderColor: '#AFAFAF',
+        borderRadius: 30,
+        paddingVertical: 9,
+        paddingHorizontal: 12,
     },
     // Package Investigation Css End
 
