@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { View, Text, SafeAreaView, ScrollView, ImageBackground, Modal, TouchableOpacity, Image, TextInput, StyleSheet, Alert,} from "react-native";
+import { View, Text, SafeAreaView, ScrollView, ImageBackground, Modal, TouchableOpacity, Image, TextInput, StyleSheet, Alert, } from "react-native";
 import { GlobalStyles } from "../../GlobalStyles";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import Icon from "react-native-vector-icons/Ionicons";
@@ -132,19 +132,23 @@ function CreateDocuments({ navigation }) {
         <Modal
             transparent
             visible={uploadingProgressVisible}
-            animationType="fade"
+            animationType="slide"
             onRequestClose={() => { }}
         >
             <View style={GlobalStyles.modalOverlay}>
-                <View style={[GlobalStyles.modalContainer, { paddingVertical: 24, minWidth: 300 }]}>
+                <View style={GlobalStyles.modalContainer}>
+                    <TouchableOpacity style={GlobalStyles.modalClose} onPress={() => setUploadingProgressVisible(false)}>
+                        <Text style={GlobalStyles.closeIcon}>✕</Text>
+                    </TouchableOpacity>
                     <View style={styles.circleWrap}>
                         <Progress.Circle
-                            size={120}
+                            size={125}
                             progress={uploadProgress}
                             thickness={12}
-                            color="#00C853"
+                            color="#00A635"
                             unfilledColor="#DFF5E6"
-                            borderWidth={0}
+                            borderWidth={4}
+                            borderColor="#D3F4E3"
                             showsText={false}
                         />
                         <View style={styles.circleInner}>
@@ -180,14 +184,13 @@ function CreateDocuments({ navigation }) {
                             </View>
                         ))}
                     </ScrollView>
-
+                    {uploadProgress < 1 && (
                         <View style={styles.uploadRow}>
                             <Text style={styles.rowTitle}>Uploading...</Text>
-
                             <View style={styles.progressRow}>
                                 <View style={styles.progressLeft}>
                                     <Text style={styles.progressText}>{Math.round(uploadProgress * 100)}%</Text>
-                                    <View style={{width:5, height:5, backgroundColor:'#6D6D6D', borderRadius:2.5, }}></View>
+                                    <View style={{ width: 5, height: 5, backgroundColor: '#6D6D6D', borderRadius: 2.5, }}></View>
                                     <Text style={styles.time}>
                                         {uploadProgress < 1
                                             ? `${Math.max(1, Math.round((1 - uploadProgress) * 30))}s remaining`
@@ -209,6 +212,7 @@ function CreateDocuments({ navigation }) {
                                 <View style={[styles.progressFill, { width: `${Math.round(uploadProgress * 100)}%` }]} />
                             </View>
                         </View>
+                    )}
 
                     <TouchableOpacity
                         style={GlobalStyles.applyBtnFullWidth}
@@ -278,13 +282,14 @@ function CreateDocuments({ navigation }) {
 
                 <View style={{ paddingTop: 20 }}>
                     <View style={styles.uploadDoc}>
-                        <TouchableOpacity style={{ flexDirection: "row", alignItems:'center', flex: 1 }} onPress={() => setUploadDocModal(true)}>
+                        <TouchableOpacity style={{ flexDirection: "row", alignItems: 'center', flex: 1 }} onPress={() => setUploadDocModal(true)}>
                             <View style={styles.uploadLeft}>
                                 <Image source={require("../../../assets/uploadnoimg.png")} style={styles.uploadImg} />
                             </View>
                             <View style={styles.uploadRight}>
                                 <Text style={styles.docTitle}>Aadhaar Card</Text>
                                 <View style={styles.docStatusRow}>
+                                    {/* <Image source={require("../../../assets/docicon2.png")} style={styles.docIcon} /> */}
                                     <Image source={require("../../../assets/docicon1.png")} style={styles.docIcon} />
                                     <Text style={styles.docStatus}>No documents uploaded</Text>
                                 </View>
@@ -391,19 +396,19 @@ const styles = StyleSheet.create({
     circleText: {
         fontFamily: 'Poppins-SemiBold',
         fontSize: 25,
-        lineHeight:28,
+        lineHeight: 28,
         color: "#000",
     },
     circleSub: {
         fontFamily: 'Poppins-Medium',
         fontSize: 13,
-        lineHeight:16,
+        lineHeight: 16,
         color: "#BCBCBC",
     },
     title: {
         fontFamily: 'Poppins-SemiBold',
         fontSize: 16,
-        lineHeight:19,
+        lineHeight: 19,
         color: "#000",
         textAlign: "center",
         marginTop: 15,
@@ -411,17 +416,17 @@ const styles = StyleSheet.create({
     subtitle: {
         fontFamily: 'Poppins-Regular',
         fontSize: 12,
-        lineHeight:16,
+        lineHeight: 16,
         color: "#7B7B7B",
         textAlign: "center",
         paddingHorizontal: 20,
         marginTop: 8,
-        marginBottom:25,
+        marginBottom: 25,
     },
     fileRow: {
         flexDirection: "row",
         alignItems: "center",
-        marginBottom:10,
+        marginBottom: 10,
         padding: 14,
         borderRadius: 12,
         borderWidth: 1,
@@ -430,7 +435,7 @@ const styles = StyleSheet.create({
     fileTitle: {
         fontFamily: 'Poppins-Medium',
         fontSize: 12,
-        lineHeight:15,
+        lineHeight: 15,
         color: "#000",
     },
     fileMeta: {
@@ -439,15 +444,15 @@ const styles = StyleSheet.create({
         color: "#6D6D6D",
         marginTop: 2,
     },
-    uploadCloBtn:{
-        width:22,
-        height:22,
-        borderWidth:2,
-        borderColor:'#858585',
-        backgroundColor:'rgba(133,133,133,0.3)',
-        borderRadius:12,
-        justifyContent:'center',
-        alignItems:'center',
+    uploadCloBtn: {
+        width: 22,
+        height: 22,
+        borderWidth: 2,
+        borderColor: '#858585',
+        backgroundColor: 'rgba(133,133,133,0.3)',
+        borderRadius: 12,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     uploadRow: {
         padding: 14,
@@ -458,7 +463,7 @@ const styles = StyleSheet.create({
     rowTitle: {
         fontFamily: 'Poppins-Medium',
         fontSize: 12,
-        lineHeight:15,
+        lineHeight: 15,
         color: "#000",
         marginBottom: 4,
     },
@@ -476,13 +481,13 @@ const styles = StyleSheet.create({
     progressText: {
         fontFamily: 'Poppins-Regular',
         fontSize: 12,
-        lineHeight:15,
+        lineHeight: 15,
         color: "#6D6D6D",
     },
     time: {
         fontFamily: 'Poppins-Regular',
         fontSize: 12,
-        lineHeight:15,
+        lineHeight: 15,
         color: "#6D6D6D",
     },
     progressBar: {
@@ -497,15 +502,15 @@ const styles = StyleSheet.create({
         backgroundColor: "#01A635",
         borderRadius: 10,
     },
-    uploadCloBtn2:{
-        width:22,
-        height:22,
-        borderWidth:2,
-        borderColor:'#FF3636',
-        backgroundColor:'rgba(255, 54, 54, 0.3)',
-        borderRadius:12,
-        justifyContent:'center',
-        alignItems:'center',
+    uploadCloBtn2: {
+        width: 22,
+        height: 22,
+        borderWidth: 2,
+        borderColor: '#FF3636',
+        backgroundColor: 'rgba(255, 54, 54, 0.3)',
+        borderRadius: 12,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     cancelText: {
         fontFamily: 'Poppins-Medium',
