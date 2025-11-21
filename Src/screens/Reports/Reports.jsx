@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { View, Text, SafeAreaView, ScrollView, ImageBackground, TouchableOpacity, Image, TextInput, Switch, StyleSheet, Modal } from "react-native";
 import { GlobalStyles } from "../../GlobalStyles";
 import Ionicons from "react-native-vector-icons/Ionicons";
@@ -15,8 +15,6 @@ export const statusColors = {
   "Approved": "#00A651",
   "In-progress": "#B19D31",
 };
-
-
 
 export default function Reports({ navigation }) {
   const [filterModal, setFilterModal] = useState(false);
@@ -79,7 +77,7 @@ export default function Reports({ navigation }) {
     },
   ];
 
-  function CardItem({ item }) {
+  const CardItem = ({ item }) => {
     return (
       <TouchableOpacity style={styles.orderCard}>
         {/* Header */}
@@ -202,6 +200,12 @@ export default function Reports({ navigation }) {
         </View>
 
 
+        {/*  */}
+        
+        {/*  */}
+
+
+
         {/* Filter Modal Start */}
         <Modal
           transparent
@@ -319,8 +323,8 @@ export default function Reports({ navigation }) {
                   </View>
                   <Text style={styles.downloadLabel}>With Letterhead</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={[styles.downloadRowBtn, {backgroundColor:'rgba(167,167,167,0.15)',}]}>
-                  <View style={[styles.downloadRowIconBox, {backgroundColor:'#fff',}]}>
+                <TouchableOpacity style={[styles.downloadRowBtn, { backgroundColor: 'rgba(167,167,167,0.15)', }]}>
+                  <View style={[styles.downloadRowIconBox, { backgroundColor: '#fff', }]}>
                     <Image source={require('../../../assets/letterhead2.png')} style={styles.downloadRowIcon} />
                   </View>
                   <Text style={styles.downloadLabel}>Without Letterhead</Text>
@@ -353,8 +357,8 @@ export default function Reports({ navigation }) {
                   </View>
                   <Text style={styles.downloadLabel}>With Letterhead</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={[styles.downloadRowBtn, {backgroundColor:'rgba(167,167,167,0.15)',}]}>
-                  <View style={[styles.downloadRowIconBox, {backgroundColor:'#fff',}]}>
+                <TouchableOpacity style={[styles.downloadRowBtn, { backgroundColor: 'rgba(167,167,167,0.15)', }]}>
+                  <View style={[styles.downloadRowIconBox, { backgroundColor: '#fff', }]}>
                     <Image source={require('../../../assets/letterhead2.png')} style={styles.downloadRowIcon} />
                   </View>
                   <Text style={styles.downloadLabel}>Without Letterhead</Text>
@@ -365,9 +369,6 @@ export default function Reports({ navigation }) {
         </Modal>
 
 
-
-
-
       </ScrollView>
     </SafeAreaView>
   );
@@ -375,41 +376,41 @@ export default function Reports({ navigation }) {
 
 const styles = StyleSheet.create({
   // Download And Share Modal Start
-  downloadMdlRow:{
-    flexDirection:'row',
-    justifyContent:'center',
-    gap:12,
-    marginTop:20,
-    paddingHorizontal:20,
+  downloadMdlRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 12,
+    marginTop: 20,
+    paddingHorizontal: 20,
   },
-  downloadRowBtn:{
-    flex:1,
-    borderRadius:20,
-    paddingVertical:16,
-    paddingHorizontal:5,
-    backgroundColor:'rgba(0,166,53,0.15)',
+  downloadRowBtn: {
+    flex: 1,
+    borderRadius: 20,
+    paddingVertical: 16,
+    paddingHorizontal: 5,
+    backgroundColor: 'rgba(0,166,53,0.15)',
   },
-  downloadLabel:{
+  downloadLabel: {
     fontFamily: 'Poppins-Medium',
     fontSize: 12,
     lineHeight: 15,
     color: '#000',
-    textAlign:'center',
-    paddingTop:10,
+    textAlign: 'center',
+    paddingTop: 10,
   },
-  downloadRowIconBox:{
-    width:42,
-    height:42,
-    backgroundColor:'#00A635',
-    borderRadius:21,
-    justifyContent:'center',
-    alignItems:'center',
-    margin:'auto',
+  downloadRowIconBox: {
+    width: 42,
+    height: 42,
+    backgroundColor: '#00A635',
+    borderRadius: 21,
+    justifyContent: 'center',
+    alignItems: 'center',
+    margin: 'auto',
   },
-  downloadRowIcon:{
-    width:28,
-    height:28,
-    resizeMode:'contain',
+  downloadRowIcon: {
+    width: 28,
+    height: 28,
+    resizeMode: 'contain',
   },
   // Download And Share Modal End
 
