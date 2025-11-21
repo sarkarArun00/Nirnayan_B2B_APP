@@ -70,20 +70,20 @@ export const GlobalStyles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 2,
   },
-  mdlSubTitlev2: {
-    fontFamily: 'Poppins-Regular',
-    fontSize: 12,
-    lineHeight: 15,
-    color: '#A4A4A4',
-    marginBottom: 5,
-    marginTop:5,
-  },
   mdlSubTitle: {
     fontFamily: 'Poppins-Regular',
     fontSize: 12,
     lineHeight: 15,
     color: '#A4A4A4',
     marginBottom: 20,
+  },
+  mdlSubTitlev2: {
+    fontFamily: 'Poppins-Regular',
+    fontSize: 12,
+    lineHeight: 15,
+    color: '#A4A4A4',
+    marginBottom: 5,
+    marginTop: 5,
   },
   inpBox: {
     marginBottom: 12,
@@ -122,7 +122,7 @@ export const GlobalStyles = StyleSheet.create({
     fontFamily: 'Poppins-Regular',
     fontSize: 12,
     lineHeight: 14,
-    // height: 50,
+    height: 50,
     borderWidth: 1,
     borderColor: '#C5C5C5',
     borderRadius: 10,
@@ -139,13 +139,13 @@ export const GlobalStyles = StyleSheet.create({
     borderRadius: 10,
     paddingLeft: 10,
     paddingRight: 10,
-    paddingVertical:13,
+    paddingVertical: 13,
     color: '#C2C2C2',
   },
   disabledInput: {
     backgroundColor: '#F6F6F6',
   },
-  placeholderColor:{
+  placeholderColor: {
     color: '#C2C2C2',
   },
   textArea: {
@@ -226,21 +226,30 @@ export const GlobalStyles = StyleSheet.create({
     color: '#6D6D6D',
     paddingTop: 8,
   },
-
   reOpenBtn: {
-    borderWidth:1,
+    borderWidth: 1,
     borderColor: '#00A651',
     borderRadius: 6,
     paddingVertical: 15,
     paddingHorizontal: 38,
     marginTop: 10,
   },
-   reOpenBtnText: {
+  reOpenBtnText: {
     fontFamily: 'Poppins-SemiBold',
     fontSize: 15,
     lineHeight: 18,
     color: '#000',
     textAlign: 'center',
+  },
+  calenderIcon: {
+    position: 'absolute',
+    right: 12,
+    top: 15,
+    tintColor: '#00A635',
+  },
+  PlaceholderDateText: {
+    fontSize: 12,
+    color: '#C2C2C2',
   },
   // Common Modal End
 
@@ -323,10 +332,12 @@ export const GlobalStyles = StyleSheet.create({
     fontSize: 14,
     color: '#333',
     backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#E5EBE8',
     borderRadius: 25,
     paddingLeft: 42,
     paddingRight: 10,
-    verticalAlign:'middle',
+    verticalAlign: 'middle',
   },
   filterButton: {
     backgroundColor: '#00A651',
