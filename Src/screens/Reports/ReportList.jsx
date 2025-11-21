@@ -1,139 +1,188 @@
+// ReportList.js
 import React, { useRef } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  Image,
-  StyleSheet,
-} from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, Image, } from "react-native";
 import Swipeable from "react-native-gesture-handler/Swipeable";
 import Ionicons from "react-native-vector-icons/Ionicons";
 
-const ReportList = ({ item, onShare, onDownload }) => {
-  const swipeRef = useRef(null);
+const ReportList = ({
+    data = [],
+    selectedIds = [],
+    onToggleSelect = () => { },
+    onSelectAll = () => { },
+    onShare = () => { },
+    onDownload = () => { },
+}) => {
+    const renderLeftActions = (item) => (
+        <TouchableOpacity
+            style={styles.leftAction}
+            onPress={() => onShare(item)}
+            activeOpacity={0.8}
+        >
+            <Ionicons name="share-social-outline" size={22} color="#fff" />
+            <Text style={styles.actionText}>Share</Text>
+        </TouchableOpacity>
+    );
 
-  // LEFT ACTION → SHARE (Blue)
-  const renderLeftActions = () => (
-    <TouchableOpacity
-      style={styles.leftAction}
-      onPress={() => {
-        onShare && onShare(item);
-        swipeRef.current?.close();
-      }}
-      activeOpacity={0.8}
-    >
-      <Ionicons name="share-social-outline" size={26} color="#fff" />
-    </TouchableOpacity>
-  );
+    const renderRightActions = (item) => (
+        <TouchableOpacity
+            style={styles.rightAction}
+            onPress={() => onDownload(item)}
+            activeOpacity={0.8}
+        >
+            <Ionicons name="download-outline" size={22} color="#fff" />
+            <Text style={styles.actionText}>Download</Text>
+        </TouchableOpacity>
+    );
 
-  // RIGHT ACTION → DOWNLOAD (Green)
-  const renderRightActions = () => (
-    <TouchableOpacity
-      style={styles.rightAction}
-      onPress={() => {
-        onDownload && onDownload(item);
-        swipeRef.current?.close();
-      }}
-      activeOpacity={0.8}
-    >
-      <Ionicons name="download-outline" size={26} color="#fff" />
-    </TouchableOpacity>
-  );
+    const renderItem = ({ item }) => {
+        const isSelected = selectedIds.includes(item.id);
+        return (
+            <Swipeable
+                overshootRight={false}
+                overshootLeft={false}
+                renderLeftActions={() => renderLeftActions(item)}
+                renderRightActions={() => renderRightActions(item)}
+            >
+                <TouchableOpacity
+                    activeOpacity={0.85}
+                    style={[styles.card, isSelected && styles.cardSelected]}
+                    onPress={() => onToggleSelect(item.id)}
+                >
+                    <View style={styles.cardLeft}>
+                        <View style={styles.titleWrap}>
+                            <Text numberOfLines={2} style={styles.title}>
+                                {item.title}
+                            </Text>
+                        </View>
+                        <View style={[styles.statusPill, { backgroundColor: `${item.statusColor || "#eee"}20` }]}>
+                            <Text style={[styles.statusText, { color: item.statusColor || "#333" }]}>
+                                {item.status}
+                            </Text>
+                        </View>
+                    </View>
 
-  return (
-    <Swipeable
-      ref={swipeRef}
-      renderLeftActions={renderLeftActions}
-      renderRightActions={renderRightActions}
-      overshootLeft={false}
-      overshootRight={false}
-    >
-      {/* MAIN CARD */}
-      <View style={styles.card}>
-        <View style={styles.leftBoxIcon}>
-          <Image
-            source={require("../../../assets/b2bblood.png")}
-            style={styles.icon}
-          />
+                    <View style={styles.cardRight}>
+                        {isSelected ? (
+                            <Ionicons name="checkbox" size={22} color="#00A651" />
+                        ) : (
+                            <Ionicons name="square-outline" size={22} color="#9A9A9A" />
+                        )}
+                    </View>
+                </TouchableOpacity>
+            </Swipeable>
+        );
+    };
+
+    return (
+        <View>
+            <View style={styles.userInfo}>
+                <View style={styles.userInfoLeft}>
+                    <Text style={styles.userInfoName}>Arun Sarkar</Text>
+                    <Text style={styles.userInfoDoct}>Dr. Supratim Das</Text>
+                </View>
+                <View style={styles.userInfoRight}>
+                    <Text style={styles.userInfoName}>3 of 10</Text>
+                    <Text style={styles.userInfoDoct}>Completed</Text>
+                </View>
+            </View>
+
+            <View style={styles.investigationWrap}>
+                <Image source={require("../../../assets/menu2.png")} style={styles.investigationWrapIcon} />
+                <Text style={styles.investigationWrapTitle}>Investigation Name</Text>
+            </View>
+
+            <FlatList
+                data={data}
+                keyExtractor={(i) => i.id.toString()}
+                renderItem={renderItem}
+                // ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
+                scrollEnabled={false}
+            />
+
+            <View style={styles.selectAllRow}>
+                <TouchableOpacity onPress={onSelectAll} style={styles.selectAllBtn}>
+                    <Ionicons
+                        name={selectedIds.length === data.length && data.length > 0 ? "checkbox" : "square-outline"}
+                        size={22}
+                        color="#00A651"
+                    />
+                    <Text style={styles.selectAllText}> Select All</Text>
+                </TouchableOpacity>
+            </View>
+
+            {selectedIds.length > 0 && (
+                <View style={styles.bottomBar}>
+                    <Text style={styles.bottomText}>{selectedIds.length} items selected</Text>
+
+                    <TouchableOpacity
+                        style={styles.bottomIconBtn}
+                        onPress={() => onDownload(selectedIds)}
+                    >
+                        <Ionicons name="download-outline" size={20} color="#fff" />
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        style={styles.bottomIconBtn}
+                        onPress={() => onShare(selectedIds)}
+                    >
+                        <Ionicons name="share-social-outline" size={20} color="#fff" />
+                    </TouchableOpacity>
+                </View>
+            )}
         </View>
-
-        <View style={{ flex: 1 }}>
-          <Text style={styles.title}>{item.title}</Text>
-        </View>
-
-        <View style={styles.statusTag}>
-          <Text style={styles.statusText}>{item.status}</Text>
-        </View>
-      </View>
-    </Swipeable>
-  );
+    );
 };
 
 export default ReportList;
 
 const styles = StyleSheet.create({
-  card: {
-    backgroundColor: "#fff",
-    padding: 14,
-    borderRadius: 12,
-    flexDirection: "row",
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#EAEAEA",
-    marginVertical: 6,
-    marginHorizontal: 10,
-  },
+    userInfo: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        borderBottomWidth: 1,
+        borderBottomColor: '#DBDBDB',
+        paddingBottom: 15,
+        marginBottom: 15,
+    },
+    userInfoName: {
+        fontFamily: 'Poppins-Medium',
+        fontSize: 14,
+        lineHeight: 17,
+        color: '#000',
+        marginBottom: 8,
+    },
+    userInfoDoct: {
+        fontFamily: 'Poppins-Regular',
+        fontSize: 14,
+        lineHeight: 17,
+        color: '#7B7B7B',
+    },
+    investigationWrap: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 10,
+    },
+    investigationWrapIcon:{
+        width:20,
+        height:20,
+        resizeMode:'contain',
+    },
+    investigationWrapTitle: {
+        flex:1,
+        fontFamily: 'Poppins-Medium',
+        fontSize: 14,
+        lineHeight: 17,
+        color: '#000',
+        paddingLeft:7,
+    },
 
-  // Blue left icon box
-  leftBoxIcon: {
-    width: 40,
-    height: 40,
-    backgroundColor: "#E7F0FF",
-    borderRadius: 8,
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 10,
-  },
 
-  icon: {
-    width: 22,
-    height: 22,
-  },
 
-  title: {
-    fontSize: 14,
-    fontFamily: "Poppins-Medium",
-    color: "#000",
-  },
 
-  statusTag: {
-    backgroundColor: "rgba(255,150,0,0.18)",
-    paddingVertical: 5,
-    paddingHorizontal: 10,
-    borderRadius: 6,
-  },
 
-  statusText: {
-    color: "#CC7A00",
-    fontSize: 12,
-    fontFamily: "Poppins-Medium",
-  },
 
-  // SWIPE ACTIONS
-  leftAction: {
-    width: 70,
-    backgroundColor: "#0057FF",
-    justifyContent: "center",
-    alignItems: "center",
-    borderTopLeftRadius: 12,
-    borderBottomLeftRadius: 12,
-  },
-  rightAction: {
-    width: 70,
-    backgroundColor: "#00A651",
-    justifyContent: "center",
-    alignItems: "center",
-    borderTopRightRadius: 12,
-    borderBottomRightRadius: 12,
-  },
+
+
+
+
 });

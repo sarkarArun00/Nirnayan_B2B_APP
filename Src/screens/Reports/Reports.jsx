@@ -4,6 +4,8 @@ import { GlobalStyles } from "../../GlobalStyles";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { Picker } from "@react-native-picker/picker";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
+import ReportList from "./ReportList";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 export const statusColors = {
   "Registered": "#CC6812",
@@ -22,6 +24,7 @@ export default function Reports({ navigation }) {
   const [isEnabled, setIsEnabled] = useState(false);
   const [downloadModal, setDownloadModal] = useState(false);
   const [downloadShare, setDownloadShare] = useState(false);
+  const [investigationModal, setInvestigationModal] = useState(false);
   // Date Picker
   const [fromDate, setFromDate] = useState(null);
   const [toDate, setToDate] = useState(null);
@@ -79,7 +82,7 @@ export default function Reports({ navigation }) {
 
   const CardItem = ({ item }) => {
     return (
-      <TouchableOpacity style={styles.orderCard}>
+      <TouchableOpacity style={styles.orderCard} onPress={() => setInvestigationModal(true)}>
         {/* Header */}
         <View style={styles.headerRow}>
           <View style={styles.headerRowLeft}>
@@ -101,7 +104,7 @@ export default function Reports({ navigation }) {
               </View>
             )}
           </View>
-          <TouchableOpacity onPress={() => console.log("Options pressed")}>
+          <TouchableOpacity onPress={() => setInvestigationModal(true)}>
             <Ionicons name="ellipsis-vertical" size={18} color="#000" />
           </TouchableOpacity>
         </View>
@@ -145,232 +148,311 @@ export default function Reports({ navigation }) {
     );
   }
 
+  // Reports data for ReportList
+  const reportsData = [
+    {
+      id: 101,
+      title: "Suswastham 17.0 – Pre Operative Check Up Basic Package",
+      status: "Processing",
+      statusColor: statusColors["Processing"] || "#AC8B1F",
+    },
+    {
+      id: 102,
+      title: "Suswastham 17.0 – Pre Operative Check Up Basic Package",
+      status: "Registered",
+      statusColor: statusColors["Registered"] || "#CC6812",
+    },
+    {
+      id: 103,
+      title: "Suswastham 17.0 – Pre Operative Check Up Basic Package",
+      status: "In Transit",
+      statusColor: statusColors["In Transit"] || "#0045AC",
+    },
+  ];
+
+  const [selectedReportIds, setSelectedReportIds] = useState([]);
+
+  const handleToggleSelect = (id) => {
+    setSelectedReportIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    );
+  };
+
+  const handleSelectAll = () => {
+    if (selectedReportIds.length === reportsData.length) {
+      setSelectedReportIds([]);
+    } else {
+      setSelectedReportIds(reportsData.map((r) => r.id));
+    }
+  };
+
+  const handleShare = (itemOrIds) => {
+    console.log("Share called:", itemOrIds);
+    setDownloadShare(true);
+  };
+
+  const handleDownload = (itemOrIds) => {
+    console.log("Download called:", itemOrIds);
+    setDownloadModal(true);
+  };
+  // Reports data for ReportList
+
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#FFF" }}>
-      <ScrollView>
-        {/* Header BG */}
-        <ImageBackground
-          source={require("../../../assets/partnerbg.png")}
-          style={GlobalStyles.background}
-        >
-          <View style={GlobalStyles.flexdv}>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: "#FFF" }}>
+        <ScrollView>
+          {/* Header BG */}
+          <ImageBackground
+            source={require("../../../assets/partnerbg.png")}
+            style={GlobalStyles.background}
+          >
+            <View style={GlobalStyles.flexdv}>
 
-            <TouchableOpacity style={GlobalStyles.leftArrow} onPress={() => navigation.goBack()}>
-              <View style={GlobalStyles.arrowBox}>
-                <Image source={require("../../../assets/arrow1.png")} />
+              <TouchableOpacity style={GlobalStyles.leftArrow} onPress={() => navigation.goBack()}>
+                <View style={GlobalStyles.arrowBox}>
+                  <Image source={require("../../../assets/arrow1.png")} />
+                </View>
+                <Text style={GlobalStyles.titleText}>Report Download</Text>
+              </TouchableOpacity>
+
+              <View style={GlobalStyles.rightSection}>
+                <TouchableOpacity>
+                  <Image source={require("../../../assets/notification.png")} />
+                  <View style={GlobalStyles.notiDot} />
+                </TouchableOpacity>
+
+                <TouchableOpacity onPress={() => navigation.navigate("Profile")}>
+                  <Image source={require("../../../assets/menu-bar.png")} />
+                </TouchableOpacity>
               </View>
-              <Text style={GlobalStyles.titleText}>Report Download</Text>
+
+            </View>
+          </ImageBackground>
+
+          {/* Search */}
+          <View style={GlobalStyles.searchContainer}>
+            <View style={GlobalStyles.searchBox}>
+              <Ionicons name="search" size={20} color="#aaa" style={GlobalStyles.searchIcon} />
+              <TextInput
+                placeholder="Search"
+                placeholderTextColor="#999"
+                style={GlobalStyles.searchinput}
+              />
+            </View>
+
+            <TouchableOpacity style={GlobalStyles.filterButton} onPress={() => setFilterModal(true)}>
+              <Ionicons name="options-outline" size={24} color="#fff" />
             </TouchableOpacity>
+          </View>
 
-            <View style={GlobalStyles.rightSection}>
-              <TouchableOpacity>
-                <Image source={require("../../../assets/notification.png")} />
-                <View style={GlobalStyles.notiDot} />
-              </TouchableOpacity>
+          {/* List */}
+          <View style={{ paddingTop: 10, }}>
+            {data.map((item, index) => (
+              <CardItem key={index} item={item} />
+            ))}
+          </View>
 
-              <TouchableOpacity onPress={() => navigation.navigate("Profile")}>
-                <Image source={require("../../../assets/menu-bar.png")} />
-              </TouchableOpacity>
+          {/* Investigation Modal Start */}
+          <Modal
+            transparent
+            visible={investigationModal}
+            animationType="slide"
+            onRequestClose={() => setInvestigationModal(false)}
+          >
+            <View style={GlobalStyles.modalOverlay}>
+              <View style={GlobalStyles.modalContainer}>
+                <TouchableOpacity
+                  style={GlobalStyles.modalClose}
+                  onPress={() => setInvestigationModal(false)}>
+                  <Text style={GlobalStyles.closeIcon}>✕</Text>
+                </TouchableOpacity>
+                <ReportList
+                  data={reportsData}
+                  selectedIds={selectedReportIds}
+                  onToggleSelect={handleToggleSelect}
+                  onSelectAll={handleSelectAll}
+                  onShare={handleShare}
+                  onDownload={handleDownload}
+                />
+              </View>
             </View>
 
-          </View>
-        </ImageBackground>
-
-        {/* Search */}
-        <View style={GlobalStyles.searchContainer}>
-          <View style={GlobalStyles.searchBox}>
-            <Ionicons name="search" size={20} color="#aaa" style={GlobalStyles.searchIcon} />
-            <TextInput
-              placeholder="Search"
-              placeholderTextColor="#999"
-              style={GlobalStyles.searchinput}
+            {/* DATE PICKER */}
+            <DateTimePickerModal
+              isVisible={isPickerVisible}
+              mode="date"
+              onConfirm={handleDateConfirm}
+              onCancel={hidePicker}
             />
-          </View>
 
-          <TouchableOpacity style={GlobalStyles.filterButton} onPress={() => setFilterModal(true)}>
-            <Ionicons name="options-outline" size={24} color="#fff" />
-          </TouchableOpacity>
-        </View>
+          </Modal>
 
-        {/* List */}
-        <View style={{ paddingTop: 10, }}>
-          {data.map((item, index) => (
-            <CardItem key={index} item={item} />
-          ))}
-        </View>
-
-
-        {/*  */}
-        
-        {/*  */}
-
-
-
-        {/* Filter Modal Start */}
-        <Modal
-          transparent
-          visible={filterModal}
-          animationType="slide"
-          onRequestClose={() => setFilterModal(false)}
-        >
-          <View style={GlobalStyles.modalOverlay}>
-            <View style={GlobalStyles.modalContainer}>
-              <TouchableOpacity
-                style={GlobalStyles.modalClose}
-                onPress={() => setFilterModal(false)}
-              >
-                <Text style={GlobalStyles.closeIcon}>✕</Text>
-              </TouchableOpacity>
-              <Text style={GlobalStyles.mdlTitle}>Filter</Text>
-              <Text style={GlobalStyles.mdlSubTitle}>Create your customized data</Text>
-              <ScrollView showsVerticalScrollIndicator={false}>
-                <View style={GlobalStyles.inpBox}>
-                  <Text style={GlobalStyles.label}>From Date<Text style={GlobalStyles.regText}>*</Text></Text>
-                  <TouchableOpacity
-                    style={GlobalStyles.inputv2}
-                    onPress={() => showDatePicker("from")}
-                  >
-                    <Image source={require("../../../assets/mdl-calender.png")} style={GlobalStyles.calenderIcon} />
-                    <Text style={GlobalStyles.PlaceholderDateText}>{formatDate(fromDate)}</Text>
-                  </TouchableOpacity>
-                </View>
-
-                <View style={GlobalStyles.inpBox}>
-                  <Text style={GlobalStyles.label}>To Date<Text style={GlobalStyles.regText}>*</Text></Text>
-                  <TouchableOpacity
-                    style={GlobalStyles.inputv2}
-                    onPress={() => showDatePicker("to")}
-                  >
-                    <Image source={require("../../../assets/mdl-calender.png")} style={GlobalStyles.calenderIcon} />
-                    <Text style={GlobalStyles.PlaceholderDateText}>{formatDate(toDate)}</Text>
-                  </TouchableOpacity>
-                </View>
-
-                <View style={GlobalStyles.inpBox}>
-                  <Text style={GlobalStyles.label}>Report Status</Text>
-                  <View style={GlobalStyles.pickerInput}>
-                    <Picker
-                      selectedValue={status}
-                      onValueChange={(value) => setStatus(value)}
-                      dropdownIconColor="#C2C2C2"
-                      style={{ color: status ? "#C2C2C2" : "#C2C2C2" }}
+          {/* Filter Modal Start */}
+          <Modal
+            transparent
+            visible={filterModal}
+            animationType="slide"
+            onRequestClose={() => setFilterModal(false)}
+          >
+            <View style={GlobalStyles.modalOverlay}>
+              <View style={GlobalStyles.modalContainer}>
+                <TouchableOpacity
+                  style={GlobalStyles.modalClose}
+                  onPress={() => setFilterModal(false)}
+                >
+                  <Text style={GlobalStyles.closeIcon}>✕</Text>
+                </TouchableOpacity>
+                <Text style={GlobalStyles.mdlTitle}>Filter</Text>
+                <Text style={GlobalStyles.mdlSubTitle}>Create your customized data</Text>
+                <ScrollView showsVerticalScrollIndicator={false}>
+                  <View style={GlobalStyles.inpBox}>
+                    <Text style={GlobalStyles.label}>From Date<Text style={GlobalStyles.regText}>*</Text></Text>
+                    <TouchableOpacity
+                      style={GlobalStyles.inputv2}
+                      onPress={() => showDatePicker("from")}
                     >
-                      <Picker.Item label="Status" value="" color="#C2C2C2" />
-                      <Picker.Item label="Active" value="active" />
-                      <Picker.Item label="Inactive" value="inactive" />
-                    </Picker>
+                      <Image source={require("../../../assets/mdl-calender.png")} style={GlobalStyles.calenderIcon} />
+                      <Text style={GlobalStyles.PlaceholderDateText}>{formatDate(fromDate)}</Text>
+                    </TouchableOpacity>
                   </View>
-                </View>
 
-                <View style={GlobalStyles.inpBox}>
-                  <Text style={GlobalStyles.label}>Test Department<Text Style={GlobalStyles.regText}>*</Text></Text>
-                  <TextInput
-                    style={GlobalStyles.input}
-                    placeholder="Search.."
-                    placeholderTextColor="#C2C2C2"
-                  />
-                </View>
-
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, }}>
-                  <Text style={GlobalStyles.switchLabel}>Urgent Samples</Text>
-                  <Switch
-                    trackColor={{ false: "#D0D0D0", true: "#00A651" }}
-                    thumbColor={isEnabled ? "#fff" : "#fff"}
-                    ios_backgroundColor="#D0D0D0"
-                    onValueChange={() => setIsEnabled(!isEnabled)}
-                    value={isEnabled}
-                  />
-                </View>
-
-                <TouchableOpacity style={GlobalStyles.applyBtnFullWidth}>
-                  <Text style={GlobalStyles.applyBtnTextNew}>Apply</Text>
-                </TouchableOpacity>
-
-              </ScrollView>
-            </View>
-          </View>
-
-          {/* DATE PICKER */}
-          <DateTimePickerModal
-            isVisible={isPickerVisible}
-            mode="date"
-            onConfirm={handleDateConfirm}
-            onCancel={hidePicker}
-          />
-
-        </Modal>
-
-        {/* Download Modal */}
-        <Modal
-          transparent
-          visible={downloadModal}
-          animationType="slide"
-          onRequestClose={() => setDownloadModal(false)}
-        >
-          <View style={GlobalStyles.modalOverlay}>
-            <View style={GlobalStyles.modalContainer}>
-              <TouchableOpacity
-                style={GlobalStyles.modalClose}
-                onPress={() => setDownloadModal(false)}
-              >
-                <Text style={GlobalStyles.closeIcon}>✕</Text>
-              </TouchableOpacity>
-              <Text style={[GlobalStyles.mdlTitle2, { textAlign: 'center', }]}>Choose Download Option</Text>
-              <View style={styles.downloadMdlRow}>
-                <TouchableOpacity style={styles.downloadRowBtn}>
-                  <View style={styles.downloadRowIconBox}>
-                    <Image source={require('../../../assets/letterhead1.png')} style={styles.downloadRowIcon} />
+                  <View style={GlobalStyles.inpBox}>
+                    <Text style={GlobalStyles.label}>To Date<Text style={GlobalStyles.regText}>*</Text></Text>
+                    <TouchableOpacity
+                      style={GlobalStyles.inputv2}
+                      onPress={() => showDatePicker("to")}
+                    >
+                      <Image source={require("../../../assets/mdl-calender.png")} style={GlobalStyles.calenderIcon} />
+                      <Text style={GlobalStyles.PlaceholderDateText}>{formatDate(toDate)}</Text>
+                    </TouchableOpacity>
                   </View>
-                  <Text style={styles.downloadLabel}>With Letterhead</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={[styles.downloadRowBtn, { backgroundColor: 'rgba(167,167,167,0.15)', }]}>
-                  <View style={[styles.downloadRowIconBox, { backgroundColor: '#fff', }]}>
-                    <Image source={require('../../../assets/letterhead2.png')} style={styles.downloadRowIcon} />
+
+                  <View style={GlobalStyles.inpBox}>
+                    <Text style={GlobalStyles.label}>Report Status</Text>
+                    <View style={GlobalStyles.pickerInput}>
+                      <Picker
+                        selectedValue={status}
+                        onValueChange={(value) => setStatus(value)}
+                        dropdownIconColor="#C2C2C2"
+                        style={{ color: status ? "#C2C2C2" : "#C2C2C2" }}
+                      >
+                        <Picker.Item label="Status" value="" color="#C2C2C2" />
+                        <Picker.Item label="Active" value="active" />
+                        <Picker.Item label="Inactive" value="inactive" />
+                      </Picker>
+                    </View>
                   </View>
-                  <Text style={styles.downloadLabel}>Without Letterhead</Text>
-                </TouchableOpacity>
+
+                  <View style={GlobalStyles.inpBox}>
+                    <Text style={GlobalStyles.label}>Test Department<Text Style={GlobalStyles.regText}>*</Text></Text>
+                    <TextInput
+                      style={GlobalStyles.input}
+                      placeholder="Search.."
+                      placeholderTextColor="#C2C2C2"
+                    />
+                  </View>
+
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, }}>
+                    <Text style={GlobalStyles.switchLabel}>Urgent Samples</Text>
+                    <Switch
+                      trackColor={{ false: "#D0D0D0", true: "#00A651" }}
+                      thumbColor={isEnabled ? "#fff" : "#fff"}
+                      ios_backgroundColor="#D0D0D0"
+                      onValueChange={() => setIsEnabled(!isEnabled)}
+                      value={isEnabled}
+                    />
+                  </View>
+
+                  <TouchableOpacity style={GlobalStyles.applyBtnFullWidth}>
+                    <Text style={GlobalStyles.applyBtnTextNew}>Apply</Text>
+                  </TouchableOpacity>
+
+                </ScrollView>
               </View>
             </View>
-          </View>
-        </Modal>
 
-        {/* Share Modal */}
-        <Modal
-          transparent
-          visible={downloadShare}
-          animationType="slide"
-          onRequestClose={() => setDownloadShare(false)}
-        >
-          <View style={GlobalStyles.modalOverlay}>
-            <View style={GlobalStyles.modalContainer}>
-              <TouchableOpacity
-                style={GlobalStyles.modalClose}
-                onPress={() => setDownloadShare(false)}
-              >
-                <Text style={GlobalStyles.closeIcon}>✕</Text>
-              </TouchableOpacity>
-              <Text style={[GlobalStyles.mdlTitle2, { textAlign: 'center', }]}>Choose Download & Share Option</Text>
-              <View style={styles.downloadMdlRow}>
-                <TouchableOpacity style={styles.downloadRowBtn}>
-                  <View style={styles.downloadRowIconBox}>
-                    <Image source={require('../../../assets/letterhead1.png')} style={styles.downloadRowIcon} />
-                  </View>
-                  <Text style={styles.downloadLabel}>With Letterhead</Text>
+            {/* DATE PICKER */}
+            <DateTimePickerModal
+              isVisible={isPickerVisible}
+              mode="date"
+              onConfirm={handleDateConfirm}
+              onCancel={hidePicker}
+            />
+
+          </Modal>
+
+          {/* Download Modal */}
+          <Modal
+            transparent
+            visible={downloadModal}
+            animationType="slide"
+            onRequestClose={() => setDownloadModal(false)}
+          >
+            <View style={GlobalStyles.modalOverlay}>
+              <View style={GlobalStyles.modalContainer}>
+                <TouchableOpacity
+                  style={GlobalStyles.modalClose}
+                  onPress={() => setDownloadModal(false)}
+                >
+                  <Text style={GlobalStyles.closeIcon}>✕</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={[styles.downloadRowBtn, { backgroundColor: 'rgba(167,167,167,0.15)', }]}>
-                  <View style={[styles.downloadRowIconBox, { backgroundColor: '#fff', }]}>
-                    <Image source={require('../../../assets/letterhead2.png')} style={styles.downloadRowIcon} />
-                  </View>
-                  <Text style={styles.downloadLabel}>Without Letterhead</Text>
-                </TouchableOpacity>
+                <Text style={[GlobalStyles.mdlTitle2, { textAlign: 'center', }]}>Choose Download Option</Text>
+                <View style={styles.downloadMdlRow}>
+                  <TouchableOpacity style={styles.downloadRowBtn}>
+                    <View style={styles.downloadRowIconBox}>
+                      <Image source={require('../../../assets/letterhead1.png')} style={styles.downloadRowIcon} />
+                    </View>
+                    <Text style={styles.downloadLabel}>With Letterhead</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={[styles.downloadRowBtn, { backgroundColor: 'rgba(167,167,167,0.15)', }]}>
+                    <View style={[styles.downloadRowIconBox, { backgroundColor: '#fff', }]}>
+                      <Image source={require('../../../assets/letterhead2.png')} style={styles.downloadRowIcon} />
+                    </View>
+                    <Text style={styles.downloadLabel}>Without Letterhead</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
             </View>
-          </View>
-        </Modal>
+          </Modal>
 
+          {/* Share Modal */}
+          <Modal
+            transparent
+            visible={downloadShare}
+            animationType="slide"
+            onRequestClose={() => setDownloadShare(false)}
+          >
+            <View style={GlobalStyles.modalOverlay}>
+              <View style={GlobalStyles.modalContainer}>
+                <TouchableOpacity
+                  style={GlobalStyles.modalClose}
+                  onPress={() => setDownloadShare(false)}
+                >
+                  <Text style={GlobalStyles.closeIcon}>✕</Text>
+                </TouchableOpacity>
+                <Text style={[GlobalStyles.mdlTitle2, { textAlign: 'center', }]}>Choose Download & Share Option</Text>
+                <View style={styles.downloadMdlRow}>
+                  <TouchableOpacity style={styles.downloadRowBtn}>
+                    <View style={styles.downloadRowIconBox}>
+                      <Image source={require('../../../assets/letterhead1.png')} style={styles.downloadRowIcon} />
+                    </View>
+                    <Text style={styles.downloadLabel}>With Letterhead</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={[styles.downloadRowBtn, { backgroundColor: 'rgba(167,167,167,0.15)', }]}>
+                    <View style={[styles.downloadRowIconBox, { backgroundColor: '#fff', }]}>
+                      <Image source={require('../../../assets/letterhead2.png')} style={styles.downloadRowIcon} />
+                    </View>
+                    <Text style={styles.downloadLabel}>Without Letterhead</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+          </Modal>
 
-      </ScrollView>
-    </SafeAreaView>
+        </ScrollView>
+      </SafeAreaView>
+
+    </GestureHandlerRootView>
   );
 }
 
