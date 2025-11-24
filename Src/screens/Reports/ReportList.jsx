@@ -19,7 +19,6 @@ const ReportList = ({
             activeOpacity={0.8}
         >
             <Ionicons name="share-social-outline" size={22} color="#fff" />
-            <Text style={styles.actionText}>Share</Text>
         </TouchableOpacity>
     );
 
@@ -30,7 +29,6 @@ const ReportList = ({
             activeOpacity={0.8}
         >
             <Ionicons name="download-outline" size={22} color="#fff" />
-            <Text style={styles.actionText}>Download</Text>
         </TouchableOpacity>
     );
 
@@ -45,11 +43,11 @@ const ReportList = ({
             >
                 <TouchableOpacity
                     activeOpacity={0.85}
-                    style={[styles.card, isSelected && styles.cardSelected]}
+                    style={[styles.cardBox, isSelected && styles.cardBoxSelected]}
                     onPress={() => onToggleSelect(item.id)}
                 >
                     <View style={styles.cardLeft}>
-                        <View style={styles.titleWrap}>
+                        <View style={{ flex: 1, }}>
                             <Text numberOfLines={2} style={styles.title}>
                                 {item.title}
                             </Text>
@@ -74,7 +72,7 @@ const ReportList = ({
     };
 
     return (
-        <View>
+        <View style={{ position: 'relative', }}>
             <View style={styles.userInfo}>
                 <View style={styles.userInfoLeft}>
                     <Text style={styles.userInfoName}>Arun Sarkar</Text>
@@ -103,8 +101,8 @@ const ReportList = ({
                 <TouchableOpacity onPress={onSelectAll} style={styles.selectAllBtn}>
                     <Ionicons
                         name={selectedIds.length === data.length && data.length > 0 ? "checkbox" : "square-outline"}
-                        size={22}
-                        color="#00A651"
+                        size={20}
+                        color="#4D4D4D"
                     />
                     <Text style={styles.selectAllText}> Select All</Text>
                 </TouchableOpacity>
@@ -114,19 +112,21 @@ const ReportList = ({
                 <View style={styles.bottomBar}>
                     <Text style={styles.bottomText}>{selectedIds.length} items selected</Text>
 
-                    <TouchableOpacity
-                        style={styles.bottomIconBtn}
-                        onPress={() => onDownload(selectedIds)}
-                    >
-                        <Ionicons name="download-outline" size={20} color="#fff" />
-                    </TouchableOpacity>
+                    <View style={styles.DownloadOpt}>
+                        <TouchableOpacity
+                            style={styles.bottomIconBtn}
+                            onPress={() => onDownload(selectedIds)}
+                        >
+                            <Ionicons name="download-outline" size={20} color="#fff" />
+                        </TouchableOpacity>
 
-                    <TouchableOpacity
-                        style={styles.bottomIconBtn}
-                        onPress={() => onShare(selectedIds)}
-                    >
-                        <Ionicons name="share-social-outline" size={20} color="#fff" />
-                    </TouchableOpacity>
+                        <TouchableOpacity
+                            style={styles.bottomIconBtn}
+                            onPress={() => onShare(selectedIds)}
+                        >
+                            <Ionicons name="share-social-outline" size={20} color="#fff" />
+                        </TouchableOpacity>
+                    </View>
                 </View>
             )}
         </View>
@@ -162,27 +162,117 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginBottom: 10,
     },
-    investigationWrapIcon:{
-        width:20,
-        height:20,
-        resizeMode:'contain',
+    investigationWrapIcon: {
+        width: 20,
+        height: 20,
+        resizeMode: 'contain',
     },
     investigationWrapTitle: {
-        flex:1,
+        flex: 1,
         fontFamily: 'Poppins-Medium',
         fontSize: 14,
         lineHeight: 17,
         color: '#000',
-        paddingLeft:7,
+        paddingLeft: 7,
+    },
+    cardBox: {
+        borderWidth: 1,
+        borderColor: '#D4D4D4',
+        borderRadius: 7,
+        padding: 10,
+        marginBottom: 7,
+    },
+    cardBoxSelected: {
+        borderColor: '#00A651',
+        backgroundColor: 'rgba(0,166,53,0.15)',
+    },
+    cardLeft: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    title: {
+        flex: 1,
+        paddingRight: 8,
+        fontFamily: 'Poppins-Regular',
+        fontSize: 13,
+        lineHeight: 17,
+        color: '#000',
+    },
+    statusPill: {
+        paddingVertical: 4,
+        paddingHorizontal: 6,
+        borderRadius: 5,
+    },
+    statusText: {
+        fontFamily: 'Poppins-Medium',
+        fontSize: 13,
+        lineHeight: 16,
+        color: '#000',
+    },
+    cardRight: {
+        display: 'none',
+    },
+    selectAllBtn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingTop: 10,
+    },
+    selectAllText: {
+        fontFamily: 'Poppins-Regular',
+        fontSize: 13,
+        lineHeight: 16,
+        color: '#000',
+    },
+    bottomBar: {
+        // position: "absolute",
+        // bottom: 0,
+        alignSelf: "center",
+        flexDirection: "row",
+        alignItems: "center",
+        backgroundColor: "#2B724E",
+        borderRadius: 50,
+        paddingVertical: 12,
+        paddingHorizontal: 8,
+        paddingLeft: 24,
+        width: "75%",
+        justifyContent: "space-between",
+        marginTop: 20,
+    },
+    bottomText: {
+        fontFamily: 'Poppins-Medium',
+        fontSize: 14,
+        lineHeight: 17,
+        color: '#fff',
+    },
+    DownloadOpt: {
+        flexDirection: 'row',
+        gap: 7,
+    },
+    bottomIconBtn: {
+        width: 40,
+        height: 40,
+        backgroundColor: '#00A651',
+        borderRadius: 20,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
 
 
 
 
 
-
-
-
+leftAction: {
+        backgroundColor: '#4CAF50', // Green
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: 100, // <--- CRITICAL: Defines how far the item can be swiped
+    },
+    rightAction: {
+        backgroundColor: '#2196F3', // Blue
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: 120, // <--- CRITICAL: Defines how far the item can be swiped
+    },
 
 
 });
