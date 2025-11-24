@@ -259,32 +259,25 @@ export default function Reports({ navigation }) {
             animationType="slide"
             onRequestClose={() => setInvestigationModal(false)}
           >
-            <View style={GlobalStyles.modalOverlay}>
-              <View style={GlobalStyles.modalContainer}>
-                <TouchableOpacity
-                  style={GlobalStyles.modalClose}
-                  onPress={() => setInvestigationModal(false)}>
-                  <Text style={GlobalStyles.closeIcon}>✕</Text>
-                </TouchableOpacity>
-                <ReportList
-                  data={reportsData}
-                  selectedIds={selectedReportIds}
-                  onToggleSelect={handleToggleSelect}
-                  onSelectAll={handleSelectAll}
-                  onShare={handleShare}
-                  onDownload={handleDownload}
-                />
+            <GestureHandlerRootView style={{ flex: 1 }}>
+              <View style={GlobalStyles.modalOverlay}>
+                <View style={GlobalStyles.modalContainer}>
+                  <TouchableOpacity
+                    style={GlobalStyles.modalClose}
+                    onPress={() => setInvestigationModal(false)}>
+                    <Text style={GlobalStyles.closeIcon}>✕</Text>
+                  </TouchableOpacity>
+                  <ReportList
+                    data={reportsData}
+                    selectedIds={selectedReportIds}
+                    onToggleSelect={handleToggleSelect}
+                    onSelectAll={handleSelectAll}
+                    onShare={handleShare}
+                    onDownload={handleDownload}
+                  />
+                </View>
               </View>
-            </View>
-
-            {/* DATE PICKER */}
-            <DateTimePickerModal
-              isVisible={isPickerVisible}
-              mode="date"
-              onConfirm={handleDateConfirm}
-              onCancel={hidePicker}
-            />
-
+            </GestureHandlerRootView>
           </Modal>
 
           {/* Filter Modal Start */}
