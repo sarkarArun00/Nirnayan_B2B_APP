@@ -273,6 +273,7 @@ leftAction: {
         alignItems: 'center',
         width: 120, // <--- CRITICAL: Defines how far the item can be swiped
     },
+  
 
 
 });
