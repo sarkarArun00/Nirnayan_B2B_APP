@@ -303,7 +303,8 @@ const ReportList = ({
             onPress={() => onShare(item)}
             activeOpacity={0.8}
         >
-            <Ionicons name="share-social-outline" size={22} color="#fff" />
+            <Image source={require('../../../assets/share.png')} style={{width:20, height:20, resizeMode:'contain', tintColor:'#fff' }} />
+            {/* <Ionicons name="share-social-outline" size={22} color="#fff" /> */}
         </TouchableOpacity>
     );
 
@@ -313,7 +314,7 @@ const ReportList = ({
             onPress={() => onDownload(item)}
             activeOpacity={0.8}
         >
-            <Ionicons name="download-outline" size={22} color="#fff" />
+            <Image source={require('../../../assets/download.png')} style={{width:20, height:20, resizeMode:'contain', tintColor:'#fff' }} />
         </TouchableOpacity>
     );
 
