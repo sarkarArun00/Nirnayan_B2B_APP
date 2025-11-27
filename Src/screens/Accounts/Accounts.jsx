@@ -20,10 +20,11 @@ function Accounts({ navigation }) {
     <SafeAreaView style={{ flex: 1, backgroundColor: "#FFF" }}>
       <ScrollView>
         {/* Header BG */}
-        <ImageBackground
-          source={require("../../../assets/partnerbg.png")}
-          style={GlobalStyles.background}
-        >
+        <LinearGradient
+          colors={["#d0eede", "#ffffff"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 0, y: 1 }}
+          style={GlobalStyles.background}>
           <View style={GlobalStyles.flexdv}>
 
             <TouchableOpacity style={GlobalStyles.leftArrow} onPress={() => navigation.goBack()}>
@@ -45,7 +46,7 @@ function Accounts({ navigation }) {
             </View>
 
           </View>
-        </ImageBackground>
+        </LinearGradient>
 
         {/* Search */}
         <View style={GlobalStyles.searchContainer}>
@@ -187,7 +188,7 @@ function Accounts({ navigation }) {
                   style={styles.quickActionIcon}
                 />
               </View>
-              <Text style={styles.quickActionLabel}>Settlement</Text>
+              <Text style={styles.quickActionLabel}>View Ledger</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -253,7 +254,92 @@ function Accounts({ navigation }) {
 
 
         {activeTab === "partner" && (
-          <Text>Partner details will appear here...</Text>
+          <View style={styles.partDtMain}>
+            <TouchableOpacity style={styles.partDtCard}>
+              {/* TOP ROW */}
+              <View style={styles.partDtTop}>
+                <View style={styles.partDtTopLeft}>
+                  <View style={styles.partDtTopIcon}>
+                    <Image source={require('../../../assets/user2.png')} style={styles.partDtTopImg} />
+                  </View>
+                  <Text style={styles.partDtTopTitle}>City Hospital Network</Text>
+                </View>
+                <View style={styles.partDtTopRight}>
+                  <Ionicons name="arrow-forward" size={18} color="#000" />
+                </View>
+              </View>
+
+              {/* STATS ROW */}
+              <View style={styles.partDtStatRow}>
+                {/* Patients */}
+                <View style={styles.partDtStatBox}>
+                  <Text style={styles.partDtStatLabel}>Patients</Text>
+                  <View style={styles.partDtStatValueRow}>
+                    <Text style={styles.partDtStatValue}>64</Text>
+                    <View style={styles.partDtTrendBox}>
+                      <Ionicons name="trending-up" size={15} color="#00A651" />
+                      <Text style={styles.partDtTrendText}>8.2%</Text>
+                    </View>
+                  </View>
+                </View>
+                {/* Amount */}
+                <View style={styles.partDtStatBox}>
+                  <Text style={styles.partDtStatLabel}>Amount</Text>
+                  <View style={styles.partDtStatValueRow}>
+                    <Text style={styles.partDtStatValue}>64</Text>
+                    <View style={styles.partDtTrendBox}>
+                      <Ionicons name="trending-up" size={15} color="#00A651" />
+                      <Text style={styles.partDtTrendText}>8.2%</Text>
+                    </View>
+                  </View>
+                </View>
+                {/* Net Profit */}
+                <View style={styles.partDtStatBox}>
+                  <Text style={styles.partDtStatLabel}>Net Profit</Text>
+                  <View style={styles.partDtStatValueRow}>
+                    <Text style={styles.partDtStatValue}>64</Text>
+                    <View style={styles.partDtTrendBox}>
+                      <Ionicons name="trending-up" size={15} color="#00A651" />
+                      <Text style={styles.partDtTrendText}>8.2%</Text>
+                    </View>
+                  </View>
+                </View>
+              </View>
+
+              {/* GRADIENT BOX */}
+              <LinearGradient
+                colors={['#DBFBF4', '#FBFAE0']}
+                start={{ x: 1, y: 0 }}
+                end={{ x: 0, y: 0 }}
+                style={styles.partDtGradientBox}
+              >
+                <Text style={styles.partDtGradientTitle}>Payable</Text>
+
+                <View style={styles.partDtGradientRow}>
+                  <Text style={styles.partDtGradientAmount}>₹27,500</Text>
+                  <LinearGradient
+                    colors={['#97CAB766', '#87BAA7', '#97CAB766']}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 0, y: 1 }}
+                    style={{ width: 1, height: 19, }} />
+                  <Text style={styles.partDtGradientCredit}>Credit</Text>
+                </View>
+              </LinearGradient>
+
+              {/* FOOTER BUTTON ROW */}
+              <View style={styles.partDtFooter}>
+                <TouchableOpacity style={[GlobalStyles.applyBtnFullWidth, { flex: 1, marginTop: 0, }]} onPress={() => navigation.navigate('BusinessOverview')} >
+                  <Text style={GlobalStyles.applyBtnTextNew}>Receive Amount</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity style={styles.partDtFooterIconBtn}>
+                  <Image source={require('../../../assets/ledger.png')} style={styles.partDtFooterIcon} />
+                </TouchableOpacity>
+              </View>
+            </TouchableOpacity>
+
+
+          </View>
         )}
 
         {/* Recived Amount Modal Start */}
@@ -317,7 +403,7 @@ function Accounts({ navigation }) {
                   <Text style={[styles.priceRowValue, styles.priceRowValueDue]}>425.00</Text>
                 </View>
 
-                <TouchableOpacity style={GlobalStyles.applyBtnFullWidth}>
+                <TouchableOpacity style={GlobalStyles.applyBtnFullWidth} onPress={() => navigation.navigate('PatientRecive')}>
                   <Text style={GlobalStyles.applyBtnTextNew}>Receive Amount</Text>
                 </TouchableOpacity>
               </View>
@@ -337,6 +423,7 @@ function Accounts({ navigation }) {
 export default Accounts
 
 const styles = StyleSheet.create({
+
   // Business Top Card
   busiRevCardMain: {
     flexDirection: 'row',
@@ -667,6 +754,165 @@ const styles = StyleSheet.create({
   statusTextDue: {
     color: '#F25C5C',
   },
+
+  // Partner Details Tab Start
+  partDtMain: {
+    backgroundColor: '#fff',
+    borderRadius: 15,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 15,
+    shadowOffset: { width: 0, height: 5 },
+    elevation: 3,
+    marginHorizontal: 16,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: '#f2f2f2',
+    marginBottom: 20,
+  },
+  partDtCard: {
+    marginBottom: 15,
+  },
+  partDtTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 14,
+  },
+  partDtTopLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  partDtTopIcon: {
+    width: 34,
+    height: 34,
+    backgroundColor: '#E8FFF8',
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  partDtTopImg: {
+    width: 20,
+    height: 20,
+    resizeMode: 'contain',
+  },
+  partDtTopTitle: {
+    fontFamily: 'Poppins-SemiBold',
+    fontSize: 13,
+    lineHeight: 16,
+    color: '#000',
+    paddingLeft: 8,
+    paddingRight: 10,
+    flexShrink: 1,
+  },
+  partDtTopRight: {
+    width: 25,
+    height: 25,
+    borderWidth: 1,
+    borderColor: '#000000',
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  partDtStatRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 6,
+  },
+  partDtStatBox: {
+    width: '32%',
+    borderWidth: 1,
+    borderColor: '#F0F0F0',
+    borderRadius: 7,
+    paddingVertical: 15,
+    paddingHorizontal: 6,
+  },
+  partDtStatLabel: {
+    fontFamily: 'Poppins-Medium',
+    fontSize: 11,
+    lineHeight: 14,
+    color: '#585858',
+    marginBottom: 6,
+  },
+  partDtStatValueRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+  },
+  partDtStatValue: {
+    fontFamily: 'Poppins-SemiBold',
+    fontSize: 12,
+    lineHeight: 15,
+    color: '#000',
+  },
+  partDtTrendBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  partDtTrendText: {
+    fontFamily: 'Poppins-Medium',
+    fontSize: 12,
+    lineHeight: 15,
+    color: '#4EBA2C',
+  },
+  partDtGradientBox: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#FBFAE0',
+    borderRadius: 7,
+    marginBottom: 7,
+    padding: 10,
+  },
+  partDtGradientRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 7,
+  },
+  partDtGradientTitle: {
+    fontFamily: 'Poppins-Medium',
+    fontSize: 12,
+    lineHeight: 15,
+    color: '#191919',
+  },
+  partDtGradientAmount: {
+    fontFamily: 'Poppins-Medium',
+    fontSize: 12,
+    lineHeight: 15,
+    color: '#191919',
+  },
+  partDtGradientCredit: {
+    fontFamily: 'Poppins-Medium',
+    fontSize: 12,
+    lineHeight: 15,
+    color: '#00A635',
+    backgroundColor: 'rgba(0,166,83,0.15)',
+    borderRadius: 20,
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+  },
+  partDtFooter: {
+    flexDirection: 'row',
+    gap: 6,
+  },
+  partDtFooterIconBtn: {
+    width: 44,
+    height: 48,
+    borderWidth: 1,
+    borderColor: '#00A651',
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  partDtFooterIcon: {
+    width: 25,
+    height: 25,
+    resizeMode: 'contain',
+  },
+  // Partner Details Tab End
+
   // Tab End
 
   // Modal Css Start
