@@ -11,6 +11,7 @@ function PartnerReceipts({ navigation }) {
     const [toDate, setToDate] = useState(null);
     const [isDatePickerVisible, setDatePickerVisible] = useState(false);
     const [activeField, setActiveField] = useState(null);
+    const [openTransBox, setOpenTransBox] = useState(false);
 
     const openDatePicker = (field) => {
         setActiveField(field);
@@ -79,24 +80,43 @@ function PartnerReceipts({ navigation }) {
                     </TouchableOpacity>
                 </View>
 
+                <View style={styles.OpenRow}>
+                    <View style={styles.openCard}>
+                        <Text style={styles.openAmount}>₹ 1,520.00</Text>
+                        <Text style={styles.cardTitle}>Opening Balance</Text>
+                        <Text style={styles.cardDate}>as of 22 Nov 2025</Text>
+                    </View>
+                    <View style={styles.openCard}>
+                        <Text style={styles.closeAmount}>₹ 2,520.00</Text>
+                        <Text style={styles.cardTitle}>Closing Balance</Text>
+                        <Text style={styles.cardDate}>as of 22 Nov 2025</Text>
+                    </View>
+                </View>
 
+                <View style={styles.BillRowMain}>
+                    <TouchableOpacity style={styles.BillRow} onPress={() => setOpenTransBox(!openTransBox)}>
+                        <View style={styles.iconCircleGreen}>
+                            <Image source={require('../../../assets/arrow-bottom.png')} style={styles.iconCircle} />
+                        </View>
 
+                        <View style={styles.infoBox}>
+                            <Text style={styles.title}>SE/CL/250117/0007</Text>
+                            <Text style={styles.sub}>Payment By Cheque</Text>
+                            {openTransBox && (
+                                <View style={styles.apperbox}>
+                                    <Text style={styles.sub}>Bank Name: ICICI Bank</Text>
+                                    <Text style={styles.sub}>Cheque No: 2334 8900 780</Text>
+                                    <Text style={styles.sub}>Cheque Date: 14th Nov 2025</Text>
+                                </View>
+                            )}
+                        </View>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+                        <View style={styles.rightBox}>
+                            <Text style={styles.amount}>₹ 120,00 Cr.</Text>
+                            <Text style={styles.date}>Oct 15. 2021</Text>
+                        </View>
+                    </TouchableOpacity>
+                </View>
 
                 {/* Filter Modal */}
                 <Modal
@@ -189,7 +209,114 @@ function PartnerReceipts({ navigation }) {
 export default PartnerReceipts
 
 const styles = StyleSheet.create({
-    
+
+    // Open And Close Balance Section Start
+    OpenRow: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        paddingHorizontal: 16,
+        marginTop: 15,
+    },
+    openCard: {
+        width: "48%",
+        backgroundColor: "#fff",
+        padding: 15,
+        borderRadius: 12,
+        shadowColor: "#000",
+        shadowOpacity: 0.1,
+        shadowRadius: 6,
+        shadowOffset: { width: 0, height: 3 },
+        elevation: 4,
+    },
+    openAmount: {
+        fontFamily: 'Poppins-Medium',
+        fontSize: 20,
+        lineHeight: 23,
+        color: "#727272",
+        marginBottom: 8,
+    },
+    closeAmount: {
+        fontFamily: 'Poppins-Medium',
+        fontSize: 20,
+        lineHeight: 23,
+        color: "#00A635",
+        marginBottom: 8,
+    },
+    cardTitle: {
+        fontFamily: 'Poppins-Medium',
+        fontSize: 12,
+        lineHeight: 17,
+        color: "rgba(21,28,42,0.87)",
+        marginBottom: 2,
+    },
+    cardDate: {
+        fontFamily: 'Poppins-Medium',
+        fontSize: 11,
+        lineHeight: 14,
+        color: "#7988A3",
+    },
+    // Open And Close Balance Section End
+    BillRowMain: {
+        paddingHorizontal: 16,
+        paddingTop: 15,
+    },
+    BillRow: {
+        flexDirection: 'row',
+        // alignItems: 'center',
+        marginBottom: 24,
+    },
+    iconCircleRed: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        backgroundColor: 'rgba(232,42,110,0.15)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    iconCircleGreen: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        backgroundColor: 'rgba(67,160,72,0.15)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    iconCircle: {
+        width: 15,
+        height: 15,
+        resizeMode: 'contain',
+    },
+    infoBox: {
+        flex: 1,
+        paddingHorizontal: 10,
+    },
+    title: {
+        fontFamily: 'Poppins-Regular',
+        color: "#000",
+        fontSize: 14,
+        lineHeight: 17,
+    },
+    sub: {
+        fontFamily: 'Poppins-Regular',
+        color: "#295B88",
+        fontSize: 14,
+        lineHeight: 17,
+        marginTop: 3,
+    },
+    amount: {
+        fontFamily: 'Poppins-Regular',
+        color: "#000",
+        fontSize: 14,
+        lineHeight: 17,
+        textAlign: 'right',
+    },
+    date: {
+        fontFamily: 'Poppins-Regular',
+        color: "#295B88",
+        fontSize: 14,
+        lineHeight: 17,
+        marginTop: 3,
+    },
 
 
 })
