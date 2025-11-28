@@ -39,6 +39,8 @@ import CreateDocuments from '../screens/MyDocuments/CreateDocuments';
 import ReportList from '../screens/Reports/ReportList';
 import PatientRecive from '../screens/Accounts/PatientRecive';
 import BusinessOverview from '../screens/Accounts/BusinessOverview';
+import PartnerReceipts from '../screens/Accounts/PartnerReceipts';
+import PartnerLedgerView from '../screens/Accounts/PartnerLedgerView';
 
 
 const Tab = createBottomTabNavigator();
@@ -162,6 +164,8 @@ const AppNavigator = () => {
       <Stack.Screen name="ReportList" component={ReportList} />
       <Stack.Screen name="PatientRecive" component={PatientRecive} />
       <Stack.Screen name="BusinessOverview" component={BusinessOverview} />
+      <Stack.Screen name="PartnerReceipts" component={PartnerReceipts} />
+      <Stack.Screen name="PartnerLedgerView" component={PartnerLedgerView} />
     </Stack.Navigator>
   );
 };

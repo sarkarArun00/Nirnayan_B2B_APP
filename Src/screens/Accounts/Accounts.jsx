@@ -3,11 +3,13 @@ import { View, Text, SafeAreaView, ScrollView, ImageBackground, TouchableOpacity
 import { GlobalStyles } from "../../GlobalStyles";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import LinearGradient from "react-native-linear-gradient";
-
+import { Picker } from '@react-native-picker/picker';
+import DateTimePickerModal from "react-native-modal-datetime-picker";
 
 function Accounts({ navigation }) {
   const [activeTab, setActiveTab] = useState("patient");
   const [reciveAmount, setReciveAmount] = useState(false);
+  const [paymentTypeMdl, setPaymentTypeMdl] = useState(false);
 
   const data = [
     { id: 1, name: "Rajesh Kumar", code: "SE/CL/250117/0007", amount: "7,500", status: "Due" },
@@ -16,12 +18,31 @@ function Accounts({ navigation }) {
     { id: 4, name: "Rajesh Kumar", code: "SE/CL/250117/0007", amount: "7,500", status: "Due" },
   ];
 
+  const [isEnabled, setIsEnabled] = useState(false);
+  const [activePaymentTab, setActivePaymentTab] = useState("cash");
+  const [bankName, setBankName] = useState("");
+  const [chequeDate, setChequeDate] = useState(null);
+  const [isChequeDatePickerVisible, setChequeDatePickerVisible] = useState(false);
+
+  const showChequeDatePicker = () => {
+    setChequeDatePickerVisible(true);
+  };
+
+  const hideChequeDatePicker = () => {
+    setChequeDatePickerVisible(false);
+  };
+
+  const handleChequeDateConfirm = (date) => {
+    setChequeDate(date);
+    hideChequeDatePicker();
+  };
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#FFF" }}>
       <ScrollView>
         {/* Header BG */}
         <LinearGradient
-          colors={["#d0eede", "#ffffff"]}
+          colors={["#d0eede", "transparent"]}
           start={{ x: 0, y: 0 }}
           end={{ x: 0, y: 1 }}
           style={GlobalStyles.background}>
@@ -255,7 +276,7 @@ function Accounts({ navigation }) {
 
         {activeTab === "partner" && (
           <View style={styles.partDtMain}>
-            <TouchableOpacity style={styles.partDtCard}>
+            <TouchableOpacity style={styles.partDtCard} onPress={() => navigation.navigate('BusinessOverview')}>
               {/* TOP ROW */}
               <View style={styles.partDtTop}>
                 <View style={styles.partDtTopLeft}>
@@ -328,11 +349,11 @@ function Accounts({ navigation }) {
 
               {/* FOOTER BUTTON ROW */}
               <View style={styles.partDtFooter}>
-                <TouchableOpacity style={[GlobalStyles.applyBtnFullWidth, { flex: 1, marginTop: 0, }]} onPress={() => navigation.navigate('BusinessOverview')} >
+                <TouchableOpacity style={[GlobalStyles.applyBtnFullWidth, { flex: 1, marginTop: 0, }]} onPress={() => setPaymentTypeMdl(true)} >
                   <Text style={GlobalStyles.applyBtnTextNew}>Receive Amount</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.partDtFooterIconBtn}>
+                <TouchableOpacity style={styles.partDtFooterIconBtn} onPress={() => navigation.navigate('PartnerLedgerView')}>
                   <Image source={require('../../../assets/ledger.png')} style={styles.partDtFooterIcon} />
                 </TouchableOpacity>
               </View>
@@ -412,8 +433,282 @@ function Accounts({ navigation }) {
           </View>
         </Modal>
 
+        {/* Payment Type Choose Modal */}
+        <Modal
+          transparent
+          visible={paymentTypeMdl}
+          animationType="slide"
+          onRequestClose={() => setPaymentTypeMdl(false)}
+        >
+          <View style={GlobalStyles.modalOverlay}>
+            <View style={GlobalStyles.modalContainer}>
+              <TouchableOpacity
+                style={GlobalStyles.modalClose}
+                onPress={() => setPaymentTypeMdl(false)}
+              >
+                <Text style={GlobalStyles.closeIcon}>✕</Text>
+              </TouchableOpacity>
+
+              <View style={styles.pmntOptBox}>
+                <ScrollView
+                  horizontal
+                  contentContainerStyle={styles.pmntMethodSec}
+                  showsHorizontalScrollIndicator={false}
+                >
+                  {/* CASH */}
+                  <TouchableOpacity
+                    style={[
+                      styles.pmntOptBoxBtn,
+                      activePaymentTab === "cash" ? styles.activeBtn : styles.inactiveBtn
+                    ]}
+                    onPress={() => setActivePaymentTab("cash")}
+                  >
+                    <Image
+                      source={require('../../../assets/cash2.png')}
+                      style={[
+                        styles.pmntOptBoxIcon,
+                        activePaymentTab === "cash" ? styles.activeIcon : styles.inactiveIcon
+                      ]}
+                    />
+
+                    <Text
+                      style={[
+                        styles.pmntOptBoxText,
+                        activePaymentTab === "cash" ? styles.pmntOptActv : styles.pmntOptInactv
+                      ]}
+                    >
+                      Cash
+                    </Text>
+                  </TouchableOpacity>
+
+                  {/* UPI */}
+                  <TouchableOpacity
+                    style={[
+                      styles.pmntOptBoxBtn,
+                      activePaymentTab === "upi" ? styles.activeBtn : styles.inactiveBtn
+                    ]}
+                    onPress={() => setActivePaymentTab("upi")}
+                  >
+                    <Image
+                      source={require('../../../assets/upi.png')}
+                      style={[
+                        styles.pmntOptBoxIcon,
+                        activePaymentTab === "upi" ? styles.activeIcon : styles.inactiveIcon
+                      ]}
+                    />
+
+                    <Text
+                      style={[
+                        styles.pmntOptBoxText,
+                        activePaymentTab === "upi" ? styles.pmntOptActv : styles.pmntOptInactv
+                      ]}
+                    >
+                      UPI
+                    </Text>
+                  </TouchableOpacity>
+
+                  {/* CARD */}
+                  <TouchableOpacity
+                    style={[
+                      styles.pmntOptBoxBtn,
+                      activePaymentTab === "card" ? styles.activeBtn : styles.inactiveBtn
+                    ]}
+                    onPress={() => setActivePaymentTab("card")}
+                  >
+                    <Image
+                      source={require('../../../assets/card5.png')}
+                      style={[
+                        styles.pmntOptBoxIcon,
+                        activePaymentTab === "card" ? styles.activeIcon : styles.inactiveIcon
+                      ]}
+                    />
+
+                    <Text
+                      style={[
+                        styles.pmntOptBoxText,
+                        activePaymentTab === "card" ? styles.pmntOptActv : styles.pmntOptInactv
+                      ]}
+                    >
+                      Debit/Credit Card
+                    </Text>
+                  </TouchableOpacity>
+
+                  {/* CHEQUE */}
+                  <TouchableOpacity
+                    style={[
+                      styles.pmntOptBoxBtn,
+                      activePaymentTab === "cheque" ? styles.activeBtn : styles.inactiveBtn
+                    ]}
+                    onPress={() => setActivePaymentTab("cheque")}
+                  >
+                    <Image
+                      source={require('../../../assets/cheque.png')}
+                      style={[
+                        styles.pmntOptBoxIcon,
+                        activePaymentTab === "cheque" ? styles.activeIcon : styles.inactiveIcon
+                      ]}
+                    />
+
+                    <Text
+                      style={[
+                        styles.pmntOptBoxText,
+                        activePaymentTab === "cheque" ? styles.pmntOptActv : styles.pmntOptInactv
+                      ]}
+                    >
+                      Cheque
+                    </Text>
+                  </TouchableOpacity>
+                </ScrollView>
+
+                <View style={styles.tabContentBox}>
+                  {activePaymentTab === "cash" && (
+                    <View>
+                      <View style={styles.pmntInpRow}>
+                        <Text style={styles.pmntLabel}>Discount Amount</Text>
+                        <TextInput
+                          placeholder="Discount Amount"
+                          placeholderTextColor="#9A9A9A"
+                          style={styles.pmntInput}
+                        />
+                      </View>
+                      <View style={styles.pmntInpRow}>
+                        <Text style={styles.pmntLabel}>Collection Charges</Text>
+                        <TextInput
+                          placeholder="Collection Charges"
+                          placeholderTextColor="#9A9A9A"
+                          style={styles.pmntInput}
+                        />
+                      </View>
+                      <View style={styles.pmntInpRow}>
+                        <Text style={styles.pmntLabel}>Receive Amount<Text style={GlobalStyles.regText}>*</Text></Text>
+                        <TextInput
+                          placeholder="Receive Amount"
+                          placeholderTextColor="#9A9A9A"
+                          style={styles.pmntInput}
+                        />
+                      </View>
+                    </View>
+                  )}
+
+                  {activePaymentTab === "upi" && (
+                    <View>
+                      <View style={styles.pmntInpRow}>
+                        <Text style={styles.pmntLabel}>UTR<Text style={GlobalStyles.regText}>*</Text></Text>
+                        <TextInput
+                          placeholder="Enter UTR"
+                          placeholderTextColor="#9A9A9A"
+                          style={styles.pmntInput}
+                        />
+                      </View>
+                      <View style={styles.pmntInpRow}>
+                        <Text style={styles.pmntLabel}>Receive Amount<Text style={GlobalStyles.regText}>*</Text></Text>
+                        <TextInput
+                          placeholder="Receive Amount"
+                          placeholderTextColor="#9A9A9A"
+                          style={styles.pmntInput}
+                        />
+                      </View>
+                    </View>
+                  )}
+
+                  {activePaymentTab === "card" && (
+                    <View>
+                      <View style={styles.pmntInpRow}>
+                        <Text style={styles.pmntLabel}>TRN<Text style={GlobalStyles.regText}>*</Text></Text>
+                        <TextInput
+                          placeholder="Enter TRN"
+                          placeholderTextColor="#9A9A9A"
+                          style={styles.pmntInput}
+                        />
+                      </View>
+                      <View style={styles.pmntInpRow}>
+                        <Text style={styles.pmntLabel}>Receive Amount<Text style={GlobalStyles.regText}>*</Text></Text>
+                        <TextInput
+                          placeholder="Receive Amount"
+                          placeholderTextColor="#9A9A9A"
+                          style={styles.pmntInput}
+                        />
+                      </View>
+                    </View>
+                  )}
+
+                  {activePaymentTab === "cheque" && (
+                    <View>
+                      <View style={styles.pmntInpRow}>
+                        <Text style={styles.pmntLabelv2}>Cheque No<Text style={GlobalStyles.regText}>*</Text></Text>
+                        <TextInput
+                          placeholder="Enter Cheque No"
+                          placeholderTextColor="#9A9A9A"
+                          style={styles.pmntInputv2}
+                        />
+                      </View>
+                      <View style={styles.pmntInpRow}>
+                        <Text style={styles.pmntLabelv2}>Cheque Date<Text style={GlobalStyles.regText}>*</Text></Text>
+                        <TouchableOpacity
+                          style={[styles.pmntInputv2, { flexDirection: "row", alignItems: "center", justifyContent: "space-between" }]}
+                          onPress={showChequeDatePicker}
+                        >
+                          <Text style={{ color: chequeDate ? "#9A9A9A" : "#9A9A9A" }}>
+                            {chequeDate ? chequeDate.toLocaleDateString() : "Select Cheque Date"}
+                          </Text>
+
+                          <Image
+                            source={require("../../../assets/mdl-calender.png")}
+                            style={{ width: 18, height: 18, tintColor: '#00A651' }}
+                          />
+                        </TouchableOpacity>
+                      </View>
+                      <View style={styles.pmntInpRow}>
+                        <Text style={styles.pmntLabelv2}>Bank Name<Text style={GlobalStyles.regText}>*</Text></Text>
+                        <View style={styles.pmntInputv2}>
+                          <Picker
+                            selectedValue={bankName}
+                            onValueChange={(value) => setBankName(value)}
+                            dropdownIconColor="#C2C2C2"
+                            style={{ color: '#C2C2C2' }}
+                          >
+                            <Picker.Item label="Select Bank" value="" />
+                            <Picker.Item label="State Bank of India (SBI)" value="sbi" />
+                            <Picker.Item label="HDFC Bank" value="hdfc" />
+                            <Picker.Item label="ICICI Bank" value="icici" />
+                            <Picker.Item label="Axis Bank" value="axis" />
+                            <Picker.Item label="Punjab National Bank (PNB)" value="pnb" />
+                            <Picker.Item label="Bank of Baroda (BOB)" value="bob" />
+                            <Picker.Item label="Canara Bank" value="canara" />
+                            <Picker.Item label="Kotak Mahindra Bank" value="kotak" />
+                            <Picker.Item label="Union Bank of India" value="union" />
+                            <Picker.Item label="IDBI Bank" value="idbi" />
+                            <Picker.Item label="Yes Bank" value="yes" />
+                            <Picker.Item label="IndusInd Bank" value="indusind" />
+                          </Picker>
+                        </View>
+                      </View>
+                      <View style={styles.pmntInpRow}>
+                        <Text style={styles.pmntLabelv2}>Receive Amount<Text style={GlobalStyles.regText}>*</Text></Text>
+                        <TextInput
+                          placeholder="Receive Amount"
+                          placeholderTextColor="#9A9A9A"
+                          style={styles.pmntInputv2}
+                        />
+                      </View>
+                    </View>
+                  )}
+                </View>
+              </View>
 
 
+            </View>
+
+          </View>
+        </Modal>
+
+        <DateTimePickerModal
+          isVisible={isChequeDatePickerVisible}
+          mode="date"
+          onConfirm={handleChequeDateConfirm}
+          onCancel={hideChequeDatePicker}
+          date={chequeDate || new Date()}
+        />
 
       </ScrollView>
     </SafeAreaView>
@@ -1014,6 +1309,94 @@ const styles = StyleSheet.create({
   },
 
   // Modal Css Start
+
+  // Payment Option And Split Payment Box Start
+  pmntOptBox: {
+    backgroundColor: '#FFF',
+    marginBottom: 10,
+  },
+  pmntMethodSec: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  pmntOptBoxBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 7,
+    backgroundColor: '#00A651',
+    borderRadius: 10,
+    padding: 8,
+  },
+  inactiveBtn: {
+    borderWidth: 1,
+    borderColor: '#00A651',
+    backgroundColor: '#FFFFFF',
+  },
+  activeIcon: {
+    tintColor: "#FFF",
+  },
+  inactiveIcon: {
+    tintColor: "#00A651",
+  },
+  pmntOptActv: {
+    color: '#FFF',
+  },
+  pmntOptInactv: {
+    color: '#000',
+  },
+  pmntOptBoxIcon: {
+    tintColor: '#FFFFFF',
+    width: 26,
+    height: 26,
+    resizeMode: 'contain',
+  },
+  pmntOptBoxText: {
+    fontFamily: 'Poppins-Medium',
+    color: "#fff",
+    fontSize: 14,
+    lineHeight: 17,
+  },
+  ////////////////////
+  pmntInpRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    flexWrap: 'wrap',
+    marginTop: 8,
+  },
+  pmntLabel: {
+    width: 135,
+    fontFamily: 'Poppins-Regular',
+    fontSize: 12,
+    color: '#7D7B7B',
+  },
+  pmntLabelv2: {
+    width: '100%',
+    fontFamily: 'Poppins-Regular',
+    fontSize: 12,
+    color: '#7D7B7B',
+  },
+  pmntInput: {
+    flex: 1,
+    height: 50,
+    borderWidth: 1,
+    borderColor: '#C5C5C5',
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    fontSize: 12,
+    color: '#000',
+  },
+  pmntInputv2: {
+    width: '100%',
+    height: 50,
+    borderWidth: 1,
+    borderColor: '#C5C5C5',
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    fontSize: 12,
+    color: '#000',
+  },
+  // Payment Option And Split Payment Box End
 
 
 })

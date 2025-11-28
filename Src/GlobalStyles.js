@@ -286,7 +286,7 @@ export const GlobalStyles = StyleSheet.create({
   titleText: {
     fontFamily: 'Poppins-SemiBold',
     fontSize: 16,
-    lineHeight: 18,
+    lineHeight: 19,
     color: '#000',
   },
   rightSection: {
@@ -333,8 +333,8 @@ export const GlobalStyles = StyleSheet.create({
     color: '#333',
     backgroundColor: '#fff',
     borderWidth: 1,
-    borderColor: '#E5EBE8',
-    borderRadius: 25,
+    borderColor: '#BBE7D1',
+    borderRadius: 10,
     paddingLeft: 42,
     paddingRight: 10,
     verticalAlign: 'middle',

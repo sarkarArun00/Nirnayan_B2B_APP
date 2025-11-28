@@ -1,7 +1,7 @@
 import React, { useState, } from "react";
 import { View, Text, SafeAreaView, ScrollView, ImageBackground, TouchableOpacity, Image, TextInput, Switch, StyleSheet, FlatList, } from "react-native";
 import { GlobalStyles } from "../../GlobalStyles";
-import Ionicons from "react-native-vector-icons/Ionicons";
+import LinearGradient from "react-native-linear-gradient";
 import Icon from 'react-native-vector-icons/Ionicons';
 import Collapsible from 'react-native-collapsible';
 import { Picker } from '@react-native-picker/picker';
@@ -80,7 +80,7 @@ function PatientRecive({ navigation }) {
             <ScrollView>
                 {/* Header BG */}
                 <LinearGradient
-                    colors={["#d0eede", "#ffffff"]}
+                    colors={["#d0eede", "transparent",]}
                     start={{ x: 0, y: 0 }}
                     end={{ x: 0, y: 1 }}
                     style={GlobalStyles.background}>
