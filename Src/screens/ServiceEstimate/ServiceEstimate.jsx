@@ -54,30 +54,55 @@ function ServiceEstimate() {
     ];
     // api calling for get estimate start
     useEffect(() => {
-        // fetchEstimate();
-        setEstimateData(estimateData1);
+        fetchEstimate();
+        // setEstimateData(estimateData1);
     }, []);
 
-    // const fetchEstimate = async () => {
-    //     try {
-    //         const payload = {
+    const fetchEstimate = async () => {
+        try {
+            const response = await estimateService.getEstimate();
+            console.log("API Response:", response);
+            if (response.status == 1) {
+                setEstimateData(response.data)
+            } else {
 
-    //         };
+            }
 
-    //         const response = await estimateService.getEstimate(payload);
-    //         console.log("API Response:", response);
-    //         if (response.status == 1) {
-    //             setEstimateData(response.data)
-    //         } else {
-
-    //         }
-
-    //     } catch (error) {
-    //         console.log("API Error:", error);
-    //     }
-    // };
+        } catch (error) {
+            console.log("API Error:", error);
+        }
+    };
 
     // api calling for get estimate end
+
+    // day,month and year calucation start
+    // 🔥 Function inside the same component
+    const getRelativeDate = (dateString) => {
+        const inputDate = new Date(dateString);
+        const today = new Date();
+
+        const diffMs = today - inputDate;
+        const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+        const diffMonths = Math.floor(diffDays / 30);
+        const diffYears = Math.floor(diffMonths / 12);
+
+        // YEARS
+        if (diffYears >= 1) {
+            return diffYears === 1 ? "1 year ago" : `${diffYears} years ago`;
+        }
+
+        // MONTHS
+        if (diffMonths >= 1) {
+            return diffMonths === 1 ? "1 month ago" : `${diffMonths} months ago`;
+        }
+
+        // DAYS
+        if (diffDays === 0) return "Today";
+        if (diffDays === 1) return "Yesterday";
+
+        return `${diffDays} days ago`;
+    };
+    // day,month and year calucation start
 
     return (
         <SafeAreaView style={{ flex: 1, }}>
@@ -139,12 +164,12 @@ function ServiceEstimate() {
                 ) : (
                     estimateData.map((item, index) => (
                         <View key={index} style={{ paddingHorizontal: 16, paddingTop: 20 }}>
-                            <Text style={styles.crestedText}>Created on {item.createdOn}</Text>
+                            <Text style={styles.crestedText}>Created {getRelativeDate(item.createdAt)}</Text>
 
                             <View style={styles.patCard}>
                                 {/* Header */}
                                 <View style={styles.patHeader}>
-                                    <Text style={styles.patHeaderRefId}>{item.estimateId}</Text>
+                                    <Text style={styles.patHeaderRefId}>{item.estimateNo}</Text>
                                     <TouchableOpacity style={styles.headerButton} onPress={() => setEditModalVisible(true)}>
                                         <Icon name="ellipsis-vertical" size={18} color="#000" />
                                     </TouchableOpacity>
@@ -154,7 +179,7 @@ function ServiceEstimate() {
                                 <View style={styles.patientSection}>
                                     <View style={styles.leftRow}>
                                         <View style={{ flexDirection: "row", alignItems: "center", gap: 5 }}>
-                                            <Text style={styles.patname}>{item.clientName}</Text>
+                                            <Text style={styles.patname}>{item.patientName}</Text>
                                             {item.gender === "male" && <Ionicons name="male" size={20} color="#1E90FF" />}
                                             {item.gender === "female" && <Ionicons name="female" size={20} color="#FF69B4" />}
                                         </View>
@@ -169,7 +194,7 @@ function ServiceEstimate() {
 
                                 {/* Package Info */}
                                 <View style={styles.packageSection}>
-                                    <Text style={styles.packageTitle}>{item.packageName}</Text>
+                                    <Text style={styles.packageTitle}> {item?.investigations?.[0]?.testName ?? "No Tests Added"}</Text>
                                     <TouchableOpacity onPress={() => navigation.navigate("ServiceInvestigations")}>
                                         <Ionicons name="eye" size={22} color="#B8B8B8" />
                                     </TouchableOpacity>
@@ -178,9 +203,9 @@ function ServiceEstimate() {
                                 {/* Partner Rates */}
                                 <View style={styles.rateSection}>
                                     {[
-                                        { icon: require("../../../assets/partnerrate-icn1.png"), label: "Partner Rate", value: item.rates.partnerRate },
-                                        { icon: require("../../../assets/partnerrate-icn2.png"), label: "Total Rate", value: item.rates.totalRate },
-                                        { icon: require("../../../assets/partnerrate-icn3.png"), label: "Gross MRP", value: item.rates.grossMrp }
+                                        { icon: require("../../../assets/partnerrate-icn1.png"), label: "Partner Rate", value: item?.investigations?.[0]?.partnerRate ?? "0.00" },
+                                        { icon: require("../../../assets/partnerrate-icn2.png"), label: "Total Rate", value: item?.investigations?.[0]?.clientRate ?? "0.00" },
+                                        { icon: require("../../../assets/partnerrate-icn3.png"), label: "Gross MRP", value: item?.investigations?.[0]?.mrp ?? "0.00" }
                                     ].map((rate, rateIndex) => (
                                         <View key={rateIndex} style={styles.rateBox}>
                                             <View style={styles.rateIconWrap}>

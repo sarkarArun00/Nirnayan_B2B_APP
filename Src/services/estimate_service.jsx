@@ -7,9 +7,9 @@ import { globalApiClient, apiClient } from './API';
 const estimateService = {
 
     // Get estimate 
-    getEstimate: async (data) => {
+    getEstimate: async () => {
         try {
-            const response = await apiClient.post('', data);
+            const response = await apiClient.get('client/estimates/getAllEstimates');
             return response.data;
         } catch (error) {
             console.log("error response:", error.response?.data);
