@@ -73,14 +73,14 @@ function Accounts({ navigation }) {
         <View style={GlobalStyles.searchContainer}>
           <View style={GlobalStyles.searchBox}>
             <Ionicons name="search" size={20} color="#aaa" style={GlobalStyles.searchIcon} />
-            <TextInput
-              placeholder="Search"
-              placeholderTextColor="#999"
-              style={GlobalStyles.searchinput}
-            />
+              <TextInput
+                placeholder="Search"
+                placeholderTextColor="#999"
+                style={GlobalStyles.searchinput}
+              />
           </View>
 
-          <TouchableOpacity style={GlobalStyles.filterButton} onPress={() => setFilterModal(true)}>
+          <TouchableOpacity style={GlobalStyles.filterButton}>
             <Ionicons name="options-outline" size={24} color="#fff" />
           </TouchableOpacity>
         </View>
@@ -193,7 +193,7 @@ function Accounts({ navigation }) {
         <View style={styles.quickActionsContainer}>
           <Text style={styles.quickActionsTitle}>Quick Actions</Text>
           <View style={styles.quickActionsRow}>
-            <TouchableOpacity style={styles.quickActionCard}>
+            <TouchableOpacity style={styles.quickActionCard} onPress={()=> navigation.navigate('BusinessOverViewSearch')}>
               <View style={styles.quickActionIconPink}>
                 <Image
                   source={require("../../../assets/recamounticoon.png")}
