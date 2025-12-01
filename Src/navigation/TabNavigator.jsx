@@ -42,6 +42,7 @@ import BusinessOverview from '../screens/Accounts/BusinessOverview';
 import PartnerReceipts from '../screens/Accounts/PartnerReceipts';
 import PartnerLedgerView from '../screens/Accounts/PartnerLedgerView';
 import BusinessOverViewSearch from '../screens/Accounts/BusinessOverViewSearch';
+import PaymentSuccess from '../screens/Accounts/PaymentSuccess';
 
 
 const Tab = createBottomTabNavigator();
@@ -168,6 +169,7 @@ const AppNavigator = () => {
       <Stack.Screen name="PartnerReceipts" component={PartnerReceipts} />
       <Stack.Screen name="PartnerLedgerView" component={PartnerLedgerView} />
       <Stack.Screen name="BusinessOverViewSearch" component={BusinessOverViewSearch} />
+      <Stack.Screen name="PaymentSuccess" component={PaymentSuccess} />
     </Stack.Navigator>
   );
 };
