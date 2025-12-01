@@ -7,6 +7,7 @@ import { Picker } from '@react-native-picker/picker';
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 
 function Accounts({ navigation }) {
+  const [filterModal, setFilterModal] = useState(false);
   const [activeTab, setActiveTab] = useState("patient");
   const [reciveAmount, setReciveAmount] = useState(false);
   const [paymentTypeMdl, setPaymentTypeMdl] = useState(false);
@@ -73,14 +74,14 @@ function Accounts({ navigation }) {
         <View style={GlobalStyles.searchContainer}>
           <View style={GlobalStyles.searchBox}>
             <Ionicons name="search" size={20} color="#aaa" style={GlobalStyles.searchIcon} />
-              <TextInput
-                placeholder="Search"
-                placeholderTextColor="#999"
-                style={GlobalStyles.searchinput}
-              />
+            <TextInput
+              placeholder="Search"
+              placeholderTextColor="#999"
+              style={GlobalStyles.searchinput}
+            />
           </View>
 
-          <TouchableOpacity style={GlobalStyles.filterButton}>
+          <TouchableOpacity style={GlobalStyles.filterButton} onPress={()=> setFilterModal(true)}>
             <Ionicons name="options-outline" size={24} color="#fff" />
           </TouchableOpacity>
         </View>
@@ -193,7 +194,7 @@ function Accounts({ navigation }) {
         <View style={styles.quickActionsContainer}>
           <Text style={styles.quickActionsTitle}>Quick Actions</Text>
           <View style={styles.quickActionsRow}>
-            <TouchableOpacity style={styles.quickActionCard} onPress={()=> navigation.navigate('BusinessOverViewSearch')}>
+            <TouchableOpacity style={styles.quickActionCard} onPress={() => navigation.navigate('BusinessOverViewSearch')}>
               <View style={styles.quickActionIconPink}>
                 <Image
                   source={require("../../../assets/recamounticoon.png")}
@@ -362,6 +363,29 @@ function Accounts({ navigation }) {
 
           </View>
         )}
+
+        {/* Filter Modal */}
+        <Modal
+          transparent
+          visible={filterModal}
+          animationType="slide"
+          onRequestClose={() => setFilterModal(false)}
+        >
+          <View style={GlobalStyles.modalOverlay}>
+            <View style={GlobalStyles.modalContainer}>
+              <TouchableOpacity
+                style={GlobalStyles.modalClose}
+                onPress={() => setFilterModal(false)}
+              >
+                <Text style={GlobalStyles.closeIcon}>✕</Text>
+              </TouchableOpacity>
+
+
+
+            </View>
+
+          </View>
+        </Modal>
 
         {/* Recived Amount Modal Start */}
         <Modal

@@ -71,7 +71,7 @@ function Accounts({ navigation }) {
                             <View style={GlobalStyles.arrowBox}>
                                 <Image source={require("../../../assets/arrow1.png")} />
                             </View>
-                            <Text style={GlobalStyles.titleText}>Business Overview</Text>
+                            <Text style={GlobalStyles.titleText}>Partner Business</Text>
                         </TouchableOpacity>
 
                         <View style={GlobalStyles.rightSection}>

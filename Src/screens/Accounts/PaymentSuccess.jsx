@@ -112,11 +112,11 @@ const styles = StyleSheet.create({
     waterMarkImage:{
         position:'absolute',
         left:'50%',
-        top:'50%',
+        bottom:0,
         width:260,
         height:260,
         resizeMode:'contain',
-        transform: [{ translateX: -130 }, { translateY: -130 }],
+        transform: [{ translateX: -130 }],
     },
     payDtlTitle: {
         fontFamily: 'Poppins-SemiBold',
