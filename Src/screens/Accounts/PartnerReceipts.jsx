@@ -4,9 +4,11 @@ import { GlobalStyles } from "../../GlobalStyles";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import LinearGradient from "react-native-linear-gradient";
+import { Picker } from "@react-native-picker/picker";
 
 function PartnerReceipts({ navigation }) {
     const [filterModal, setFilterModal] = useState(false);
+    const [transactionType, setTransactionType] = useState("");
     const [fromDate, setFromDate] = useState(null);
     const [toDate, setToDate] = useState(null);
     const [isDatePickerVisible, setDatePickerVisible] = useState(false);
@@ -105,7 +107,7 @@ function PartnerReceipts({ navigation }) {
                     </TouchableOpacity>
                 </View>
 
-                <View style={{paddingHorizontal:16, paddingVertical:20,}}>
+                <View style={{ paddingHorizontal: 16, paddingVertical: 20, }}>
                     <FlatList
                         data={recentTransactions}
                         keyExtractor={(item) => item.id}
@@ -131,6 +133,25 @@ function PartnerReceipts({ navigation }) {
                             >
                                 <Text style={GlobalStyles.closeIcon}>✕</Text>
                             </TouchableOpacity>
+
+                            <View style={GlobalStyles.inpBox}>
+                                <Text style={GlobalStyles.label}>
+                                    Transaction Type
+                                </Text>
+                                <View style={GlobalStyles.pickerInput}>
+                                    <Picker
+                                        selectedValue={transactionType}
+                                        onValueChange={(value) => setTransactionType(value)}
+                                        dropdownIconColor="#C2C2C2"
+                                        style={{ color: '#C2C2C2' }}
+                                    >
+                                        <Picker.Item label="Select type" value="" />
+                                        <Picker.Item label="Deposit" value="deposit" />
+                                        <Picker.Item label="Withdrawal" value="withdrawal" />
+                                        <Picker.Item label="Transfer" value="transfer" />
+                                    </Picker>
+                                </View>
+                            </View>
 
                             <View style={GlobalStyles.inpBox}>
                                 <Text style={GlobalStyles.label}>
@@ -254,7 +275,7 @@ const styles = StyleSheet.create({
         color: "#000",
         fontSize: 14,
         lineHeight: 17,
-        textAlign:'right',
+        textAlign: 'right',
     },
     date: {
         fontFamily: 'Poppins-Regular',

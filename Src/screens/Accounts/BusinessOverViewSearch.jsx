@@ -101,6 +101,7 @@ const styles = StyleSheet.create({
     margin: 'auto',
     marginTop: 130,
   },
+  // Search History Start
   seaHist: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -145,6 +146,8 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingLeft: 8,
   },
+
+  // Search History End
 
 
 
