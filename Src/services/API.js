@@ -42,35 +42,71 @@ const createApiClient = (baseURL) => {
   attachAuthInterceptor(instance);
 
   // Optional: Logging for development
-  if (__DEV__) {
-
-     global.XMLHttpRequest = global.originalXMLHttpRequest
+ if (__DEV__) {
+  // Enable XMLHttpRequest & FormData debugging on React Native
+  global.XMLHttpRequest = global.originalXMLHttpRequest
     ? global.originalXMLHttpRequest
     : global.XMLHttpRequest;
 
   global.FormData = global.originalFormData
     ? global.originalFormData
     : global.FormData;
-    
-    instance.interceptors.request.use((config) => {
-      console.log("[Axios Request]", config.method?.toUpperCase(), config.url);
-      console.log("Payload:", config.data);
-      return config;
-    });
 
-    instance.interceptors.response.use(
-      (response) => {
-        console.log("[Axios Response]", response.status, response.config.url);
-        console.log("Response Data:", response.data);
-        return response;
-      },
-      (error) => {
-        console.error("[Axios Error]", error.response?.status, error.response?.config?.url);
-        console.error("Error Response:", error.response?.data);
-        return Promise.reject(error);
+  // Request Interceptor
+  instance.interceptors.request.use((config) => {
+    console.log("===== 📤 AXIOS REQUEST =====");
+    console.log("➡️ Method:", config.method?.toUpperCase());
+    console.log("➡️ URL:", config.url);
+    console.log("➡️ Headers:", config.headers);
+    console.log("➡️ Payload:", config.data);
+    console.log("============================");
+    return config;
+  });
+
+  // Response Interceptor
+  instance.interceptors.response.use(
+    (response) => {
+      console.log("===== 📥 AXIOS RESPONSE =====");
+      console.log("✅ Status:", response.status);
+      console.log("🌐 URL:", response.config.url);
+      console.log("📦 Data:", response.data);
+      console.log("📄 Headers:", response.headers);
+      console.log("============================");
+      return response;
+    },
+    (error) => {
+      console.log("===== ❌ AXIOS ERROR =====");
+
+      console.log("❗ Message:", error.message);
+      console.log("❗ Code:", error.code);
+
+      if (error.config) {
+        console.log("📌 Request Config:", {
+          url: error.config.url,
+          method: error.config.method,
+          headers: error.config.headers,
+          data: error.config.data,
+        });
       }
-    );
-  }
+
+      if (error.response) {
+        console.log("🔻 ERROR RESPONSE:");
+        console.log("🔺 Status:", error.response.status);
+        console.log("🔺 Headers:", error.response.headers);
+        console.log("🔺 Data:", error.response.data);
+      } else if (error.request) {
+        console.log("📡 Request Made but No Response:", error.request);
+      } else {
+        console.log("⚠️ Unknown Axios Error:", error);
+      }
+
+      console.log("============================");
+
+      return Promise.reject(error);
+    }
+  );
+}
+
 
   return instance;
 };

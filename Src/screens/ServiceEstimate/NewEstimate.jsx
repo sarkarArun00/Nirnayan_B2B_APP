@@ -8,10 +8,22 @@ import DateTimePickerModal from "react-native-modal-datetime-picker";
 import ConfirmDeleteModal from "../ConfirmDeleteModal";
 import estimateService from "../../services/estimate_service";
 import SkeletonSpinner from "../../screens/SkeletonSpinner";
+import { useRoute, useFocusEffect } from '@react-navigation/native';
+import { useCallback } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 function NewEstimate({ navigation }) {
+    const route = useRoute();
+    useFocusEffect(
+        useCallback(() => {
+            if (route.params?.isCollapsed !== undefined) {
+                setIsCollapsed(route.params.isCollapsed);
+            }
+        }, [route.params?.isCollapsed])
+    );
     const [isCollapsed, setIsCollapsed] = useState(true);
     const toggleAccordion = () => setIsCollapsed(!isCollapsed);
+
     const [selectGender, setSelecteGender] = useState('');
     const [selectPartner, setSelectPartner] = useState('');
     const [selectInitial, setSelectInitial] = useState('');
@@ -27,7 +39,16 @@ function NewEstimate({ navigation }) {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [selectedDeleteId, setSelectedDeleteId] = useState(null);
     const [confirmMessage, setConfirmMessage] = useState("");
-    
+
+    const [selectedPartnerId, setSelectedPartnerId] = useState(null);
+    const [partner, setPartner] = useState([]);
+
+    const [partnerId, setPartnerId] = useState("");
+    const [investigations, setInvestigations] = useState([]);
+    const [searchText, setSearchText] = useState("");
+    const [filteredInvestigations, setFilteredInvestigations] = useState([]);
+
+
     // demo value start
     const packageList = [
         {
@@ -74,10 +95,14 @@ function NewEstimate({ navigation }) {
     // demo value end
     const [packageListData, setPackageListData] = useState(packageList);
 
+    useEffect(() => {
+        loadInvestigations();
+    }, [partnerId]);
+
     // get all Investigation details start
     useEffect(() => {
         // fetchInvestigationDetails();
-         setPackageListData(packageList)
+        setPackageListData(packageList)
     }, []);
 
     const fetchInvestigationDetails = async () => {
@@ -99,7 +124,23 @@ function NewEstimate({ navigation }) {
         }
     };
     // get all Investigation details end
+    useEffect(() => {
+        fetchPartnerMaster();
+    }, []);
+    // get all partner api call start
 
+    const fetchPartnerMaster = async () => {
+        try {
+            const res = await estimateService.getAllPartnerMaster();
+            console.log("API Data:", res);
+            setPartner(res.data);
+
+        } catch (err) {
+            console.log("Fetch Error:", err);
+        } finally {
+        }
+    };
+    // get all partner api call end
 
     // calculate the value start
     const totalRateSum = packageListData.reduce((sum, item) => sum + item.totalRate, 0);
@@ -237,6 +278,31 @@ function NewEstimate({ navigation }) {
 
     // REnd Validation function
 
+    // Load Investigation Start
+    const loadInvestigations = async () => {
+        try {
+            const userId = await AsyncStorage.getItem("user_id");
+            let response;
+
+            if (partnerId) {
+                response = await estimateService.getInvestigationByPartnerId(partnerId);
+                console.log("Investigations by Partner:", response);
+            } else {
+                response = await estimateService.getInvestigationsDetailsByClientId(userId);
+                console.log("Investigations by Client:", response);
+                setInvestigations(response.data)
+                setFilteredInvestigations(response.data);
+            }
+
+            setInvestigations(response.data);
+
+        } catch (error) {
+            console.log("Investigation Error:", error);
+        } finally {
+        }
+    };
+    // Load Investigation End
+
     // form submit
     const handleSave = () => {
         if (validateForm()) {
@@ -244,6 +310,31 @@ function NewEstimate({ navigation }) {
         }
     };
     //  end form submit
+
+    // handle search start
+    const handleSearch = (text) => {
+        console.log("data1", text);
+
+        if (!text) {
+            setFilteredInvestigations(investigations); // show all if empty
+            return;
+        }
+        console.log('data', investigations);
+
+        const filtered = investigations.filter((item) => {
+            const name = item.testName?.toLowerCase() || "";
+            const code = item.testCode?.toLowerCase() || "";
+
+            return name.includes(text.toLowerCase()) || code.includes(text.toLowerCase());
+        });
+        console.log("data", filtered);
+
+
+        setFilteredInvestigations(filtered);
+    };
+
+    // handle search end
+
 
     return (
         <SafeAreaView style={{ flex: 1 }}>
@@ -279,6 +370,11 @@ function NewEstimate({ navigation }) {
                             placeholder="Search Your Investigation"
                             placeholderTextColor="#999"
                             style={GlobalStyles.searchinput}
+                            value={searchText}
+                            onChangeText={(text) => {
+                                setSearchText(text);
+                                handleSearch(text);
+                            }}
                         />
                     </View>
                 </View>
@@ -435,9 +531,14 @@ function NewEstimate({ navigation }) {
                                     style={{ color: '#C2C2C2' }}
                                 >
                                     <Picker.Item label="Select" value="" />
-                                    <Picker.Item label="Arun Sarkar" value="male" />
-                                    <Picker.Item label="Souvik Mitra" value="female" />
-                                    <Picker.Item label="Sayan Dutta" value="other" />
+
+                                    {partner.map((item) => (
+                                        <Picker.Item
+                                            key={item.id}
+                                            label={item.partner_name}
+                                            value={item.id}
+                                        />
+                                    ))}
                                 </Picker>
                             </View>
                         </View>
@@ -568,6 +669,66 @@ function NewEstimate({ navigation }) {
                     <Text style={styles.saveButtonText}>Save</Text>
                 </TouchableOpacity>
             </View>
+            {/* Search bar start */}
+            <View style={{ paddingHorizontal: 16, paddingTop: 20, }}>
+                <View style={styles.seaHist}>
+                    <Text style={styles.seaHistTitle}>Search Result</Text>
+                </View>
+                <View style={styles.seaBox}>
+                    <View style={styles.seaBoxIcon}>
+                        <Image source={require('../../../assets/search.png')} style={styles.seaBoxIconImg} />
+                    </View>
+                    <Text style={styles.seaBoxTitle}>City Hospital Network</Text>
+                </View>
+                {/* Show API Data Here */}
+                {filteredInvestigations.length > 0 ? (
+                    filteredInvestigations.map((item, index) => (
+                        <View style={styles.seaBox} key={index}>
+                            <View style={styles.seaBoxIcon}>
+                                <Image
+                                    source={require('../../../assets/search.png')}
+                                    style={styles.seaBoxIconImg}
+                                />
+                            </View>
+
+                            {/* Name from API */}
+                            <Text style={styles.seaBoxTitle}>
+                                {item.investigation_name || item.testName || "Unknown Investigation"}
+                            </Text>
+                        </View>
+                    ))
+                ) : (
+                    <Text style={{ color: "#777", paddingLeft: 10 }}>No search results</Text>
+                )}
+
+                {/* Search History Section (unchanged) */}
+                <View style={styles.seaHist}>
+                    <Text style={styles.seaHistTitle}>Search History</Text>
+                    <Text style={styles.seaHistClear}>Clear all</Text>
+                </View>
+                <View style={styles.seaBox}>
+                    <View style={styles.seaBoxIcon}>
+                        <Image source={require('../../../assets/search.png')} style={styles.seaBoxIconImg} />
+                    </View>
+                    <Text style={styles.seaBoxTitle}>City Hospital Network</Text>
+                </View>
+                <View style={styles.seaBox}>
+                    <View style={styles.seaBoxIcon}>
+                        <Image source={require('../../../assets/search.png')} style={styles.seaBoxIconImg} />
+                    </View>
+                    <Text style={styles.seaBoxTitle}>City Hospital Network</Text>
+                </View>
+                <View style={styles.seaHist}>
+                    <Text style={styles.seaHistTitle}>Suggested</Text>
+                </View>
+                <View style={styles.seaBox}>
+                    <View style={styles.seaBoxIcon}>
+                        <Image source={require('../../../assets/testicon7.png')} style={styles.seaBoxIconImg} />
+                    </View>
+                    <Text style={styles.seaBoxTitle}>City Hospital Network</Text>
+                </View>
+            </View>
+            {/* search bar End  */}
         </SafeAreaView>
     );
 }
@@ -706,4 +867,53 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         gap: 7,
     },
+    // Search History Start
+    seaHist: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginBottom: 16,
+    },
+    seaHistTitle: {
+        fontFamily: 'Poppins-Medium',
+        fontSize: 15,
+        lineHeight: 18,
+        color: '#000',
+    },
+    seaHistClear: {
+        fontFamily: 'Poppins-Regular',
+        fontSize: 13,
+        lineHeight: 16,
+        color: '#000',
+        textDecorationLine: 'underline',
+    },
+    seaBox: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 16,
+    },
+    seaBoxIcon: {
+        width: 35,
+        height: 35,
+        borderWidth: 1,
+        borderColor: '#E9F6EE',
+        backgroundColor: '#E8FFF8',
+        borderRadius: 3,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    seaBoxIconImg: {
+        width: 16,
+        height: 16,
+        resizeMode: 'contain',
+        tintColor: '#00A635',
+    },
+    seaBoxTitle: {
+        fontFamily: 'Poppins-Regular',
+        fontSize: 13,
+        lineHeight: 16,
+        color: '#000',
+        flex: 1,
+        paddingLeft: 8,
+    },
+    // Search History End
 });

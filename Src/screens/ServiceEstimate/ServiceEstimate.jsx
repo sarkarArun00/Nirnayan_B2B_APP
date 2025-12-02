@@ -1,18 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { View, Text, SafeAreaView, ScrollView, ImageBackground, TouchableOpacity, Image, StyleSheet, Modal, TextInput } from 'react-native';
+import { View, Text, SafeAreaView, ScrollView, ImageBackground, TouchableOpacity, Image, StyleSheet, Modal, TextInput, PermissionsAndroid, Platform } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { GlobalStyles } from '../../GlobalStyles';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import estimateService from "../../services/estimate_service";
 import SkeletonSpinner from "../../screens/SkeletonSpinner";
+import { Alert } from 'react-native';
+import RNFS from "react-native-fs";
 
 function ServiceEstimate() {
+
+    const [selectedEstimateNo, setSelectedEstimateNo] = useState(null);
+    const [selectedId, setSelectedId] = useState(null);
     const navigation = useNavigation();
     const [filterModalVisible, setFilterModalVisible] = useState(false);
     const [editModalVisible, setEditModalVisible] = useState(false);
     // const [infoModalVisible, setInfoModalVisible] = useState(false);
     // const [packageModalVisible, setPackageModalVisible] = useState(false);
+    const [testDetails, setTestDetails] = useState(null);
+
+    const fetchTestDetails = async (testId) => {
+        navigation.navigate('ServiceInvestigations', {
+            testID: testId,
+        });
+    };
 
 
 
@@ -47,7 +59,7 @@ function ServiceEstimate() {
         }
     ];
 
-    const [estimateData, setEstimateData] = useState(estimateData1);
+    const [estimateData, setEstimateData] = useState([]);
 
     const rectangleLayout = [
         { width: "100%", height: 120, borderRadius: 12 }, // main rectangle
@@ -62,12 +74,20 @@ function ServiceEstimate() {
         try {
             const response = await estimateService.getEstimate();
             console.log("API Response:", response);
+
             if (response.status == 1) {
-                setEstimateData(response.data)
+                if (Array.isArray(response.data) && response.data.length === 0) {
+                    navigation.navigate('NewEstimate', {
+                        isCollapsed: false,
+                    });
+                    return;
+                }
+                setEstimateData(response.data);;
             } else {
-
+                navigation.navigate('NewEstimate', {
+                    isCollapsed: false,
+                });
             }
-
         } catch (error) {
             console.log("API Error:", error);
         }
@@ -103,6 +123,64 @@ function ServiceEstimate() {
         return `${diffDays} days ago`;
     };
     // day,month and year calucation start
+
+    // Delete Estimate Start
+    const handleDelete = async (id) => {
+        Alert.alert(
+            "Confirm Delete",
+            "Are you sure you want to delete this estimate?",
+            [
+                { text: "Cancel", style: "cancel" },
+                {
+                    text: "Delete",
+                    style: "destructive",
+                    onPress: async () => {
+                        try {
+                            const res = await estimateService.deleteEstimate(id);
+
+                            if (res.status === 1) {
+                                Alert.alert("Deleted", "Estimate deleted successfully");
+                                fetchEstimate();   // ✅ use correct function
+                                setEditModalVisible(false); // close modal
+                            } else {
+                                Alert.alert("Error", res.message || "Could not delete.");
+                            }
+
+                        } catch (err) {
+                            console.log("Delete error:", err);
+                            Alert.alert("Error", "Something went wrong while deleting.");
+                        }
+                    }
+                }
+            ]
+        );
+    };
+
+    //  Delete Estimate End
+
+    const handleDownload = async () => {
+        try {
+            const base64Pdf = await estimateService.downloadEstimatePdf(selectedId);
+
+            console.log("PDF DATA:", base64Pdf);
+
+            // Replace slashes in filename
+            const safeName = selectedEstimateNo.replace(/\//g, "_");
+
+            const filePath = `${RNFS.DownloadDirectoryPath}/${safeName}.pdf`;
+
+            await RNFS.writeFile(filePath, base64Pdf, "base64");
+
+            Alert.alert("Success", `PDF saved:\n${filePath}`);
+
+        } catch (error) {
+            console.log(error);
+            Alert.alert("Error", "Failed to save PDF.");
+        }
+    };
+
+    //  download Estimate End
+
 
     return (
         <SafeAreaView style={{ flex: 1, }}>
@@ -170,7 +248,7 @@ function ServiceEstimate() {
                                 {/* Header */}
                                 <View style={styles.patHeader}>
                                     <Text style={styles.patHeaderRefId}>{item.estimateNo}</Text>
-                                    <TouchableOpacity style={styles.headerButton} onPress={() => setEditModalVisible(true)}>
+                                    <TouchableOpacity style={styles.headerButton} onPress={() => { setSelectedId(item.id); setSelectedEstimateNo(item.estimateNo); setEditModalVisible(true); }}>
                                         <Icon name="ellipsis-vertical" size={18} color="#000" />
                                     </TouchableOpacity>
                                 </View>
@@ -195,9 +273,21 @@ function ServiceEstimate() {
                                 {/* Package Info */}
                                 <View style={styles.packageSection}>
                                     <Text style={styles.packageTitle}> {item?.investigations?.[0]?.testName ?? "No Tests Added"}</Text>
-                                    <TouchableOpacity onPress={() => navigation.navigate("ServiceInvestigations")}>
-                                        <Ionicons name="eye" size={22} color="#B8B8B8" />
-                                    </TouchableOpacity>
+                                    {/* <TouchableOpacity onPress={() => fetchTestDetails(item.investigations[0].testCode)}> */}
+                                    {item.investigations?.length > 1 ? (
+                                        // ➤ More than 1 test → show +N
+                                        <TouchableOpacity onPress={() => fetchTestDetails(item.investigations[0].testCode)}>
+                                            <Text style={{ fontSize: 14, color: "#1c9e43ff" }}>
+                                                +{item.investigations.length - 1}
+                                            </Text>
+                                        </TouchableOpacity>
+                                    ) : (
+                                        // ➤ Only 1 test → show eye icon
+                                        <TouchableOpacity onPress={() => fetchTestDetails(item.investigations[0].testCode)}>
+                                            <Ionicons name="eye" size={22} color="#B8B8B8" />
+                                        </TouchableOpacity>
+                                    )}
+                                    {/* </TouchableOpacity> */}
                                 </View>
 
                                 {/* Partner Rates */}
@@ -273,19 +363,19 @@ function ServiceEstimate() {
                             </TouchableOpacity>
 
                             <View style={{ flexDirection: 'row', justifyContent: 'center', justifyContent: 'space-around', }}>
-                                <TouchableOpacity>
+                                {/* <TouchableOpacity>
                                     <View style={styles.editIcon}>
                                         <Image source={require('../../../assets/estimate-edit.png')} style={{ width: 28, height: 28, objectFit: 'contain', }} />
                                     </View>
                                     <Text style={styles.editModalText}>Edit</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity>
+                                </TouchableOpacity> */}
+                                <TouchableOpacity onPress={handleDownload}>
                                     <View style={styles.printIcon}>
                                         <Image source={require('../../../assets/estimate-print.png')} style={{ width: 28, height: 28, objectFit: 'contain', }} />
                                     </View>
-                                    <Text style={styles.editModalText}>Print</Text>
+                                    <Text style={styles.editModalText}>Download</Text>
                                 </TouchableOpacity>
-                                <TouchableOpacity>
+                                <TouchableOpacity onPress={() => handleDelete(selectedId)}>
                                     <View style={styles.deleteIcon}>
                                         <Image source={require('../../../assets/estimate-delete.png')} style={{ width: 28, height: 28, objectFit: 'contain', }} />
                                     </View>

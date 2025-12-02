@@ -3,13 +3,38 @@ import { useNavigation } from '@react-navigation/native';
 import { View, Text, SafeAreaView, ScrollView, ImageBackground, TouchableOpacity, Image, StyleSheet, Modal, } from 'react-native';
 import { GlobalStyles } from '../../GlobalStyles';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { useRoute } from '@react-navigation/native';
+import estimateService from "../../services/estimate_service";
 
 function ServiceInvestigations() {
     const navigation = useNavigation();
     const [packageModalVisible, setPackageModalVisible] = useState(false);
     const [parameterModalVisible, setParameterModalVisible] = useState(false);
-    const [investigationData, setInvestigationData] = useState([]);
+    const [investigationData, setInvestigationData] = useState('');
     const [packagesData, setPackagesData] = useState([]);
+    const route = useRoute();
+    const { testID } = route.params || {};
+
+    // api calling for all test data start
+    const getTestData = async (id) => {
+        try {
+            const response = await estimateService.getEstimateDetilsByTestId(id);
+            setInvestigationData(response.data);
+            console.log("Test Details:", response.data);
+            console.log("Test Details:", investigationData);
+
+        } catch (error) {
+            console.log("Error fetching test details:", error);
+        }
+    };
+
+    // api calling for all test data end
+
+    useEffect(() => {
+        if (testID) {
+            getTestData(testID);
+        }
+    }, [testID]);
 
     const handleItemPress = (item) => {
         if (item.title === "Parameter") {
@@ -54,7 +79,7 @@ function ServiceInvestigations() {
         {
             icon: require("../../../assets/testicon1.png"),
             title: "Test Code",
-            subtitle: "SP019",
+            subtitle: investigationData.test_code, 
             color: "#00A651",
         },
         {
@@ -66,19 +91,19 @@ function ServiceInvestigations() {
         {
             icon: require("../../../assets/testicon3.png"),
             title: "Gender",
-            subtitle: "Male",
+            subtitle: investigationData.gender == 1 ? 'Male' : investigationData.gender == 2 ? 'Female': 'Other',
             color: "#00A651",
         },
         {
             icon: require("../../../assets/testicon4.png"),
             title: "Sample Type",
-            subtitle: "NIL",
+            subtitle: investigationData.sample_quantity,
             color: "#00A651",
         },
         {
             icon: require("../../../assets/testicon5.png"),
             title: "TAT",
-            subtitle: "DAYS",
+            subtitle: `${investigationData.tat?.normalTat?.value} days`,
             color: "#00A651",
         },
         {
@@ -90,14 +115,14 @@ function ServiceInvestigations() {
         {
             icon: require("../../../assets/testicon7.png"),
             title: "Prerequisite",
-            subtitle: "Patient Clinical History Required",
+            subtitle: investigationData.prerequisites,
             color: "#00A651",
         },
     ];
 
-    useEffect(() => {
-        setInvestigationData(packages);
-    }, []);
+    // useEffect(() => {
+    //     setInvestigationData(packages);
+    // }, []);
 
     useEffect(() => {
         if (investigationData.length > 0) {
@@ -132,15 +157,15 @@ function ServiceInvestigations() {
                 </ImageBackground>
 
                 <View style={{ paddingHorizontal: 16, }}>
-                    {investigationData.map((item, index) => (
-                        <TouchableOpacity key={index} style={styles.invCard} onPress={() => setPackageModalVisible(true)}>
-                            <View style={[styles.invCardIconWrap, { backgroundColor: `${item.color}15`, borderWidth: 1, borderColor: `${item.color}25` }]}>
-                                <Image source={item.icon} style={[styles.invCardIcon, { tintColor: item.color }]} />
+                    {/* {Array.isArray(investigationData) && investigationData.map((item, index) => ( */}
+                        <TouchableOpacity  style={styles.invCard} onPress={() => setPackageModalVisible(true)}>
+                            <View style={[styles.invCardIconWrap, { backgroundColor: '#dbf1e6ff', borderWidth: 1, borderColor: '#00A651' }]}>
+                                <Image source={require('../../../assets/test-tube.png')} style={[styles.invCardIcon, { tintColor: '#00A651r' }]} />
                             </View>
                             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingLeft: 10, flex: 1, flexShrink: 1, }}>
                                 <View style={styles.invCardTextWrap}>
                                     <Text style={styles.invCardTitle}>
-                                        <Text style={{ fontWeight: '700' }}>{item.name}</Text> – {item.desc}
+                                        <Text style={{ fontWeight: '700' }}>{investigationData.test_name}</Text>
                                     </Text>
                                 </View>
 
@@ -149,7 +174,8 @@ function ServiceInvestigations() {
                                 </View>
                             </View>
                         </TouchableOpacity>
-                    ))}
+                    {/* ))} */}
+                  
                 </View>
 
                 {/* Investigation Modal Package details */}
