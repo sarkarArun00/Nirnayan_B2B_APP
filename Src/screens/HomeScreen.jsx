@@ -178,13 +178,13 @@ const HomeScreen = () => {
             </View>
 
             <View style={styles.paymentCard}>
-              <View style={{ width: 50, alignItems: 'center', justifyContent: 'center' }}>
-                <Image source={require('../../assets/warning.png')} />
+              <View style={{ width: 50, alignItems: 'center', }}>
+                <Image source={require('../../assets/warning.png')} style={{width:30, height:30, resizeMode:'contain', }} />
               </View>
 
               <View style={{ flex: 1 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <View style={{ flexShrink: 1, paddingRight: 10 }}>
+                  <View style={{ flexShrink: 1, paddingHorizontal: 10 }}>
                     <Text style={styles.paymentTitle}>Outstanding Payment</Text>
                     <Text style={styles.paymentSubtitle}>
                       You have ₹15,240 pending {'\n'}payment
@@ -518,6 +518,7 @@ const styles = StyleSheet.create({
     paddingVertical: 18,
     paddingHorizontal: 10,
     flexDirection: 'row',
+    alignItems:'center',
   },
   paymentTitle: {
     fontFamily: 'Poppins-SemiBold',
@@ -527,7 +528,7 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   paymentSubtitle: {
-    fontFamily: 'Poppins-Reqular',
+    fontFamily: 'Poppins-Regular',
     fontSize: 12,
     lineHeight: 14,
     color: '404040',
