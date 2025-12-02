@@ -203,7 +203,7 @@ function Accounts({ navigation }) {
               </View>
               <Text style={styles.quickActionLabel}>Receive Amount</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.quickActionCard}>
+            <TouchableOpacity style={styles.quickActionCard} onPress={() => navigation.navigate('PartnerLedgerView')}>
               <View style={styles.quickActionIconBlue}>
                 <Image
                   source={require("../../../assets/settlementicon.png")}
