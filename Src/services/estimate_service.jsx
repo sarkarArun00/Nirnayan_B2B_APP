@@ -39,6 +39,20 @@ const estimateService = {
             throw error;
         }
     },
+
+    getEstimateDetilsByTestIdV1: async (data) => {
+        try {
+            const response = await globalApiClient.post(
+                `test/test-master/getTestBTestCode`,
+                data
+            );
+            return response.data;
+        } catch (error) {
+            console.log("error response:", error.response?.data);
+            throw error;
+        }
+    },
+
     // download the estimate PDF
     downloadEstimatePdf: async (id) => {
         try {
@@ -123,11 +137,6 @@ const estimateService = {
             throw error;
         }
     }
-
-
-
-
-
 
 };
 

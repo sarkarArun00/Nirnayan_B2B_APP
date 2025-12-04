@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, SafeAreaView, ScrollView, ImageBackground, TouchableOpacity, Animated, Image, TextInput, StyleSheet, } from 'react-native';
+import { View, Text, SafeAreaView, ScrollView, ImageBackground, TouchableOpacity, Animated, Image, TextInput, StyleSheet, Alert } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Collapsible from 'react-native-collapsible';
 import { GlobalStyles } from '../../GlobalStyles';
@@ -11,6 +11,7 @@ import SkeletonSpinner from "../../screens/SkeletonSpinner";
 import { useRoute, useFocusEffect } from '@react-navigation/native';
 import { useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import AlertModal from '../../componenets/AlertModal';
 
 function NewEstimate({ navigation }) {
     const route = useRoute();
@@ -21,11 +22,12 @@ function NewEstimate({ navigation }) {
             }
         }, [route.params?.isCollapsed])
     );
+
     const [isCollapsed, setIsCollapsed] = useState(true);
     const toggleAccordion = () => setIsCollapsed(!isCollapsed);
 
     const [selectGender, setSelecteGender] = useState('');
-    const [selectPartner, setSelectPartner] = useState('');
+    // const [selectPartner, setSelectPartner] = useState('');
     const [selectInitial, setSelectInitial] = useState('');
 
     const [showGross, setShowGross] = useState(true);
@@ -40,89 +42,56 @@ function NewEstimate({ navigation }) {
     const [selectedDeleteId, setSelectedDeleteId] = useState(null);
     const [confirmMessage, setConfirmMessage] = useState("");
 
-    const [selectedPartnerId, setSelectedPartnerId] = useState(null);
+    // const [selectedPartnerId, setSelectedPartnerId] = useState(null);
     const [partner, setPartner] = useState([]);
 
-    const [partnerId, setPartnerId] = useState("");
+    // const [partnerId, setPartnerId] = useState("");
     const [investigations, setInvestigations] = useState([]);
     const [searchText, setSearchText] = useState("");
     const [filteredInvestigations, setFilteredInvestigations] = useState([]);
+    const [selectedPartners, setSelectedPartners] = useState("");  // selected items array
+    const [searchpanel, setSearchpanel] = useState(false);
 
+    // for alert
+    const [modalVisible, setModalVisible] = useState(false);
+    const [alertMessage, setAlertMessage] = useState('');
+    const [alertType, setAlertType] = useState('success');  // 'success' | 'error' | 'warning'
 
-    // demo value start
-    const packageList = [
-        {
-            id: 1,
-            packageTitle: "Suswastham 17.0 - Pre Operative Check Up Basic Package",
-            totalRate: 550,
-            grossMrp: 550,
-        },
-        {
-            id: 2,
-            packageTitle: "Healthy Heart Full Body Screening",
-            totalRate: 1200,
-            grossMrp: 2000,
-        },
-        {
-            id: 3,
-            packageTitle: "Diabetes Monitoring Package",
-            totalRate: 750,
-            grossMrp: 999,
-        },
-        {
-            id: 4,
-            packageTitle: "Women's Wellness Advanced Package",
-            totalRate: 1450,
-            grossMrp: 1800,
-        },
-        {
-            id: 5,
-            packageTitle: "Senior Citizen Health Checkup",
-            totalRate: 999,
-            grossMrp: 1500,
-        },
-        {
-            id: 6,
-            packageTitle: "Kid's Immunity Screening",
-            totalRate: 640,
-            grossMrp: 950,
-        },
-    ];
-
-    const rectangleLayout = [
-        { width: "100%", height: 120, borderRadius: 12 }, // main rectangle
-    ];
+    // const rectangleLayout = [
+    //     { width: "100%", height: 120, borderRadius: 12 }, // main rectangle
+    // ];
     // demo value end
-    const [packageListData, setPackageListData] = useState(packageList);
+    const [packageListData, setPackageListData] = useState([]);
 
     useEffect(() => {
+        setIsCollapsed(false)
         loadInvestigations();
-    }, [partnerId]);
+    }, [selectedPartners]);
 
     // get all Investigation details start
     useEffect(() => {
         // fetchInvestigationDetails();
-        setPackageListData(packageList)
+        // setPackageListData(packageList)
     }, []);
 
-    const fetchInvestigationDetails = async () => {
-        try {
-            const payload = {
+    // const fetchInvestigationDetails = async () => {
+    //     try {
+    //         const payload = {
 
-            };
+    //         };
 
-            const response = await estimateService.getInvestigationDetails(payload);
-            console.log("API Response:", response);
-            if (response.status == 1) {
-                setEstimateData(response.data)
-            } else {
+    //         const response = await estimateService.getInvestigationDetails(payload);
+    //         console.log("API Response:", response);
+    //         if (response.status == 1) {
+    //             setEstimateData(response.data)
+    //         } else {
 
-            }
+    //         }
 
-        } catch (error) {
-            console.log("API Error:", error);
-        }
-    };
+    //     } catch (error) {
+    //         console.log("API Error:", error);
+    //     }
+    // };
     // get all Investigation details end
     useEffect(() => {
         fetchPartnerMaster();
@@ -143,19 +112,29 @@ function NewEstimate({ navigation }) {
     // get all partner api call end
 
     // calculate the value start
-    const totalRateSum = packageListData.reduce((sum, item) => sum + item.totalRate, 0);
-    const grossTotalSum = packageListData.reduce((sum, item) => sum + item.grossMrp, 0);
+    const totalRateSum = packageListData.reduce(
+        (sum, item) => sum + (selectedPartners ? item.partnerAmount : item.clientAmount),
+        0
+    );
+
+    const grossTotalSum = packageListData.reduce((sum, item) => sum + item.mrp, 0);
     // calculate the value end
 
     // delete estimate start
-    const deletePackage = (id) => {
-        const updatedList = packageListData.filter(item => item.id !== id);
-        console.log(updatedList);
+    // const deletePackage = (id) => {
+    //     const updatedList = packageListData.filter(item => item.id !== id);
+    //     console.log(updatedList);
 
-        setPackageListData(updatedList);
-    };
+    //     setPackageListData(updatedList);
+    // };
 
     // delete estimate end
+
+    const showAlert = (message, type = 'success') => {
+        setAlertMessage(message);
+        setAlertType(type);
+        setModalVisible(true);
+    };
 
     const showDatePicker = (type) => {
         setPickerType(type);
@@ -276,16 +255,19 @@ function NewEstimate({ navigation }) {
         return Object.keys(newErrors).length === 0;
     };
 
-    // REnd Validation function
+    // End Validation function
 
     // Load Investigation Start
     const loadInvestigations = async () => {
+
         try {
             const userId = await AsyncStorage.getItem("user_id");
             let response;
 
-            if (partnerId) {
-                response = await estimateService.getInvestigationByPartnerId(partnerId);
+            if (selectedPartners) {
+                response = await estimateService.getInvestigationByPartnerId(selectedPartners);
+                setInvestigations(response.data);
+                setFilteredInvestigations(response.data);
                 console.log("Investigations by Partner:", response);
             } else {
                 response = await estimateService.getInvestigationsDetailsByClientId(userId);
@@ -303,38 +285,196 @@ function NewEstimate({ navigation }) {
     };
     // Load Investigation End
 
-    // form submit
-    const handleSave = () => {
-        if (validateForm()) {
-            console.log("Form Submitted Successfully");
+    // // form submit
+    // const handleSave = () => {
+    //     if (validateForm()) {
+    //         setIsCollapsed(true);
+
+    //     }
+    // };
+    // //  end form submit
+
+    // start createNewEstimate start
+    const createNewEstimate = async () => {
+        if (!validateForm()) {
+            setIsCollapsed(false);
+        }
+        if (packageListData.length === 0) {
+            // Alert.alert("Please select an investigation");
+            showAlert("Please select an investigation", "warning");
+        } else {
+            const investigationData = packageListData.map(item => ({
+                testId: item.testId,
+                testCode: item.testCode,
+                testName: item.testName,
+                mrp: item.mrp,
+                clientRate: item.clientRate,
+                partnerRate: item.partnerAmount,
+                tat: JSON.stringify(item.investigation?.tat || {})
+            }));
+
+            const dobFormatted = fromDate.toISOString().split("T")[0];;
+            const payload = {
+                patientName: patientName.trim(),
+                dob: dobFormatted,
+                gender: selectGender,
+                estimateType: selectedPartners ? "partner" : "client",
+                partnerId: Number(selectedPartners) || null,
+                investigations: investigationData
+            };
+            console.log("PAYLOAD BEFORE API CALL:", payload);
+            try {
+
+                const response = await estimateService.createEstimate(payload);
+                navigation.navigate('ServiceEstimate');
+                console.log("API SUCCESS:", response);
+
+                Alert.alert("Success", "Estimate created successfully");
+
+            } catch (error) {
+                console.log("API ERROR:", error.response?.data || error.message);
+                Alert.alert("Error", "Something went wrong while saving.");
+            } finally {
+            }
+
         }
     };
-    //  end form submit
+
+    // end createNewEstimate end
 
     // handle search start
     const handleSearch = (text) => {
-        console.log("data1", text);
-
+        setSearchpanel(true);
         if (!text) {
+            setSearchpanel(false);
             setFilteredInvestigations(investigations); // show all if empty
             return;
+        } else {
+            const filtered = investigations.filter((item) => {
+                const name = item.testName?.toLowerCase() || "";
+                const code = item.testCode?.toLowerCase() || "";
+
+                return name.includes(text.toLowerCase()) || code.includes(text.toLowerCase());
+            });
+            console.log("data", filtered);
+
+
+            setFilteredInvestigations(filtered);
+
         }
-        console.log('data', investigations);
-
-        const filtered = investigations.filter((item) => {
-            const name = item.testName?.toLowerCase() || "";
-            const code = item.testCode?.toLowerCase() || "";
-
-            return name.includes(text.toLowerCase()) || code.includes(text.toLowerCase());
-        });
-        console.log("data", filtered);
-
-
-        setFilteredInvestigations(filtered);
     };
 
     // handle search end
 
+    // handle investigation selection start
+    const handleSelectInvestigation = (item) => {
+        console.log('Selected Item:', item);
+
+        if (!item) return;
+
+        // Check if already added
+        if (packageListData.some((p) => p.testId === item.testId)) {
+            Alert.alert("Already Selected", "This investigation is already added.");
+            return;
+        }
+
+        // Add selected item directly
+        setPackageListData((prev) => [...prev, item]);
+        setSearchpanel(false);
+        setIsCollapsed(true);
+        setSearchText("");
+        console.log("Updated packageListData:", [...packageListData, item]);
+    };
+
+    // handle partner selection end
+
+    const deleteItem = () => {
+        setPackageListData(prev =>
+            prev.filter(item => item.testId !== selectedDeleteId)
+        );
+        setShowDeleteModal(false);
+        setSearchText('');
+    };
+
+    // handle Initial and gender auto selection start
+
+    const handleInitialChange = (value) => {
+        setSelectInitial(value);
+
+        if (value === "Mr.") {
+            setSelecteGender("male");
+        }
+        else if (value === "Ms.") {
+            setSelecteGender("female");
+        }
+        else {
+            setSelecteGender("");
+        }
+    };
+    const handleGenderChange = (value) => {
+        setSelecteGender(value);
+
+        if (value === "male") {
+            setSelectInitial("Mr.");
+        }
+        else if (value === "female") {
+            setSelectInitial("Ms.");
+        }
+        else {
+            setSelectInitial("");
+        }
+    };
+
+    // handle Initial and gender auto selection End
+
+    // validation name start
+    const validateName = (text) => {
+        // Normalize strange spaces (NBSP etc.)
+        const normalized = text.replace(/\u00A0/g, " ");
+
+        // Reject leading spaces
+        if (/^\s/.test(normalized)) {
+            setErrors({ ...errors, name: "No leading spaces allowed" });
+            setPatientName(normalized.trimStart());
+            return;
+        }
+
+        // Allow only alphabets + spaces
+        if (/[^A-Za-z\s]/.test(normalized)) {
+            setErrors({ ...errors, name: "Only alphabets allowed" });
+            setPatientName(normalized.replace(/[^A-Za-z\s]/g, ""));
+            return;
+        }
+
+        // Prevent more than ONE trailing space
+        if (/ {2,}$/.test(normalized)) {
+            setErrors({ ...errors, name: "Only one trailing space allowed" });
+            // Remove extra trailing spaces
+            setPatientName(normalized.replace(/ {2,}$/, " "));
+            return;
+        }
+
+        // Prevent multiple spaces between words
+        if (/\s{2,}/.test(normalized.trimEnd())) {
+            setErrors({ ...errors, name: "Only one space allowed between words" });
+            setPatientName(normalized.replace(/\s{2,}/g, " "));
+            return;
+        }
+
+        const regex = /^[A-Za-z]+(?: [A-Za-z]+)? ?$/;
+
+        if (!regex.test(normalized)) {
+            setErrors({ ...errors, name: "Invalid name format" });
+            setPatientName(normalized);
+            return;
+        }
+
+        setErrors({ ...errors, name: null });
+        setPatientName(normalized);
+    };
+
+
+    // validation name end
 
     return (
         <SafeAreaView style={{ flex: 1 }}>
@@ -396,14 +536,14 @@ function NewEstimate({ navigation }) {
                             <View style={GlobalStyles.input}>
                                 <Picker
                                     selectedValue={selectInitial}
-
+                                    onValueChange={handleInitialChange}
                                     dropdownIconColor='#C2C2C2'
                                     style={{ color: '#C2C2C2' }}
                                 >
                                     <Picker.Item label="Select" value="" />
                                     <Picker.Item label="Mr." value="Mr." />
                                     <Picker.Item label="Ms." value="Ms." />
-                                    <Picker.Item label="Mrs." value="Mrs." />
+                                    {/* <Picker.Item label="Mrs." value="Mrs." /> */}
                                 </Picker>
                             </View>
 
@@ -416,7 +556,7 @@ function NewEstimate({ navigation }) {
                             <TextInput
                                 placeholder="Enter Name"
                                 value={patientName}
-                                onChangeText={(v) => { setPatientName(v); setErrors({ ...errors, name: null }); }}
+                                onChangeText={validateName}
                                 placeholderTextColor="#999"
                                 style={[
                                     GlobalStyles.input,
@@ -424,6 +564,7 @@ function NewEstimate({ navigation }) {
                                 ]}
                             />
                             {errors.name && <Text style={{ color: 'red', fontSize: 12 }}>{errors.name}</Text>}
+
                         </View>
 
 
@@ -509,6 +650,7 @@ function NewEstimate({ navigation }) {
                             <View style={GlobalStyles.input}>
                                 <Picker
                                     selectedValue={selectGender}
+                                    onValueChange={handleGenderChange}
                                     dropdownIconColor='#C2C2C2'
                                     style={{ color: '#C2C2C2' }}
                                 >
@@ -526,8 +668,11 @@ function NewEstimate({ navigation }) {
                             <Text style={GlobalStyles.label}>Select Partner</Text>
                             <View style={GlobalStyles.input}>
                                 <Picker
-                                    selectedValue={selectPartner}
-                                    dropdownIconColor='#C2C2C2'
+                                    selectedValue={selectedPartners}
+                                    onValueChange={(value) => {
+                                        setSelectedPartners(value);
+                                    }}
+                                    dropdownIconColor="#C2C2C2"
                                     style={{ color: '#C2C2C2' }}
                                 >
                                     <Picker.Item label="Select" value="" />
@@ -544,16 +689,16 @@ function NewEstimate({ navigation }) {
                         </View>
 
 
-                        <TouchableOpacity style={GlobalStyles.applyBtnFullWidth} onPress={handleSave}>
+
+                        {/* <TouchableOpacity style={GlobalStyles.applyBtnFullWidth} onPress={handleSave}>
                             <Text style={GlobalStyles.applyBtnTextNew}>Save</Text>
-                        </TouchableOpacity>
+                        </TouchableOpacity> */}
 
                     </Collapsible>
 
                     {packageListData.length === 0 ? (
-                        // Show Skeleton
                         <View style={{ flex: 1 }}>
-                            <SkeletonSpinner
+                            {/* <SkeletonSpinner
                                 items={5}
                                 layout={rectangleLayout}
                                 containerStyle={{
@@ -561,16 +706,15 @@ function NewEstimate({ navigation }) {
                                     borderRadius: 12,
                                     overflow: "hidden",
                                 }}
-                            />
+                            /> */}
                         </View>
                     ) : (
-                        // Show Actual UI
                         packageListData.map((item) => (
-                            <View key={item.id} style={styles.patCard}>
+                            <View key={item.testId} style={styles.patCard}>
 
                                 <View style={styles.packageSection}>
-                                    <Text style={styles.packageTitle}>{item.packageTitle}</Text>
-                                    <TouchableOpacity onPress={() => navigation.navigate('ServiceInvestigations')}>
+                                    <Text style={styles.packageTitle}>{item.testName} - {item.testCode} </Text>
+                                    <TouchableOpacity onPress={() => navigation.navigate('ServiceInvestigations', { investigations: [item.investigation] , newEstimate: true,})}>
                                         <Ionicons name="eye" size={22} color="#B8B8B8" />
                                     </TouchableOpacity>
                                 </View>
@@ -584,7 +728,7 @@ function NewEstimate({ navigation }) {
                                             </View>
                                             <View style={styles.rateText}>
                                                 <Text style={styles.rateLabel}>Total Rate</Text>
-                                                <Text style={styles.rateValue}>{item.totalRate}</Text>
+                                                <Text style={styles.rateValue}>{selectedPartners ? item.partnerAmount : item.clientAmount}</Text>
                                             </View>
                                         </View>
 
@@ -594,7 +738,7 @@ function NewEstimate({ navigation }) {
                                             </View>
                                             <View style={styles.rateText}>
                                                 <Text style={styles.rateLabel}>Gross MRP</Text>
-                                                <Text style={styles.rateValue}>{item.grossMrp}</Text>
+                                                <Text style={styles.rateValue}>{item.mrp}</Text>
                                             </View>
                                         </View>
 
@@ -604,9 +748,10 @@ function NewEstimate({ navigation }) {
                                         <TouchableOpacity>
                                             <Ionicons name="download-outline" size={24} color="#00A651" />
                                         </TouchableOpacity>
+
                                         <TouchableOpacity
                                             onPress={() => {
-                                                setSelectedDeleteId(item.id);
+                                                setSelectedDeleteId(item.testId);
                                                 setConfirmMessage(`Do you really want to delete this item?`);
                                                 setShowDeleteModal(true);
                                             }}
@@ -619,12 +764,13 @@ function NewEstimate({ navigation }) {
                         ))
                     )}
 
+
                     <ConfirmDeleteModal
                         visible={showDeleteModal}
                         message={confirmMessage}
                         onCancel={() => setShowDeleteModal(false)}
                         onConfirm={() => {
-                            deletePackage(selectedDeleteId);
+                            deleteItem();
                             setShowDeleteModal(false);
                         }}
                     />
@@ -634,6 +780,7 @@ function NewEstimate({ navigation }) {
 
                 <DateTimePickerModal
                     isVisible={isDatePickerVisible}
+                    maximumDate={new Date()}
                     mode="date"
                     onConfirm={handleConfirm}
                     onCancel={hideDatePicker}
@@ -665,70 +812,80 @@ function NewEstimate({ navigation }) {
                         <Ionicons name="code-outline" size={24} color="#FFFFFF" />
                     </TouchableOpacity>
                 </View>
-                <TouchableOpacity style={styles.saveButton}>
+                <TouchableOpacity style={styles.saveButton} onPress={createNewEstimate}>
                     <Text style={styles.saveButtonText}>Save</Text>
                 </TouchableOpacity>
             </View>
             {/* Search bar start */}
-            <View style={{ paddingHorizontal: 16, paddingTop: 20, }}>
-                <View style={styles.seaHist}>
-                    <Text style={styles.seaHistTitle}>Search Result</Text>
-                </View>
-                <View style={styles.seaBox}>
-                    <View style={styles.seaBoxIcon}>
-                        <Image source={require('../../../assets/search.png')} style={styles.seaBoxIconImg} />
-                    </View>
-                    <Text style={styles.seaBoxTitle}>City Hospital Network</Text>
-                </View>
-                {/* Show API Data Here */}
-                {filteredInvestigations.length > 0 ? (
-                    filteredInvestigations.map((item, index) => (
-                        <View style={styles.seaBox} key={index}>
-                            <View style={styles.seaBoxIcon}>
-                                <Image
-                                    source={require('../../../assets/search.png')}
-                                    style={styles.seaBoxIconImg}
-                                />
-                            </View>
-
-                            {/* Name from API */}
-                            <Text style={styles.seaBoxTitle}>
-                                {item.investigation_name || item.testName || "Unknown Investigation"}
-                            </Text>
+            {searchpanel && (
+                <View style={styles.searchMainWrap}>
+                    <ScrollView>
+                        <View style={styles.seaHist}>
+                            <Text style={styles.seaHistTitle}>Search Result</Text>
                         </View>
-                    ))
-                ) : (
-                    <Text style={{ color: "#777", paddingLeft: 10 }}>No search results</Text>
-                )}
 
-                {/* Search History Section (unchanged) */}
-                <View style={styles.seaHist}>
-                    <Text style={styles.seaHistTitle}>Search History</Text>
-                    <Text style={styles.seaHistClear}>Clear all</Text>
+                        {/* Show API Data Here */}
+                        {filteredInvestigations.length > 0 ? (
+                            filteredInvestigations.map((item, index) => (
+                                <TouchableOpacity
+                                    key={index}
+                                    style={styles.seaBox}
+                                    onPress={() => handleSelectInvestigation(item)}
+                                >
+                                    <View style={styles.seaBoxIcon}>
+                                        <Image
+                                            source={require('../../../assets/search.png')}
+                                            style={styles.seaBoxIconImg}
+                                        />
+                                    </View>
+
+                                    <Text style={styles.seaBoxTitle}>
+                                        {item.testName || "Unknown Investigation"}
+                                    </Text>
+                                </TouchableOpacity>
+
+                            ))
+                        ) : (
+                            <Text style={{ color: "#777", paddingLeft: 10 }}>No search results</Text>
+                        )}
+
+                        {/* Search History Section (unchanged) */}
+                        <View style={styles.seaHist}>
+                            <Text style={styles.seaHistTitle}>Search History</Text>
+                            <Text style={styles.seaHistClear}>Clear all</Text>
+                        </View>
+                        <View style={styles.seaBox}>
+                            <View style={styles.seaBoxIcon}>
+                                <Image source={require('../../../assets/search.png')} style={styles.seaBoxIconImg} />
+                            </View>
+                            <Text style={styles.seaBoxTitle}>City Hospital Network</Text>
+                        </View>
+                        <View style={styles.seaBox}>
+                            <View style={styles.seaBoxIcon}>
+                                <Image source={require('../../../assets/search.png')} style={styles.seaBoxIconImg} />
+                            </View>
+                            <Text style={styles.seaBoxTitle}>City Hospital Network</Text>
+                        </View>
+                        <View style={styles.seaHist}>
+                            <Text style={styles.seaHistTitle}>Suggested</Text>
+                        </View>
+                        <View style={styles.seaBox}>
+                            <View style={styles.seaBoxIcon}>
+                                <Image source={require('../../../assets/testicon7.png')} style={styles.seaBoxIconImg} />
+                            </View>
+                            <Text style={styles.seaBoxTitle}>City Hospital Network</Text>
+                        </View>
+                    </ScrollView>
                 </View>
-                <View style={styles.seaBox}>
-                    <View style={styles.seaBoxIcon}>
-                        <Image source={require('../../../assets/search.png')} style={styles.seaBoxIconImg} />
-                    </View>
-                    <Text style={styles.seaBoxTitle}>City Hospital Network</Text>
-                </View>
-                <View style={styles.seaBox}>
-                    <View style={styles.seaBoxIcon}>
-                        <Image source={require('../../../assets/search.png')} style={styles.seaBoxIconImg} />
-                    </View>
-                    <Text style={styles.seaBoxTitle}>City Hospital Network</Text>
-                </View>
-                <View style={styles.seaHist}>
-                    <Text style={styles.seaHistTitle}>Suggested</Text>
-                </View>
-                <View style={styles.seaBox}>
-                    <View style={styles.seaBoxIcon}>
-                        <Image source={require('../../../assets/testicon7.png')} style={styles.seaBoxIconImg} />
-                    </View>
-                    <Text style={styles.seaBoxTitle}>City Hospital Network</Text>
-                </View>
-            </View>
+            )}
             {/* search bar End  */}
+
+            <AlertModal
+                visible={modalVisible}
+                type={alertType}
+                message={alertMessage}
+                onClose={() => setModalVisible(false)}
+            />
         </SafeAreaView>
     );
 }
@@ -770,7 +927,7 @@ const styles = StyleSheet.create({
         color: '#FFFFFF',
     },
     saveButton: {
-        backgroundColor: '#C2FF84',
+        backgroundColor: '#FFF',
         borderRadius: 6,
         paddingVertical: 14,
         paddingHorizontal: 25,
@@ -868,6 +1025,20 @@ const styles = StyleSheet.create({
         gap: 7,
     },
     // Search History Start
+    searchMainWrap: {
+        position: 'absolute',
+        top: 170,
+        bottom: 0,
+        left: 0,
+        right: 0,
+        backgroundColor: '#fff',
+        borderTopLeftRadius: 15,
+        borderTopRightRadius: 15,
+        paddingHorizontal: 16,
+        paddingTop: 20,
+        zIndex: 100,
+    },
+
     seaHist: {
         flexDirection: 'row',
         justifyContent: 'space-between',

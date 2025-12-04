@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigation } from '@react-navigation/native';
+import React, { useEffect, useState, useCallback } from 'react';
+import { useRoute, useFocusEffect, useNavigation } from '@react-navigation/native';
 import { View, Text, SafeAreaView, ScrollView, ImageBackground, TouchableOpacity, Image, StyleSheet, Modal, } from 'react-native';
 import { GlobalStyles } from '../../GlobalStyles';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { useRoute } from '@react-navigation/native';
 import estimateService from "../../services/estimate_service";
 
 function ServiceInvestigations() {
@@ -11,124 +10,211 @@ function ServiceInvestigations() {
     const [packageModalVisible, setPackageModalVisible] = useState(false);
     const [parameterModalVisible, setParameterModalVisible] = useState(false);
     const [investigationData, setInvestigationData] = useState('');
-    const [packagesData, setPackagesData] = useState([]);
+    // const [packagesData, setPackagesData] = useState([]);
     const route = useRoute();
-    const { testID } = route.params || {};
+    const newEstimate = route?.params?.newEstimate ?? false;
+    // const investigations = route?.params?.investigations ?? [];
+
+    useEffect(() => {
+        if (route?.params?.investigations) {
+            setInvestigationData(route.params.investigations);
+        }
+    }, [route?.params?.investigations]);
+
 
     // api calling for all test data start
-    const getTestData = async (id) => {
-        try {
-            const response = await estimateService.getEstimateDetilsByTestId(id);
-            setInvestigationData(response.data);
-            console.log("Test Details:", response.data);
-            console.log("Test Details:", investigationData);
+    // const getTestData = async (id) => {
+    //     try {
+    //         const response = await estimateService.getEstimateDetilsByTestId(id);
+    //         setInvestigationData(response.data);
+    //         console.log("Test Details:", response.data);
+    //         console.log("Test Details:", investigationData);
 
-        } catch (error) {
-            console.log("Error fetching test details:", error);
-        }
-    };
+    //     } catch (error) {
+    //         console.log("Error fetching test details:", error);
+    //     }
+    // };
 
     // api calling for all test data end
 
-    useEffect(() => {
-        if (testID) {
-            getTestData(testID);
-        }
-    }, [testID]);
+    // useEffect(() => {
+    //     if (testID) {
+    //         getTestData(testID);
+    //     }
+    // }, [testID]);
 
     const handleItemPress = (item) => {
         if (item.title === "Parameter") {
             setParameterModalVisible(true);
+            setPackageModalVisible(false);
         }
         // add other conditions here
         // else if (item.title === "TAT") { ... }
     };
 
-    const packages = [
-        {
-            id: 1,
-            name: 'Suswastham 17.0',
-            desc: 'Pre Operative Check Up Basic Package',
-            icon: require('../../../assets/test-tube.png'),
-            color: '#00A651',
-        },
-        {
-            id: 2,
-            name: 'Suswastham 17.0',
-            desc: 'Pre Operative Check Up Basic Package',
-            icon: require('../../../assets/test-tube.png'),
-            color: '#F44336',
-        },
-        {
-            id: 3,
-            name: 'Suswastham 17.0',
-            desc: 'Pre Operative Check Up Basic Package',
-            icon: require('../../../assets/test-tube.png'),
-            color: '#00A651',
-        },
-        {
-            id: 4,
-            name: 'Suswastham 17.0',
-            desc: 'Pre Operative Check Up Basic Package',
-            icon: require('../../../assets/test-tube.png'),
-            color: '#00A651',
-        },
-    ];
+    useFocusEffect(
+        useCallback(() => {
+            const data = route?.params?.investigations ?? [];
+
+            // Only set if NOT processed
+            if (data.length > 0 && !data[0]?.processed) {
+                setInvestigationData(data);
+            }
+
+        }, [route?.params?.investigations])
+    );
+
+    useEffect(() => {
+        if (investigationData?.length > 0 && !investigationData[0]?.processed) {
+            updateInvestigationsWithColor();
+        }
+    }, [investigationData]);
+
+
+
+
+
+    const updateInvestigationsWithColor = async () => {
+        try {
+            const list = investigationData ?? [];
+
+            const updatedList = await Promise.all(
+                list.map(async (item) => {
+                    const testCode =
+                        item.testCode ||
+                        item.test_code ||
+                        item.testcode;
+
+                    const response = await estimateService.getEstimateDetilsByTestIdV1({
+                        test_code: testCode,
+                    });
+
+                    const color = response.data?.ContainerTypes?.[0]?.color ?? null;
+
+                    return {
+                        ...item,
+                        color,
+                        processed: true,   // <-- IMPORTANT (breaks infinite loop)
+                    };
+                })
+            );
+            console.log('Invest',updatedList);
+
+            setInvestigationData(updatedList);
+        } catch (error) {
+            console.log("Error updating investigation colors:", error);
+        }
+    };
+
+
+
+
+
+    // const packages = [
+    //     {
+    //         id: 1,
+    //         name: 'Suswastham 17.0',
+    //         desc: 'Pre Operative Check Up Basic Package',
+    //         icon: require('../../../assets/test-tube.png'),
+    //         color: '#00A651',
+    //     },
+    //     {
+    //         id: 2,
+    //         name: 'Suswastham 17.0',
+    //         desc: 'Pre Operative Check Up Basic Package',
+    //         icon: require('../../../assets/test-tube.png'),
+    //         color: '#F44336',
+    //     },
+    //     {
+    //         id: 3,
+    //         name: 'Suswastham 17.0',
+    //         desc: 'Pre Operative Check Up Basic Package',
+    //         icon: require('../../../assets/test-tube.png'),
+    //         color: '#00A651',
+    //     },
+    //     {
+    //         id: 4,
+    //         name: 'Suswastham 17.0',
+    //         desc: 'Pre Operative Check Up Basic Package',
+    //         icon: require('../../../assets/test-tube.png'),
+    //         color: '#00A651',
+    //     },
+    // ];
 
     const packageDetails = [
         {
             icon: require("../../../assets/testicon1.png"),
             title: "Test Code",
-            subtitle: investigationData.test_code, 
-            color: "#00A651",
+            subtitle: investigationData?.test_code ?? "",
+            color: investigationData?.ContainerTypes?.[0]?.color ?? "#00A651",
         },
         {
             icon: require("../../../assets/testicon2.png"),
             title: "Container",
-            subtitle: "NIL",
-            color: "#00A651",
+            subtitle: investigationData?.ContainerTypes?.[0]?.name ?? "",
+            color: investigationData?.ContainerTypes?.[0]?.color ?? "#00A651",
         },
         {
             icon: require("../../../assets/testicon3.png"),
             title: "Gender",
-            subtitle: investigationData.gender == 1 ? 'Male' : investigationData.gender == 2 ? 'Female': 'Other',
-            color: "#00A651",
+            subtitle: investigationData?.gender === 1 ? "Male" : investigationData?.gender === 2 ? "Female" : "Other",
+            color: investigationData?.ContainerTypes?.[0]?.color ?? "#00A651",
         },
         {
             icon: require("../../../assets/testicon4.png"),
             title: "Sample Type",
-            subtitle: investigationData.sample_quantity,
-            color: "#00A651",
+            subtitle: investigationData?.sample_quantity ?? "",
+            color: investigationData?.ContainerTypes?.[0]?.color ?? "#00A651",
         },
         {
             icon: require("../../../assets/testicon5.png"),
             title: "TAT",
-            subtitle: `${investigationData.tat?.normalTat?.value} days`,
-            color: "#00A651",
+            subtitle: investigationData?.tat?.normalTat?.isHour ? `${investigationData?.tat?.normalTat?.value ?? ""} hours` : `${investigationData?.tat?.normalTat?.value ?? ""} days`,
+            color: investigationData?.ContainerTypes?.[0]?.color ?? "#00A651",
         },
         {
             icon: require("../../../assets/testicon6.png"),
             title: "Parameter",
-            subtitle: "2 Parameter Covered",
-            color: "#00A651",
+            subtitle: `${investigationData?.ParameterMasters?.length ?? 0} Parameter Covered`,
+            color: investigationData?.ContainerTypes?.[0]?.color ?? "#00A651",
         },
         {
             icon: require("../../../assets/testicon7.png"),
             title: "Prerequisite",
-            subtitle: investigationData.prerequisites,
-            color: "#00A651",
+            subtitle: investigationData?.prerequisites ?? "",
+            color: investigationData?.ContainerTypes?.[0]?.color ?? "#00A651",
         },
     ];
+
+
+    const handleInvestigationClick = async (testCode) => {
+        try {
+            console.log("Clicked Test Code:", testCode);
+            const response = await estimateService.getEstimateDetilsByTestIdV1({
+                "test_code": testCode,
+            });
+            console.log("API Response:", response);
+            if (response.status == 1) {
+                setInvestigationData(response.data)
+            }
+            setPackageModalVisible(true);
+
+        } catch (error) {
+            console.log("API Error:", error);
+            Alert.alert("Error", "Failed to load investigation details");
+        }
+    };
+
 
     // useEffect(() => {
     //     setInvestigationData(packages);
     // }, []);
 
-    useEffect(() => {
-        if (investigationData.length > 0) {
-            setPackagesData(investigationData);
-        }
-    }, [investigationData]);
+    // useEffect(() => {
+    //     if (investigationData.length > 0) {
+    //         setPackagesData(investigationData);
+    //     }
+    // }, [investigationData]);
 
     return (
         <SafeAreaView style={{ flex: 1, }}>
@@ -157,15 +243,15 @@ function ServiceInvestigations() {
                 </ImageBackground>
 
                 <View style={{ paddingHorizontal: 16, }}>
-                    {/* {Array.isArray(investigationData) && investigationData.map((item, index) => ( */}
-                        <TouchableOpacity  style={styles.invCard} onPress={() => setPackageModalVisible(true)}>
-                            <View style={[styles.invCardIconWrap, { backgroundColor: '#dbf1e6ff', borderWidth: 1, borderColor: '#00A651' }]}>
-                                <Image source={require('../../../assets/test-tube.png')} style={[styles.invCardIcon, { tintColor: '#00A651r' }]} />
+                    {Array.isArray(investigationData) && investigationData.map((item, index) => (
+                        <TouchableOpacity style={styles.invCard} onPress={() => handleInvestigationClick(newEstimate ? item.test_code : item.testCode)}>
+                            <View style={[styles.invCardIconWrap, { backgroundColor: item?.color ? `${item.color}15` : '#dbf1e6ff', borderWidth: 1, borderColor: item?.color ? `${item.color}25` : '#00A651' }]}>
+                                <Image source={require('../../../assets/test-tube.png')} style={[styles.invCardIcon, { tintColor: item?.color ? item.color : '#00A651r' }]} />
                             </View>
                             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingLeft: 10, flex: 1, flexShrink: 1, }}>
                                 <View style={styles.invCardTextWrap}>
                                     <Text style={styles.invCardTitle}>
-                                        <Text style={{ fontWeight: '700' }}>{investigationData.test_name}</Text>
+                                        <Text style={{ fontWeight: '700' }}>{newEstimate ? item.test_name : item.testName}</Text>
                                     </Text>
                                 </View>
 
@@ -174,8 +260,8 @@ function ServiceInvestigations() {
                                 </View>
                             </View>
                         </TouchableOpacity>
-                    {/* ))} */}
-                  
+                    ))}
+
                 </View>
 
                 {/* Investigation Modal Package details */}
@@ -249,16 +335,17 @@ function ServiceInvestigations() {
 
                             <ScrollView
                                 showsVerticalScrollIndicator={false}
-                                showsHorizontalScrollIndicator={false}>
-                                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, paddingTop: 10, }}>
-                                    <Text style={styles.paramerText}>Bioavailable Testosterone</Text>
-                                    <Text style={styles.paramerText}>DHT</Text>
-                                    <Text style={styles.paramerText}>Free Androgen Index</Text>
-                                    <Text style={styles.paramerText}>SHBG</Text>
-                                    <Text style={styles.paramerText}>Testosterone - Free</Text>
-                                    <Text style={styles.paramerText}>Testosterone - Total</Text>
+                                showsHorizontalScrollIndicator={false}
+                            >
+                                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, paddingTop: 10 }}>
+                                    {(investigationData?.ParameterMasters ?? []).map((param, index) => (
+                                        <Text key={param?.id ?? index} style={styles.paramerText}>
+                                            {param?.name ?? ""}
+                                        </Text>
+                                    ))}
                                 </View>
                             </ScrollView>
+
                         </View>
                     </View>
                 </Modal>

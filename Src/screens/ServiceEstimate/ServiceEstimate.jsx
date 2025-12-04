@@ -8,6 +8,8 @@ import estimateService from "../../services/estimate_service";
 import SkeletonSpinner from "../../screens/SkeletonSpinner";
 import { Alert } from 'react-native';
 import RNFS from "react-native-fs";
+import DateTimePickerModal from "react-native-modal-datetime-picker";
+import { Picker } from '@react-native-picker/picker';
 
 function ServiceEstimate() {
 
@@ -19,14 +21,46 @@ function ServiceEstimate() {
     // const [infoModalVisible, setInfoModalVisible] = useState(false);
     // const [packageModalVisible, setPackageModalVisible] = useState(false);
     const [testDetails, setTestDetails] = useState(null);
+    // const [transactionType, setTransactionType] = useState("");
+    const [fromDate, setFromDate] = useState(null);
+    const [toDate, setToDate] = useState(null);
+    const [isDatePickerVisible, setDatePickerVisible] = useState(false);
+    const [activeField, setActiveField] = useState(null);
+    const [partner, setPartner] = useState([]);
+    const [selectedPartners, setSelectedPartners] = useState("");
 
-    const fetchTestDetails = async (testId) => {
+    const [errors, setErrors] = useState({
+        partner: "",
+        from: "",
+        to: "",
+        range: ""
+    });
+
+    // const [filteredData, setFilteredData] = useState([]);
+
+    const fetchTestDetails = async (investigations) => {
         navigation.navigate('ServiceInvestigations', {
-            testID: testId,
+            investigations: investigations,
         });
     };
 
+    const openDatePicker = (field) => {
+        setActiveField(field);
+        setDatePickerVisible(true);
+    };
 
+    const hideDatePicker = () => {
+        setDatePickerVisible(false);
+    };
+
+    const handleDateConfirm = (date) => {
+        if (activeField === "from") {
+            setFromDate(date);
+        } else if (activeField === "to") {
+            setToDate(date);
+        }
+        hideDatePicker();
+    };
 
     const estimateData1 = [
         {
@@ -181,6 +215,97 @@ function ServiceEstimate() {
 
     //  download Estimate End
 
+    // start calculate DOB 
+    const calculateAgeFromDOB = (dobString) => {
+        const today = new Date();
+        const dob = new Date(dobString);
+
+        let years = today.getFullYear() - dob.getFullYear();
+        let months = today.getMonth() - dob.getMonth();
+        let days = today.getDate() - dob.getDate();
+
+        // FIX DAYS BELOW ZERO
+        if (days < 0) {
+            months--;
+            const prevMonth = new Date(today.getFullYear(), today.getMonth(), 0);
+            days += prevMonth.getDate();
+        }
+
+        // FIX MONTHS BELOW ZERO
+        if (months < 0) {
+            years--;
+            months += 12;
+        }
+        return `${years}Y-${months}M-${days}D`;
+    };
+    // end calculate DOB
+
+    //  call Partner Api start
+    useEffect(() => {
+        fetchPartnerMaster();
+    }, []);
+
+    const fetchPartnerMaster = async () => {
+        try {
+            const res = await estimateService.getAllPartnerMaster();
+            console.log("API Data:", res);
+            setPartner(res.data);
+
+        } catch (err) {
+            console.log("Fetch Error:", err);
+        } finally {
+        }
+    };
+    // Call Partner Api End
+
+    // filter start
+    const validateForm = () => {
+        let valid = true;
+        let newErrors = { partner: "", from: "", to: "", range: "" };
+
+        if (!selectedPartners) {
+            newErrors.partner = "Partner is required";
+            valid = false;
+        }
+
+        if (!fromDate) {
+            newErrors.from = "From Date is required";
+            valid = false;
+        }
+
+        if (!toDate) {
+            newErrors.to = "To Date is required";
+            valid = false;
+        }
+
+        if (fromDate && toDate && fromDate > toDate) {
+            newErrors.range = "From Date cannot be greater than To Date";
+            valid = false;
+        }
+
+        setErrors(newErrors);
+        return valid;
+    };
+
+
+    const handleApply = () => {
+        if (!validateForm()) return;
+        console.log(estimateData);
+        console.log(selectedPartners);
+        const filtered = estimateData.filter(item => {
+            const itemDate = new Date(item.createdAt);
+            const isDateMatch = itemDate >= fromDate && itemDate <= toDate;
+            const isPartnerMatch = item.partnerName == selectedPartners;
+
+            return isDateMatch && isPartnerMatch;
+        });
+
+        setFilterModalVisible(false);
+        setEstimateData(filtered);
+    };
+
+    // filter end
+
 
     return (
         <SafeAreaView style={{ flex: 1, }}>
@@ -261,7 +386,9 @@ function ServiceEstimate() {
                                             {item.gender === "male" && <Ionicons name="male" size={20} color="#1E90FF" />}
                                             {item.gender === "female" && <Ionicons name="female" size={20} color="#FF69B4" />}
                                         </View>
-                                        <Text style={styles.patAge}>{item.age}</Text>
+                                        <Text style={styles.patAge}>
+                                            {calculateAgeFromDOB(item.dob)}
+                                        </Text>
                                     </View>
 
                                     <View style={styles.rightRow}>
@@ -276,14 +403,14 @@ function ServiceEstimate() {
                                     {/* <TouchableOpacity onPress={() => fetchTestDetails(item.investigations[0].testCode)}> */}
                                     {item.investigations?.length > 1 ? (
                                         // ➤ More than 1 test → show +N
-                                        <TouchableOpacity onPress={() => fetchTestDetails(item.investigations[0].testCode)}>
+                                        <TouchableOpacity onPress={() => fetchTestDetails(item.investigations)}>
                                             <Text style={{ fontSize: 14, color: "#1c9e43ff" }}>
                                                 +{item.investigations.length - 1}
                                             </Text>
                                         </TouchableOpacity>
                                     ) : (
                                         // ➤ Only 1 test → show eye icon
-                                        <TouchableOpacity onPress={() => fetchTestDetails(item.investigations[0].testCode)}>
+                                        <TouchableOpacity onPress={() => fetchTestDetails(item.investigations)}>
                                             <Ionicons name="eye" size={22} color="#B8B8B8" />
                                         </TouchableOpacity>
                                     )}
@@ -336,10 +463,87 @@ function ServiceEstimate() {
                                 showsVerticalScrollIndicator={false}
                                 showsHorizontalScrollIndicator={false}
                             >
+                                <View style={GlobalStyles.inpBox}>
+                                    <Text style={GlobalStyles.label}>Partner</Text>
+                                    <View style={GlobalStyles.pickerInput}>
+                                        <Picker
+                                            selectedValue={selectedPartners}
+                                            onValueChange={(value) => setSelectedPartners(value)}
+                                            dropdownIconColor="#C2C2C2"
+                                            style={{ color: '#C2C2C2' }}
+                                        >
+                                            <Picker.Item label="Select" value="" />
+                                            {partner.map((item) => (
+                                                <Picker.Item
+                                                    key={item.id}
+                                                    label={item.partner_name}
+                                                    value={item.partner_name}
+                                                />
+                                            ))}
+                                        </Picker>
+                                    </View>
+                                    {errors.partner ? (
+                                        <Text style={{ color: 'red', marginTop: 5 }}>{errors.partner}</Text>
+                                    ) : null}
+                                </View>
 
-                                <TouchableOpacity style={GlobalStyles.applyBtn}>
+                                <View style={GlobalStyles.inpBox}>
+                                    <Text style={GlobalStyles.label}>From Date<Text style={GlobalStyles.regText}>*</Text></Text>
+                                    <TouchableOpacity
+                                        style={GlobalStyles.inputv2}
+                                        onPress={() => openDatePicker("from")}
+                                    >
+                                        <Text style={{ color: "#9A9A9A" }}>
+                                            {fromDate ? fromDate.toLocaleDateString() : "Select Date"}
+                                        </Text>
+
+                                        <Image
+                                            source={require("../../../assets/mdl-calender.png")}
+                                            style={[GlobalStyles.calenderIcon, { width: 18, height: 18, tintColor: "#00A651" }]}
+                                        />
+                                    </TouchableOpacity>
+                                    {errors.from ? (
+                                        <Text style={{ color: 'red', marginTop: 5 }}>{errors.from}</Text>
+                                    ) : null}
+                                </View>
+
+                                <View style={GlobalStyles.inpBox}>
+                                    <Text style={GlobalStyles.label}>To Date<Text style={GlobalStyles.regText}>*</Text></Text>
+                                    <TouchableOpacity
+                                        style={GlobalStyles.inputv2}
+                                        onPress={() => openDatePicker("to")}
+                                    >
+                                        <Text style={{ color: "#9A9A9A" }}>
+                                            {toDate ? toDate.toLocaleDateString() : "Select Date"}
+                                        </Text>
+
+                                        <Image
+                                            source={require("../../../assets/mdl-calender.png")}
+                                            style={[GlobalStyles.calenderIcon, { width: 18, height: 18, tintColor: "#00A651" }]}
+                                        />
+                                    </TouchableOpacity>
+                                    {errors.to ? (
+                                        <Text style={{ color: 'red', marginTop: 5 }}>{errors.to}</Text>
+                                    ) : null}
+                                </View>
+
+                                {errors.range ? (
+                                    <Text style={{ color: "red", marginTop: 5 }}>{errors.range}</Text>
+                                ) : null}
+
+                                <DateTimePickerModal
+                                    isVisible={isDatePickerVisible}
+                                    mode="date"
+                                    maximumDate={new Date()}
+                                    onConfirm={handleDateConfirm}
+                                    onCancel={hideDatePicker}
+                                    date={activeField === "from" ? fromDate || new Date() : toDate || new Date()}
+                                />
+
+                                <TouchableOpacity style={GlobalStyles.applyBtn} onPress={handleApply}>
                                     <Text style={GlobalStyles.applyBtnText}>Apply</Text>
                                 </TouchableOpacity>
+
                             </ScrollView>
                         </View>
                     </View>
@@ -385,6 +589,7 @@ function ServiceEstimate() {
                         </View>
                     </View>
                 </Modal>
+
 
             </ScrollView>
         </SafeAreaView>
