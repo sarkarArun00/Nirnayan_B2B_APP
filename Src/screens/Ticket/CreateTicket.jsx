@@ -4,6 +4,7 @@ import { GlobalStyles } from "../../GlobalStyles";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { Picker } from "@react-native-picker/picker";
+import LinearGradient from "react-native-linear-gradient";
 
 function CreateTicket({ navigation }) {
     const [patientModal, setPatientModal] = useState(false);
@@ -115,11 +116,11 @@ function CreateTicket({ navigation }) {
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: '#FFF', }}>
             <ScrollView style={{ flex: 1 }}>
-                <ImageBackground
-                    source={require("../../../assets/partnerbg.png")}
-                    style={GlobalStyles.background}
-                    resizeMode="stretch"
-                >
+                <LinearGradient
+                    colors={["#d0eede", "transparent"]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 0, y: 1 }}
+                    style={GlobalStyles.background}>
                     <View style={GlobalStyles.flexdv}>
                         <TouchableOpacity
                             style={GlobalStyles.leftArrow}
@@ -144,7 +145,7 @@ function CreateTicket({ navigation }) {
                             </TouchableOpacity>
                         </View>
                     </View>
-                </ImageBackground>
+                </LinearGradient>
 
                 <View style={{ paddingHorizontal: 16, }}>
                     <View style={GlobalStyles.inpBox}>

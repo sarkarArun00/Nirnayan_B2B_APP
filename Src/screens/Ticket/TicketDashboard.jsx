@@ -4,6 +4,7 @@ import { GlobalStyles } from '../../GlobalStyles';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { Picker } from "@react-native-picker/picker";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
+import LinearGradient from "react-native-linear-gradient";
 
 function TicketDashboard({ navigation }) {
     const [filterModal, setFilterModal] = useState(false);
@@ -56,11 +57,11 @@ function TicketDashboard({ navigation }) {
     return (
         <SafeAreaView style={{ flex: 1 }}>
             <ScrollView style={{ flex: 1 }}>
-                <ImageBackground
-                    source={require('../../../assets/partnerbg.png')}
-                    style={GlobalStyles.background}
-                    resizeMode="stretch"
-                >
+                <LinearGradient
+                    colors={["#d0eede", "transparent"]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 0, y: 1 }}
+                    style={GlobalStyles.background}>
                     <View style={GlobalStyles.flexdv}>
                         <TouchableOpacity
                             style={GlobalStyles.leftArrow}
@@ -83,7 +84,7 @@ function TicketDashboard({ navigation }) {
                             </TouchableOpacity>
                         </View>
                     </View>
-                </ImageBackground>
+                </LinearGradient>
 
                 <View style={GlobalStyles.searchContainer}>
                     <View style={GlobalStyles.searchBox}>
@@ -114,7 +115,7 @@ function TicketDashboard({ navigation }) {
 
 
                 <View style={{ marginTop: 20, }}>
-                    <TouchableOpacity style={styles.dashBox} onPress={()=> navigation.navigate('TicketDetails')}>
+                    <TouchableOpacity style={styles.dashBox} onPress={() => navigation.navigate('TicketDetails')}>
                         <View style={styles.dashBoxTop}>
                             <View style={styles.dashBoxLeft}>
                                 <Text style={styles.dashBoxId}>TK/CL/251107/0001</Text>
@@ -128,7 +129,7 @@ function TicketDashboard({ navigation }) {
                         </View>
                         <Text style={styles.dashBoxParagraph}>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse dignissim</Text>
                     </TouchableOpacity>
-                    
+
                 </View>
 
                 {/* Filter Modal Start */}
@@ -277,50 +278,50 @@ const styles = StyleSheet.create({
     dashBoxId: {
         fontFamily: 'Poppins-Medium',
         fontSize: 12,
-        lineHeight:15,
+        lineHeight: 15,
         color: '#2C68FF',
-        backgroundColor:'rgba(44, 104, 255, 0.15)',
-        borderRadius:5,
-        paddingVertical:4,
-        paddingHorizontal:6,
+        backgroundColor: 'rgba(44, 104, 255, 0.15)',
+        borderRadius: 5,
+        paddingVertical: 4,
+        paddingHorizontal: 6,
     },
     dashBoxUrgIcon: {
-        width:14,
-        height:14,
-        resizeMode:'contain',
+        width: 14,
+        height: 14,
+        resizeMode: 'contain',
     },
     dashBoxStatus: {
         fontFamily: 'Poppins-Medium',
         fontSize: 12,
-        lineHeight:15,
+        lineHeight: 15,
         color: '#148F3B',
-        backgroundColor:'rgba(230, 255, 247, 1)',
-        borderRadius:5,
-        paddingVertical:5,
-        paddingHorizontal:12,
+        backgroundColor: 'rgba(230, 255, 247, 1)',
+        borderRadius: 5,
+        paddingVertical: 5,
+        paddingHorizontal: 12,
     },
-    dashBoxMid:{
+    dashBoxMid: {
         flexDirection: 'row',
-        alignItems:'center',
-        gap:12,
-        marginBottom:12,
+        alignItems: 'center',
+        gap: 12,
+        marginBottom: 12,
     },
-    dashBoxIcon:{
-        width:24,
-        height:24,
-        resizeMode:'contain',
+    dashBoxIcon: {
+        width: 24,
+        height: 24,
+        resizeMode: 'contain',
     },
-    dashBoxTitle:{
+    dashBoxTitle: {
         fontFamily: 'Poppins-Medium',
         fontSize: 12,
-        lineHeight:15,
+        lineHeight: 15,
         color: '#000',
-        flex:1,
+        flex: 1,
     },
-    dashBoxParagraph:{
+    dashBoxParagraph: {
         fontFamily: 'Poppins-Regular',
         fontSize: 13,
-        lineHeight:16,
+        lineHeight: 16,
         color: '#9F9F9F',
     },
 
