@@ -272,6 +272,7 @@ function TrackingSample() {
                                     <Text style={GlobalStyles.placeholderColor}>
                                         {fromDate ? fromDate.toDateString() : "Select date"}
                                     </Text>
+                                    <Image source={require('../../../assets/mdl-calender.png')} style={GlobalStyles.calenderIcon} />
                                 </TouchableOpacity>
                             </View>
                             <View style={GlobalStyles.inpBox}>
@@ -283,7 +284,7 @@ function TrackingSample() {
                                     <Text style={GlobalStyles.placeholderColor}>
                                         {toDate ? toDate.toDateString() : "Select date"}
                                     </Text>
-
+                                    <Image source={require('../../../assets/mdl-calender.png')} style={GlobalStyles.calenderIcon} />
                                 </TouchableOpacity>
                             </View>
                             <View style={GlobalStyles.inpBox}>

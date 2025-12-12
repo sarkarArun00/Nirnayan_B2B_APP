@@ -337,7 +337,7 @@ export const GlobalStyles = StyleSheet.create({
     borderRadius: 10,
     paddingLeft: 42,
     paddingRight: 10,
-    verticalAlign: 'middle',
+    verticalAlign: 'bottom',
   },
   filterButton: {
     backgroundColor: '#00A651',
