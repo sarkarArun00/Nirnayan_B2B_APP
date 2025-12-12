@@ -6,18 +6,10 @@ import { GlobalStyles } from '../../GlobalStyles';
 import { Picker } from '@react-native-picker/picker';
 import ListProduct from './ListProduct';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import Collapsible from 'react-native-collapsible';
 import Ionicons from "react-native-vector-icons/Ionicons";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 
 const screenWidth = Dimensions.get('window').width;
-
-const DATA = [
-  { id: 1, title: "Cash", price: '5000', content: "This is section 1 content", img: require('../../../assets/cash2.png') },
-  // { id: 2, title: "UPI", price: '5000', content: "This is section 2 content", img: require('../../../assets/upi.png') },
-  // { id: 3, title: "Card", price: '5000', content: "This is section 2 content", img: require('../../../assets/ .png') },
-  // { id: 4, title: "Cheque", price: '5000', content: "This is section 2 content", img: require('../../../assets/cheque.png') },
-];
 
 function Registration({ navigation }) {
   const [activeTab, setActiveTab] = useState(0);
@@ -173,46 +165,6 @@ function Registration({ navigation }) {
   }, [selectedCount]);
   // Selected item apper timing add End
 
-  // Payment Accordian Start
-  const [activeId, setActiveId] = useState(null);
-
-  const toggle = (id) => {
-    setActiveId(activeId === id ? null : id);
-  };
-
-  const renderItem = ({ item }) => (
-    <View style={styles.splitBox}>
-      <TouchableOpacity onPress={() => toggle(item.id)} style={styles.splitBoxInn}>
-        <View style={styles.splitBoxLeft}>
-          <Image source={item.img} style={styles.splitBoxImg} />
-          <Text style={styles.splitBoxTitle}>{item.title}</Text>
-        </View>
-
-        <View style={styles.splitBoxRight}>
-          <View style={styles.splitBoxPriceBox}>
-            <Image source={require('../../../assets/patientrecimg4.png')} style={styles.splitBoxPriceIcon} />
-            <Text style={styles.splitBoxPrice}>{item.price}</Text>
-          </View>
-          <View style={styles.splitBoxArrow}>
-            {activeId === item.id ? (
-              <Icon name="chevron-down-outline" size={17} color="#000" />
-            ) : (
-              <Icon name="chevron-forward-outline" size={17} color="#000" />
-            )}
-          </View>
-        </View>
-      </TouchableOpacity>
-
-      {/* Content */}
-      <Collapsible collapsed={activeId !== item.id}>
-        <View style={styles.SplitContent}>
-          <Text style={styles.SplitContentText}>{item.content}</Text>
-        </View>
-      </Collapsible>
-    </View>
-  );
-  // Payment Accordian End
-
   // Tab Content Start //
   const renderTabContent = () => {
     switch (activeTab) {
@@ -237,7 +189,7 @@ function Registration({ navigation }) {
             <View style={{ paddingTop: 18, }}>
               <View style={GlobalStyles.inpBox}>
                 <Text style={GlobalStyles.label}>Initial<Text style={GlobalStyles.regText}>*</Text></Text>
-                <View style={GlobalStyles.input}>
+                <View style={GlobalStyles.pickerInput}>
                   <Picker
                     selectedValue={selectInitial}
                     onValueChange={value => setSelectInitial(value)}
@@ -284,7 +236,7 @@ function Registration({ navigation }) {
               </View>
               <View style={GlobalStyles.inpBox}>
                 <Text style={GlobalStyles.label}>Gender<Text style={GlobalStyles.regText}>*</Text></Text>
-                <View style={GlobalStyles.input}>
+                <View style={GlobalStyles.pickerInput}>
                   <Picker
                     selectedValue={selectGender}
                     onValueChange={value => setSelectGender(value)}
@@ -415,7 +367,7 @@ function Registration({ navigation }) {
           <View style={styles.contentBox}>
             <View style={GlobalStyles.inpBox}>
               <Text style={GlobalStyles.label}>Sub Client</Text>
-              <View style={GlobalStyles.input}>
+              <View style={GlobalStyles.pickerInput}>
                 <Picker
                   selectedValue={selectSubClient}
                   onValueChange={value => setSelectSubClient(value)}
@@ -433,7 +385,7 @@ function Registration({ navigation }) {
             </View>
             <View style={GlobalStyles.inpBox}>
               <Text style={GlobalStyles.label}>Refer by Partner</Text>
-              <View style={GlobalStyles.input}>
+              <View style={GlobalStyles.pickerInput}>
                 <Picker
                   selectedValue={selectRefer}
                   onValueChange={value => setSelectRefer(value)}
@@ -451,7 +403,7 @@ function Registration({ navigation }) {
             </View>
             <View style={GlobalStyles.inpBox}>
               <Text style={GlobalStyles.label}>Refer Doctor<Text style={GlobalStyles.regText}>*</Text></Text>
-              <View style={GlobalStyles.input}>
+              <View style={GlobalStyles.pickerInput}>
                 <Picker
                   selectedValue={selectReferDoctor}
                   onValueChange={value => setSelectReferDoctor(value)}
@@ -522,7 +474,7 @@ function Registration({ navigation }) {
             </View>
             <View style={GlobalStyles.inpBox}>
               <Text style={GlobalStyles.label}>Select Blood Group</Text>
-              <View style={GlobalStyles.input}>
+              <View style={GlobalStyles.pickerInput}>
                 <Picker
                   selectedValue={bloodGroup}
                   onValueChange={(value) => setBloodGroup(value)}
@@ -662,15 +614,6 @@ function Registration({ navigation }) {
 
 
 
-            </View>
-
-            <View>
-              <FlatList
-                data={DATA}
-                renderItem={renderItem}
-                keyExtractor={(item) => item.id.toString()}
-                scrollEnabled={false}
-              />
             </View>
 
             <View style={styles.pmntOptBox}>
@@ -899,12 +842,12 @@ function Registration({ navigation }) {
                     </View>
                     <View style={styles.pmntInpRow}>
                       <Text style={styles.pmntLabelv2}>Bank Name<Text style={GlobalStyles.regText}>*</Text></Text>
-                      <View style={styles.pmntInputv2}>
+                      <View style={[styles.pmntInputv2, {paddingRight:0,}]}>
                         <Picker
                           selectedValue={bankName}
                           onValueChange={(value) => setBankName(value)}
                           dropdownIconColor="#C2C2C2"
-                          style={{ color: '#C2C2C2' }}
+                          style={{ color: '#C2C2C2', }}
                         >
                           <Picker.Item label="Select Bank" value="" />
                           <Picker.Item label="State Bank of India (SBI)" value="sbi" />
@@ -931,7 +874,6 @@ function Registration({ navigation }) {
                       />
                     </View>
                   </View>
-
                 )}
               </View>
 
@@ -951,10 +893,10 @@ function Registration({ navigation }) {
               </TouchableOpacity>
             </View>
 
-
             <TouchableOpacity style={GlobalStyles.applyBtnFullWidth} onPress={handleNextTab}>
               <Text style={GlobalStyles.applyBtnTextNew}>{activeTab === tabs.length - 1 ? 'Register' : 'Next'}</Text>
             </TouchableOpacity>
+
             <DateTimePickerModal
               isVisible={isChequeDatePickerVisible}
               mode="date"
@@ -1191,76 +1133,6 @@ function Registration({ navigation }) {
 export default Registration;
 
 const styles = StyleSheet.create({
-  // SplitBox Accordian Start
-  splitBox: {
-    marginBottom: 10,
-  },
-  splitBoxInn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#00A635',
-    borderRadius: 15,
-    padding: 12,
-  },
-  splitBoxLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  splitBoxImg: {
-    width: 25,
-    height: 25,
-    resizeMode: 'contain',
-  },
-  splitBoxTitle: {
-    fontFamily: 'Poppins-SemiBold',
-    color: "#000",
-    fontSize: 14,
-    lineHeight: 17,
-  },
-  splitBoxRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  splitBoxPriceBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
-  },
-  splitBoxPriceIcon: {
-    tintColor: '#00A635',
-    width: 11,
-    height: 13,
-    objectFit: 'contain',
-  },
-  splitBoxPrice: {
-    fontFamily: 'Poppins-SemiBold',
-    color: "#00A635",
-    fontSize: 14,
-    lineHeight: 17,
-  },
-  splitBoxArrow: {
-    width: 28,
-    height: 28,
-    backgroundColor: '#B9DFCB',
-    borderRadius: 28,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  SplitContent: {
-    padding: 12,
-  },
-  SplitContentText: {
-    fontFamily: 'Poppins-Medium',
-    color: "#000",
-    fontSize: 14,
-    lineHeight: 17,
-  },
-  // SplitBox Accordian End
 
   // Payment Option And Split Payment Box Start
   pmntOptBox: {
@@ -1484,6 +1356,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     fontSize: 12,
     color: '#000',
+    justifyContent:'center',
   },
 
   // Payment Details Design End

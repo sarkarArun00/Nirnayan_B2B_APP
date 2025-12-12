@@ -2,11 +2,8 @@ import React, { useState, } from "react";
 import { View, Text, SafeAreaView, ScrollView, ImageBackground, TouchableOpacity, Image, TextInput, Switch, StyleSheet, FlatList, } from "react-native";
 import { GlobalStyles } from "../../GlobalStyles";
 import LinearGradient from "react-native-linear-gradient";
-import Icon from 'react-native-vector-icons/Ionicons';
-import Collapsible from 'react-native-collapsible';
 import { Picker } from '@react-native-picker/picker';
 import DateTimePickerModal from "react-native-modal-datetime-picker";
-
 
 function PatientRecive({ navigation }) {
     const [isEnabled, setIsEnabled] = useState(false);
@@ -15,12 +12,6 @@ function PatientRecive({ navigation }) {
     const [chequeDate, setChequeDate] = useState(null);
     const [isChequeDatePickerVisible, setChequeDatePickerVisible] = useState(false);
 
-    const DATA = [
-        { id: 1, title: "Cash", price: '5000', content: "This is section 1 content", img: require('../../../assets/cash2.png') },
-        // { id: 2, title: "UPI", price: '5000', content: "This is section 2 content", img: require('../../../assets/upi.png') },
-        // { id: 3, title: "Card", price: '5000', content: "This is section 2 content", img: require('../../../assets/card.png') },
-        // { id: 4, title: "Cheque", price: '5000', content: "This is section 2 content", img: require('../../../assets/cheque.png') },
-    ];
 
     const showChequeDatePicker = () => {
         setChequeDatePickerVisible(true);
@@ -34,46 +25,6 @@ function PatientRecive({ navigation }) {
         setChequeDate(date);
         hideChequeDatePicker();
     };
-
-    // Payment Accordian Start
-    const [activeId, setActiveId] = useState(null);
-
-    const toggle = (id) => {
-        setActiveId(activeId === id ? null : id);
-    };
-
-    const renderItem = ({ item }) => (
-        <View style={styles.splitBox}>
-            <TouchableOpacity onPress={() => toggle(item.id)} style={styles.splitBoxInn}>
-                <View style={styles.splitBoxLeft}>
-                    <Image source={item.img} style={styles.splitBoxImg} />
-                    <Text style={styles.splitBoxTitle}>{item.title}</Text>
-                </View>
-
-                <View style={styles.splitBoxRight}>
-                    <View style={styles.splitBoxPriceBox}>
-                        <Image source={require('../../../assets/patientrecimg4.png')} style={styles.splitBoxPriceIcon} />
-                        <Text style={styles.splitBoxPrice}>{item.price}</Text>
-                    </View>
-                    <View style={styles.splitBoxArrow}>
-                        {activeId === item.id ? (
-                            <Icon name="chevron-down-outline" size={17} color="#000" />
-                        ) : (
-                            <Icon name="chevron-forward-outline" size={17} color="#000" />
-                        )}
-                    </View>
-                </View>
-            </TouchableOpacity>
-
-            {/* Content */}
-            <Collapsible collapsed={activeId !== item.id}>
-                <View style={styles.SplitContent}>
-                    <Text style={styles.SplitContentText}>{item.content}</Text>
-                </View>
-            </Collapsible>
-        </View>
-    );
-    // Payment Accordian End
 
     return (
         <SafeAreaView style={{ flex: 1, }}>
@@ -160,15 +111,6 @@ function PatientRecive({ navigation }) {
 
 
 
-                    </View>
-
-                    <View>
-                        <FlatList
-                            data={DATA}
-                            renderItem={renderItem}
-                            keyExtractor={(item) => item.id.toString()}
-                            scrollEnabled={false}
-                        />
                     </View>
 
                     <View style={styles.pmntOptBox}>
@@ -398,7 +340,7 @@ function PatientRecive({ navigation }) {
                                     </View>
                                     <View style={styles.pmntInpRow}>
                                         <Text style={styles.pmntLabelv2}>Bank Name<Text style={GlobalStyles.regText}>*</Text></Text>
-                                        <View style={styles.pmntInputv2}>
+                                        <View style={[styles.pmntInputv2, {paddingRight:0,} ]}>
                                             <Picker
                                                 selectedValue={bankName}
                                                 onValueChange={(value) => setBankName(value)}
@@ -455,76 +397,6 @@ function PatientRecive({ navigation }) {
 export default PatientRecive
 
 const styles = StyleSheet.create({
-    // SplitBox Accordian Start
-    splitBox: {
-        marginBottom: 10,
-    },
-    splitBoxInn: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        backgroundColor: '#fff',
-        borderBottomWidth: 1,
-        borderBottomColor: '#00A635',
-        borderRadius: 15,
-        padding: 12,
-    },
-    splitBoxLeft: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 8,
-    },
-    splitBoxImg: {
-        width: 25,
-        height: 25,
-        resizeMode: 'contain',
-    },
-    splitBoxTitle: {
-        fontFamily: 'Poppins-SemiBold',
-        color: "#000",
-        fontSize: 14,
-        lineHeight: 17,
-    },
-    splitBoxRight: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 8,
-    },
-    splitBoxPriceBox: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 5,
-    },
-    splitBoxPriceIcon: {
-        tintColor: '#00A635',
-        width: 11,
-        height: 13,
-        objectFit: 'contain',
-    },
-    splitBoxPrice: {
-        fontFamily: 'Poppins-SemiBold',
-        color: "#00A635",
-        fontSize: 14,
-        lineHeight: 17,
-    },
-    splitBoxArrow: {
-        width: 28,
-        height: 28,
-        backgroundColor: '#B9DFCB',
-        borderRadius: 28,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    SplitContent: {
-        padding: 12,
-    },
-    SplitContentText: {
-        fontFamily: 'Poppins-Medium',
-        color: "#000",
-        fontSize: 14,
-        lineHeight: 17,
-    },
-    // SplitBox Accordian End
 
     // Payment Option And Split Payment Box Start
     pmntOptBox: {
@@ -716,6 +588,7 @@ const styles = StyleSheet.create({
         color: '#7D7B7B',
     },
     pmntInput: {
+        fontFamily: 'Poppins-Regular',
         flex: 1,
         height: 50,
         borderWidth: 1,
@@ -726,6 +599,7 @@ const styles = StyleSheet.create({
         color: '#000',
     },
     pmntInputv2: {
+        fontFamily: 'Poppins-Regular',
         width: '100%',
         height: 50,
         borderWidth: 1,
@@ -734,6 +608,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         fontSize: 12,
         color: '#000',
+        justifyContent:'center'
     },
 
     // Payment Details Design End

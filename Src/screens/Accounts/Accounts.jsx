@@ -684,7 +684,7 @@ function Accounts({ navigation }) {
                       </View>
                       <View style={styles.pmntInpRow}>
                         <Text style={styles.pmntLabelv2}>Bank Name<Text style={GlobalStyles.regText}>*</Text></Text>
-                        <View style={styles.pmntInputv2}>
+                        <View style={[styles.pmntInputv2, { paddingRight:0, paddingLeft:2, }]}>
                           <Picker
                             selectedValue={bankName}
                             onValueChange={(value) => setBankName(value)}
@@ -1419,6 +1419,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     fontSize: 12,
     color: '#000',
+    justifyContent:'center',
   },
   // Payment Option And Split Payment Box End
 
