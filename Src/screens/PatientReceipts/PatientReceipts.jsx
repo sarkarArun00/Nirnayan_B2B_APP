@@ -608,7 +608,7 @@ function billReceipt() {
                                 <View style={GlobalStyles.inpBox}>
                                     <Text style={GlobalStyles.label}>Payment Status</Text>
                                     <View style={GlobalStyles.inputContainer}>
-                                        <View style={GlobalStyles.input}>
+                                        <View style={GlobalStyles.pickerInput}>
                                             <Picker
                                                 selectedValue={selectedType}
                                                 onValueChange={value => setSelectedType(value)}
@@ -751,7 +751,7 @@ function billReceipt() {
                                         <Text style={GlobalStyles.label}>
                                             Gender <Text style={{ color: '#FA2C2C' }}>*</Text>
                                         </Text>
-                                        <View style={GlobalStyles.input}>
+                                        <View style={GlobalStyles.pickerInput}>
                                             <Picker
                                                 selectedValue={selectGender}
                                                 onValueChange={value => setSelectGender(value)}

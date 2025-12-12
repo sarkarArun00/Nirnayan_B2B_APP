@@ -129,6 +129,7 @@ export const GlobalStyles = StyleSheet.create({
     paddingLeft: 10,
     paddingRight: 0,
     color: '#C2C2C2',
+    justifyContent:'center',
   },
   inputv2: {
     fontFamily: 'Poppins-Regular',
