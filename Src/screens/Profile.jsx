@@ -133,7 +133,7 @@ const ProfileScreen = () => {
               <Image style={styles.menuImg} source={require('../../assets/menu1.png')} />
               <Text style={styles.menuText}>Service Estimate</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.menuItem}>
+            <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('clientLedgerView')}>
               <Image style={styles.menuImg} source={require('../../assets/menu2.png')} />
               <Text style={styles.menuText}>Register Investigation</Text>
             </TouchableOpacity>
