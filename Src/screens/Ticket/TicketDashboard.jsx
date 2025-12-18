@@ -158,7 +158,7 @@ function TicketDashboard({ navigation }) {
                                     <TouchableOpacity
                                         style={[GlobalStyles.inputv2, { position: 'relative', paddingRight: 25, }]}
                                         onPress={() => showDatePicker("from")}>
-                                        <Text style={styles.dateText}>
+                                        <Text style={styles.PlaceholderDateText}>
                                             {fromDate ? fromDate.toLocaleString() : "Select"}
                                         </Text>
                                         <Image source={require("../../../assets/mdl-calender.png")} style={styles.calenderIcon} />
@@ -170,7 +170,7 @@ function TicketDashboard({ navigation }) {
                                     <TouchableOpacity
                                         style={[GlobalStyles.inputv2, { position: 'relative', paddingRight: 25, }]}
                                         onPress={() => showDatePicker("to")}>
-                                        <Text style={styles.dateText}>
+                                        <Text style={styles.PlaceholderDateText}>
                                             {toDate ? toDate.toLocaleString() : "Select"}
                                         </Text>
                                         <Image source={require("../../../assets/mdl-calender.png")} style={styles.calenderIcon} />

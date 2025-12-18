@@ -126,7 +126,7 @@ export const GlobalStyles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#C5C5C5',
     borderRadius: 10,
-    paddingLeft: 10,
+    paddingLeft: 2,
     paddingRight: 0,
     color: '#C2C2C2',
     justifyContent:'center',
@@ -249,6 +249,7 @@ export const GlobalStyles = StyleSheet.create({
     tintColor: '#00A635',
   },
   PlaceholderDateText: {
+    fontFamily: 'Poppins-Regular',
     fontSize: 12,
     color: '#C2C2C2',
   },

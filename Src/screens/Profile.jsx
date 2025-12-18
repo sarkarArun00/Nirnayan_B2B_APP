@@ -133,7 +133,7 @@ const ProfileScreen = () => {
               <Image style={styles.menuImg} source={require('../../assets/menu1.png')} />
               <Text style={styles.menuText}>Service Estimate</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('clientLedgerView')}>
+            <TouchableOpacity style={styles.menuItem}>
               <Image style={styles.menuImg} source={require('../../assets/menu2.png')} />
               <Text style={styles.menuText}>Register Investigation</Text>
             </TouchableOpacity>
@@ -163,7 +163,7 @@ const ProfileScreen = () => {
             </TouchableOpacity>
             <TouchableOpacity style={styles.menuItem}>
               <Image style={styles.menuImg} source={require('../../assets/menu8.png')} />
-              <Text style={styles.menuText}>Accounts</Text>
+              <Text style={styles.menuText}>Business Overview</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.menuItem} onPress={()=> navigation.navigate('CreateDocuments')}>
               <Image style={styles.menuImg} source={require('../../assets/menu9.png')} />
@@ -172,6 +172,18 @@ const ProfileScreen = () => {
             <TouchableOpacity style={styles.menuItem} onPress={()=> navigation.navigate('TicketDashboard')}>
               <Image style={styles.menuImg} source={require('../../assets/menu10.png')} />
               <Text style={styles.menuText}>Tickets</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('clientLedgerView')}>
+              <Image style={styles.menuImg} source={require('../../assets/menu11.png')} />
+              <Text style={styles.menuText}>Client Ledger View</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('InvoiceManagement')}>
+              <Image style={styles.menuImg} source={require('../../assets/menu11.png')} />
+              <Text style={styles.menuText}>Invoice Management</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.menuItem}>
+              <Image style={styles.menuImg} source={require('../../assets/menu11.png')} />
+              <Text style={styles.menuText}>Make Payment</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('ProfilePage')}>
               <Image style={styles.menuImg} source={require('../../assets/menu11.png')} />
