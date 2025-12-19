@@ -181,7 +181,7 @@ const ProfileScreen = () => {
               <Image style={styles.menuImg} source={require('../../assets/menu11.png')} />
               <Text style={styles.menuText}>Invoice Management</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.menuItem}>
+            <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('MakePayment')}>
               <Image style={styles.menuImg} source={require('../../assets/menu11.png')} />
               <Text style={styles.menuText}>Make Payment</Text>
             </TouchableOpacity>
