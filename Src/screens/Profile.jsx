@@ -174,16 +174,20 @@ const ProfileScreen = () => {
               <Text style={styles.menuText}>Tickets</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('clientLedgerView')}>
-              <Image style={styles.menuImg} source={require('../../assets/menu11.png')} />
+              <Image style={styles.menuImg} source={require('../../assets/menu13.png')} />
               <Text style={styles.menuText}>Client Ledger View</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('InvoiceManagement')}>
-              <Image style={styles.menuImg} source={require('../../assets/menu11.png')} />
+              <Image style={styles.menuImg} source={require('../../assets/menu14.png')} />
               <Text style={styles.menuText}>Invoice Management</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('MakePayment')}>
-              <Image style={styles.menuImg} source={require('../../assets/menu11.png')} />
+              <Image style={styles.menuImg} source={require('../../assets/menu15.png')} />
               <Text style={styles.menuText}>Make Payment</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('BusinessReports')}>
+              <Image style={styles.menuImg} source={require('../../assets/menu16.png')} />
+              <Text style={styles.menuText}>Business Reports</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('ProfilePage')}>
               <Image style={styles.menuImg} source={require('../../assets/menu11.png')} />

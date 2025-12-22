@@ -29,7 +29,6 @@ function InvoiceManagement({ navigation }) {
         if (activeField === "from") {
             setFromDate(date);
 
-            // Optional: reset To Date if it's earlier than From Date
             if (toDate && date > toDate) {
                 setToDate(null);
             }
@@ -274,7 +273,7 @@ function InvoiceManagement({ navigation }) {
                                         selectedValue={status}
                                         onValueChange={(value) => setStatus(value)}
                                         dropdownIconColor="#C2C2C2"
-                                        style={{ color: status ? "#000" : "#C2C2C2" }}
+                                        style={{ color: status ? "#C2C2C2" : "#C2C2C2" }}
                                     >
                                         <Picker.Item label="Status" value="" color="#C2C2C2" />
                                         <Picker.Item label="Active" value="active" />

@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import { View, Text, SafeAreaView, ScrollView, TouchableOpacity, Image, StyleSheet, TextInput, FlatList, Modal, } from "react-native";
 import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/Ionicons';
+import DateTimePickerModal from "react-native-modal-datetime-picker";
+import { Picker } from '@react-native-picker/picker';
 import { GlobalStyles } from '../../GlobalStyles';
 
 function MakePayment({ navigation }) {
     const [activePaymentTab, setActivePaymentTab] = useState("");
     const [selectedId, setSelectedId] = useState('1');
-
+    const [chequeModal, setChequeModal] = useState("");
     const DATA = [
         { id: '1', label: 'Accounts Departments' },
         { id: '2', label: 'Primary Logistics' },
@@ -196,6 +198,30 @@ function MakePayment({ navigation }) {
 
     // Denomination Data End
 
+    // Cheque Modal Start
+    const [chequeDate, setChequeDate] = useState(null);
+    const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+    const [activeField, setActiveField] = useState(null);
+    const [bankName, setBankName] = useState("");
+
+    const showDatePicker = (field) => {
+        setActiveField(field);
+        setDatePickerVisibility(true);
+    };
+
+    const hideDatePicker = () => {
+        setDatePickerVisibility(false);
+        setActiveField(null);
+    };
+
+    const handleConfirm = (date) => {
+        setChequeDate(date);
+        hideDatePicker();
+    };
+
+
+    // Cheque Modal End
+
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: "#FFF" }}>
             <ScrollView>
@@ -336,6 +362,10 @@ function MakePayment({ navigation }) {
                 <TouchableOpacity onPress={() => setDenominationModal(true)}>
                     <Text>Denomination Modal</Text>
                 </TouchableOpacity>
+                <TouchableOpacity onPress={() => setChequeModal(true)}>
+                    <Text>Cheque Modal</Text>
+                </TouchableOpacity>
+
                 {/* Denomination Breakdown Modal Start */}
                 <Modal
                     transparent
@@ -351,7 +381,7 @@ function MakePayment({ navigation }) {
                             >
                                 <Text style={GlobalStyles.closeIcon}>✕</Text>
                             </TouchableOpacity>
-
+                            <Text style={[GlobalStyles.mdlTitle2, { marginBottom: 15, }]}>Denomination Breakdown</Text>
                             <ScrollView showsVerticalScrollIndicator={false}>
                                 <View style={styles.noteHead}>
                                     <Image style={styles.noteHeadImg} source={require("../../../assets/v2note.png")} />
@@ -403,6 +433,96 @@ function MakePayment({ navigation }) {
                     </View>
                 </Modal>
                 {/* Denomination Breakdown Modal End */}
+
+                {/* Checkque Modal Start */}
+                <Modal
+                    transparent
+                    visible={chequeModal}
+                    animationType="slide"
+                    onRequestClose={() => setChequeModal(false)}
+                >
+                    <View style={GlobalStyles.modalOverlay}>
+                        <View style={GlobalStyles.modalContainer}>
+                            <TouchableOpacity
+                                style={GlobalStyles.modalClose}
+                                onPress={() => setChequeModal(false)}
+                            >
+                                <Text style={GlobalStyles.closeIcon}>✕</Text>
+                            </TouchableOpacity>
+
+                            <View style={GlobalStyles.inpBox}>
+                                <Text style={GlobalStyles.label}>Cheque Number</Text>
+                                <TextInput
+                                    placeholder="Enter cheque number"
+                                    placeholderTextColor="#C2C2C2"
+                                    style={GlobalStyles.inputv2}
+                                    keyboardType="number-pad"
+                                    maxLength={10}
+                                />
+                            </View>
+
+                            <View style={GlobalStyles.inpBox}>
+                                <Text style={GlobalStyles.label}>Cheque Date</Text>
+                                <TouchableOpacity
+                                    style={GlobalStyles.inputv2}
+                                    onPress={() => showDatePicker("from")}
+                                >
+                                    <Text style={GlobalStyles.PlaceholderDateText}>
+                                        {chequeDate
+                                            ? chequeDate.toDateString()
+                                            : "Select Cheque Date"}
+                                    </Text>
+                                    <Image
+                                        source={require("../../../assets/mdl-calender.png")}
+                                        style={GlobalStyles.calenderIcon}
+                                    />
+                                </TouchableOpacity>
+                            </View>
+
+                            <View style={GlobalStyles.inpBox}>
+                                <Text style={GlobalStyles.label}>Bank Name</Text>
+                                <View style={GlobalStyles.pickerInput}>
+                                    <Picker
+                                        selectedValue={bankName}
+                                        onValueChange={(value) => setBankName(value)}
+                                        dropdownIconColor="#C2C2C2"
+                                        style={{ color: bankName ? "#C2C2C2" : "#C2C2C2" }}
+                                    >
+                                        <Picker.Item label="Select Bank" value="" color="#C2C2C2" />
+                                        <Picker.Item label="HDFC Bank" value="hdfc" />
+                                        <Picker.Item label="ICICI Bank" value="icici" />
+                                        <Picker.Item label="SBI" value="sbi" />
+                                        <Picker.Item label="Axis Bank" value="axis" />
+                                    </Picker>
+                                </View>
+                            </View>
+
+                            <View style={GlobalStyles.inpBox}>
+                                <Text style={GlobalStyles.label}>Account Number</Text>
+                                <TextInput
+                                    placeholder="Enter cheque number"
+                                    placeholderTextColor="#C2C2C2"
+                                    style={GlobalStyles.inputv2}
+                                    keyboardType="number-pad"
+                                    maxLength={12}
+                                />
+                            </View>
+
+                            <DateTimePickerModal
+                                isVisible={isDatePickerVisible}
+                                mode="date"
+                                onConfirm={handleConfirm}
+                                onCancel={hideDatePicker}
+                                date={chequeDate || new Date()}
+                            />
+
+                            <TouchableOpacity style={GlobalStyles.applyBtnFullWidth}>
+                                <Text style={GlobalStyles.applyBtnTextNew}>Done</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </Modal>
+                {/* Checkque Modal End */}
 
             </ScrollView>
         </SafeAreaView>
@@ -652,22 +772,23 @@ const styles = StyleSheet.create({
         color: '#000',
         paddingLeft: 12,
     },
-    noteHead:{
-        flexDirection:'row',
-        alignItems:'center',
-        justifyContent:'space-between',
-        marginBottom:10,
+    noteHead: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        // justifyContent:'space-between',
+        gap: 8,
+        marginBottom: 10,
     },
-    noteHeadImg:{
-        width:22,
-        height:22,
-        resizeMode:'contain',
+    noteHeadImg: {
+        width: 22,
+        height: 22,
+        resizeMode: 'contain',
     },
-    noteHeadTitle:{
+    noteHeadTitle: {
         fontFamily: 'Poppins-Medium',
-        fontSize:14,
-        lineHeight:18,
-        color:'#000',
+        fontSize: 14,
+        lineHeight: 18,
+        color: '#000',
     },
     denoRow: {
         flexDirection: 'row',
@@ -675,20 +796,20 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         paddingBottom: 15,
     },
-    denoRowAmount:{
+    denoRowAmount: {
         fontFamily: 'Poppins-Medium',
-        fontSize:14,
-        lineHeight:18,
-        color:'#000',
+        fontSize: 14,
+        lineHeight: 18,
+        color: '#000',
     },
     counterBox: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent:'space-between',
+        justifyContent: 'space-between',
         borderWidth: 1,
         borderColor: '#C5C5C5',
         borderRadius: 4,
-        width:90,
+        width: 90,
     },
     counterBtn: {
         padding: 10,
@@ -696,26 +817,26 @@ const styles = StyleSheet.create({
     // counterValue:{
     //     paddingHorizontal:10,
     // },
-    totalRow:{
-        flexDirection:'row',
-        alignItems:'center',
-        justifyContent:'space-between',
-        borderTopWidth:1,
-        borderTopColor:'#D7D7D7',
-        paddingTop:15,
-        paddingBottom:5,
+    totalRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        borderTopWidth: 1,
+        borderTopColor: '#D7D7D7',
+        paddingTop: 15,
+        paddingBottom: 5,
     },
-    totalLabel:{
+    totalLabel: {
         fontFamily: 'Poppins-SemiBold',
-        fontSize:12,
-        lineHeight:16,
-        color:'#4B4B4B',
+        fontSize: 12,
+        lineHeight: 16,
+        color: '#4B4B4B',
     },
-    totalValue:{
+    totalValue: {
         fontFamily: 'Poppins-SemiBold',
-        fontSize:12,
-        lineHeight:15,
-        color:'#000',
+        fontSize: 12,
+        lineHeight: 15,
+        color: '#000',
     },
     //Payment Method Design End
 
