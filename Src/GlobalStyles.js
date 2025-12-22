@@ -58,7 +58,7 @@ export const GlobalStyles = StyleSheet.create({
   mdlTitle2: {
     fontFamily: 'Poppins-SemiBold',
     fontSize: 15,
-    // lineHeight: 17,
+    lineHeight: 19,
     color: '#000000',
     marginBottom: 2,
   },
