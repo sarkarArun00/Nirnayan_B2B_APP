@@ -48,6 +48,7 @@ import InvoiceManagement from '../screens/Accounts/InvoiceManagement';
 import MakePayment from '../screens/Accounts/MakePayment';
 import BusinessReports from '../screens/Accounts/BusinessReports';
 import BusinessReportsDetails from '../screens/Accounts/BusinessReportsDetails';
+import PaymentHistory from '../screens/Accounts/PaymentHistory';
 
 
 const Tab = createBottomTabNavigator();
@@ -180,6 +181,7 @@ const AppNavigator = () => {
       <Stack.Screen name="MakePayment" component={MakePayment} />
       <Stack.Screen name="BusinessReports" component={BusinessReports} />
       <Stack.Screen name="BusinessReportsDetails" component={BusinessReportsDetails} />
+      <Stack.Screen name="PaymentHistory" component={PaymentHistory} />
     </Stack.Navigator>
   );
 };

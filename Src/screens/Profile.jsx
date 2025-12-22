@@ -189,6 +189,10 @@ const ProfileScreen = () => {
               <Image style={styles.menuImg} source={require('../../assets/menu16.png')} />
               <Text style={styles.menuText}>Business Reports</Text>
             </TouchableOpacity>
+            <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('PaymentHistory')}>
+              <Image style={styles.menuImg} source={require('../../assets/menu16.png')} />
+              <Text style={styles.menuText}>Payment History</Text>
+            </TouchableOpacity>
             <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('ProfilePage')}>
               <Image style={styles.menuImg} source={require('../../assets/menu11.png')} />
               <Text style={styles.menuText}>Settings</Text>

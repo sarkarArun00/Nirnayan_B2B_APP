@@ -275,7 +275,7 @@ function CreateDocuments({ navigation }) {
                         <TextInput
                             placeholder="Search"
                             placeholderTextColor="#999"
-                            style={[GlobalStyles.searchinput, { borderWidth: 1, borderColor: "#C5C5C5" }]}
+                            style={[GlobalStyles.searchinput,]}
                         />
                     </View>
                 </View>
