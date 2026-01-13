@@ -1,17 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  SafeAreaView, TextInput, Image, ImageBackground,
-} from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView, TextInput, Image, ImageBackground, } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { GlobalStyles, theme } from '../GlobalStyles';
 import Header from '../componenets/Header';
 import PasswordWarningModal from '../screens/sliderScreens/PasswordWarningModal';
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import Ionicons from "react-native-vector-icons/Ionicons";
 
 const HomeScreen = () => {
   const navigation = useNavigation();
@@ -83,12 +77,31 @@ const HomeScreen = () => {
             />
           </View>
 
-
           {/* Scroll Card */}
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.scrollContent}>
+
+            <View style={styles.card}>
+              <ImageBackground
+                source={require('../../assets/ccard4.png')}
+                imageStyle={{ borderRadius: 12 }}
+                style={styles.cardbackground}
+                resizeMode="cover"
+              >
+                <View style={styles.icon}>
+                  <Image source={require('../../assets/icn-test1.png')} style={styles.iconImg} />
+                </View>
+                <Text style={styles.title}>Business Trends</Text>
+                <Text style={styles.subTitle}>₹15,240</Text>
+                <View style={styles.testInc}>
+                  <Ionicons name="trending-down" size={20} color="#F43E3E" />
+                  <Text style={styles.testIncTitle2}>+12%</Text>
+                </View>
+              </ImageBackground>
+            </View>
+
             <View style={styles.card}>
               <ImageBackground
                 source={require('../../assets/card1.png')}
@@ -97,13 +110,12 @@ const HomeScreen = () => {
                 resizeMode="cover"
               >
                 <View style={styles.icon}>
-                  <Image source={require('../../assets/icn-test1.png')} />
+                  <Image source={require('../../assets/icn-test2.png')} style={styles.iconImg} />
                 </View>
-                <Text style={styles.title}>Today’s Tests</Text>
+                <Text style={styles.title}>Tests Registration</Text>
                 <Text style={styles.subTitle}>24</Text>
                 <View style={styles.testInc}>
-                  {/* <Icon name="triangle" size={14} color="#3CD03C" /> */}
-                  <Text style={styles.testInctopArrow}>▲</Text>
+                  <Ionicons name="trending-up" size={20} color="#4EBA2C" />
                   <Text style={styles.testIncTitle}>12%</Text>
                 </View>
               </ImageBackground>
@@ -117,11 +129,13 @@ const HomeScreen = () => {
                 resizeMode="cover"
               >
                 <View style={styles.icon}>
-                  <Image source={require('../../assets/icn-test2.png')} />
+                  <Image source={require('../../assets/icn-test3.png')} style={styles.iconImg} />
                 </View>
                 <Text style={styles.title}>Ready Reports</Text>
                 <Text style={styles.subTitle}>8</Text>
-                <Text style={styles.supportInc}>Pending 8</Text>
+                <View style={styles.testInc}>
+                  <Text style={styles.testIncTitle}>Pending 8</Text>
+                </View>
               </ImageBackground>
             </View>
 
@@ -133,7 +147,7 @@ const HomeScreen = () => {
                 resizeMode="cover"
               >
                 <View style={styles.icon}>
-                  <Image source={require('../../assets/icn-test3.png')} />
+                  <Image source={require('../../assets/icn-test4.png')} style={styles.iconImg} />
                 </View>
                 <Text style={styles.title}>Support Ticket</Text>
                 <Text style={styles.subTitle}>2</Text>
@@ -153,13 +167,6 @@ const HomeScreen = () => {
             resizeMode="cover"
           >
             <View>
-              <View style={{ alignItems: 'center' }}>
-                <Image
-                  source={require('../../assets/topArrow.png')}
-                  style={{ width: 12, height: 14, resizeMode: 'contain' }}
-                />
-              </View>
-
               <Text style={styles.quickTitle}>Quick Actions</Text>
               <View style={styles.actionsRow}>
                 {actions.map((item, index) => (
@@ -172,38 +179,11 @@ const HomeScreen = () => {
                 ))}
               </View>
             </View>
-
-            <View style={{ alignItems: 'center', width: '100%', marginVertical: 25, }}>
-              <Image source={require('../../assets/line.png')} style={{ width: '100%', height: 1, resizeMode: 'contain' }} />
-            </View>
-
-            <View style={styles.paymentCard}>
-              <View style={{ width: 50, alignItems: 'center', }}>
-                <Image source={require('../../assets/warning.png')} style={{width:30, height:30, resizeMode:'contain', }} />
-              </View>
-
-              <View style={{ flex: 1 }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <View style={{ flexShrink: 1, paddingHorizontal: 10 }}>
-                    <Text style={styles.paymentTitle}>Outstanding Payment</Text>
-                    <Text style={styles.paymentSubtitle}>
-                      You have ₹15,240 pending {'\n'}payment
-                    </Text>
-                  </View>
-
-                  <TouchableOpacity style={styles.payNowButton}>
-                    <Text style={styles.payNowText}>Pay Now</Text>
-                    <Image
-                      source={require('../../assets/rightarrow.png')}
-                      style={{ width: 5, height: 9, resizeMode: 'contain' }}
-                    />
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </View>
           </ImageBackground>
 
-          <ImageBackground
+          {/* Account Summary */}
+
+          {/* <ImageBackground
             source={require('../../assets/summarybg.jpg')}
             style={styles.sumCard}
             // imageStyle={{ borderRadius: 10 }}
@@ -232,7 +212,7 @@ const HomeScreen = () => {
                 <Text style={styles.sumLabel}>Profit</Text>
               </View>
             </View>
-          </ImageBackground>
+          </ImageBackground> */}
 
           <ImageBackground
             source={require('../../assets/perfomancebg.jpg')}
@@ -281,6 +261,7 @@ const HomeScreen = () => {
           </ImageBackground>
         </View>
       </ScrollView>
+
       <PasswordWarningModal
         visible={showPasswordWarning}
         message={`Password will expire in ${expDay} days`}
@@ -405,8 +386,9 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   cardbackground: {
-    paddingVertical: 30,
-    paddingHorizontal: 18,
+    paddingVertical: 15,
+    paddingHorizontal: 15,
+    height: 160,
   },
   icon: {
     width: 44,
@@ -418,63 +400,57 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 12,
   },
+  iconImg: {
+    width: 24,
+    height: 24,
+    resizeMode: 'contain',
+  },
   title: {
     fontFamily: 'Poppins-Regular',
-    fontSize: 10,
-    lineHeight: 12,
+    fontSize: 14,
+    lineHeight: 17,
     color: '#000000',
     marginBottom: 5,
   },
   subTitle: {
     fontFamily: 'Poppins-SemiBold',
-    fontSize: 24,
-    lineHeight: 26,
+    fontSize: 16,
+    lineHeight: 19,
     color: '#000000',
   },
   testInc: {
-    position: 'absolute',
-    right: 5,
-    top: 5,
-    backgroundColor: '#fff',
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    borderRadius: 25,
     flexDirection: 'row',
-    justifyContent: 'center',
+    gap: 5,
     alignItems: 'center',
-    gap: 4,
+    backgroundColor: 'rgba(255,255,255,0.5)',
+    paddingVertical: 3,
+    paddingHorizontal: 7,
+    borderRadius: 5,
+    alignSelf: 'flex-start',
+    justifyContent: 'center',
+    borderRadius: 35,
+    marginTop: 5,
+    height: 28,
   },
   testIncTitle: {
-    fontFamily: 'Poppins-Medium',
-    fontSize: 10,
-    lineHeight: 12,
-    color: '#3CD03C',
+    fontFamily: 'Poppins-SemiBold',
+    fontSize: 12,
+    lineHeight: 15,
+    color: '#4EBA2C',
   },
-  testInctopArrow: {
-    fontFamily: 'Poppins-Medium',
-    fontSize: 15,
-    lineHeight: 17,
-    color: '#3CD03C',
-    marginTop: -4
+  testIncTitle2: {
+    fontFamily: 'Poppins-SemiBold',
+    fontSize: 12,
+    lineHeight: 15,
+    color: '#F43E3E',
   },
-  supportInc: {
-    fontFamily: 'Poppins-Medium',
-    fontSize: 10,
-    color: '#000000',
-    position: 'absolute',
-    right: 5,
-    top: 5,
-    backgroundColor: '#fff',
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    borderRadius: 25,
-  },
+
   // 
 
   // Quick Actions
   accessBackground: {
     paddingHorizontal: 16,
-    paddingTop: 15,
+    paddingTop: 36,
     paddingBottom: 36,
   },
   quickTitle: {
@@ -511,46 +487,8 @@ const styles = StyleSheet.create({
     width: '60%',
     height: '60%',
   },
-
-  paymentCard: {
-    backgroundColor: '#F3F3F3',
-    borderRadius: 10,
-    paddingVertical: 18,
-    paddingHorizontal: 10,
-    flexDirection: 'row',
-    alignItems:'center',
-  },
-  paymentTitle: {
-    fontFamily: 'Poppins-SemiBold',
-    fontSize: 14,
-    lineHeight: 16,
-    color: '#171717',
-    marginBottom: 5,
-  },
-  paymentSubtitle: {
-    fontFamily: 'Poppins-Regular',
-    fontSize: 12,
-    lineHeight: 14,
-    color: '404040',
-  },
-  payNowButton: {
-    width: 83,
-    backgroundColor: '#000',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-    paddingVertical: 7,
-    borderRadius: 5,
-  },
-  payNowText: {
-    fontFamily: 'Poppins-SemiBold',
-    fontSize: 12,
-    lineHeight: 14,
-    color: '#fff',
-  },
-
   // Quick Actions
+
   sumCard: {
     paddingVertical: 38,
     paddingHorizontal: 20,
