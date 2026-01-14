@@ -12,6 +12,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import { BASE_API_URL } from '../services/API';
 import ClientService from '../services/client_service';
+import LinearGradient from 'react-native-linear-gradient';
+import { GlobalStyles } from '../GlobalStyles';
 
 const Header = () => {
   const navigation = useNavigation();
@@ -80,11 +82,11 @@ const Header = () => {
   }, []);
   return (
     <>
-      <ImageBackground
-        source={require('../../assets/menubg.png')}
-        style={styles.background}
-        resizeMode="stretch"
-      >
+      <LinearGradient
+        colors={["#d0eede", "transparent"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 0, y: 1 }}
+        style={GlobalStyles.background}>
         <View style={styles.headerWrapper}>
           {/* Profile Section */}
           <View style={styles.leftSection}>
@@ -112,7 +114,7 @@ const Header = () => {
             </TouchableOpacity>
           </View>
         </View>
-      </ImageBackground>
+      </LinearGradient>
     </>
   );
 };
@@ -120,15 +122,15 @@ const Header = () => {
 export default Header;
 
 const styles = StyleSheet.create({
-  background: {
-    width: '100%',
-  },
+  // background: {
+  //   width: '100%',
+  // },
   headerWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingTop: 40,
+    // paddingTop: 40,
     paddingHorizontal: 16,
-    paddingBottom: 24,
+    // paddingBottom: 24,
   },
   leftSection: {
     flexDirection: 'row',

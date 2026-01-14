@@ -181,38 +181,32 @@ const HomeScreen = () => {
             </View>
           </ImageBackground>
 
-          {/* Account Summary */}
+          {/* Account Summary*/}
 
-          {/* <ImageBackground
-            source={require('../../assets/summarybg.jpg')}
+          <ImageBackground
+            source={require('../../assets/accountsumbg.png')}
             style={styles.sumCard}
             // imageStyle={{ borderRadius: 10 }}
             resizeMode="cover"
           >
-            <Text style={styles.sumTitle}>Today's Business Summary</Text>
-            <View style={styles.sumRow}>
-              <View style={styles.sumColumn}>
-                <Text style={styles.sumValue}>
-                  24 <Text style={styles.sumArrow}>▲</Text>
-                </Text>
-                <Text style={styles.sumLabel}>Patients</Text>
+            <View style={styles.accSumCard}>
+              <View style={styles.accSumCardInn}>
+                <View>
+                  <Text style={styles.accSumTitle}>Account Summary</Text>
+                  <Text style={styles.accSumAmount}>₹32,450</Text>
+                  <Text style={styles.accSumCreditText}>Credit left 15 Days</Text>
+                </View>
+                <TouchableOpacity style={styles.accSumPayBtn}>
+                  <Text style={styles.accSumPayText}>Pay Now</Text>
+                  <Ionicons name="chevron-forward" size={16} color="#fff" />
+                </TouchableOpacity>
               </View>
-
-              <View style={styles.sumColumn}>
-                <Text style={styles.sumValue}>
-                  ₹32,450 <Text style={styles.sumArrow}>▲</Text>
-                </Text>
-                <Text style={styles.sumLabel}>Revenue</Text>
-              </View>
-
-              <View style={styles.sumColumn}>
-                <Text style={styles.sumValue}>
-                  ₹8,120 <Text style={styles.sumArrow}>▲</Text>
-                </Text>
-                <Text style={styles.sumLabel}>Profit</Text>
+              <View style={styles.accSumFooter}>
+                <Text style={styles.accSumFooterText}><Text style={styles.accSumFooterTextInn}>3</Text> Pending Invoice</Text>
+                <Text style={styles.accSumFooterText}>Due Date 31st Dec, 2025</Text>
               </View>
             </View>
-          </ImageBackground> */}
+          </ImageBackground>
 
           <ImageBackground
             source={require('../../assets/perfomancebg.jpg')}
@@ -280,6 +274,95 @@ const HomeScreen = () => {
 export default HomeScreen;
 
 const styles = StyleSheet.create({
+  accSumCard: {
+    paddingTop: 20,
+  },
+  accSumCardInn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingBottom: 20,
+  },
+  accSumTitle: {
+    fontFamily: 'Poppins-SemiBold',
+    fontSize: 14,
+    lineHeight: 17,
+    color: '#fff',
+    marginBottom: 8,
+  },
+  accSumAmount: {
+    fontFamily: 'Poppins-SemiBold',
+    fontSize: 24,
+    lineHeight: 27,
+    color: '#fff',
+    marginBottom: 8,
+  },
+  accSumCreditText: {
+    fontFamily: 'Poppins-Medium',
+    fontSize: 12,
+    lineHeight: 15,
+    color: '#fff',
+  },
+  accSumPayText: {
+    fontFamily: 'Poppins-SemiBold',
+    fontSize: 12,
+    lineHeight: 15,
+    color: '#fff',
+  },
+  accSumPayBtn: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    backgroundColor: '#3F4241',
+    borderRadius: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+
+
+
+
+
+
+
+
+
+  accSumFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#076B28',
+    paddingHorizontal: 16,
+    paddingVertical: 9,
+  },
+  accSumFooterText: {
+    fontFamily: 'Poppins-Medium',
+    fontSize: 12,
+    lineHeight: 15,
+    color: '#fff',
+  },
+  accSumFooterTextInn: {
+    fontFamily: 'Poppins-Bold',
+    fontSize: 15,
+    lineHeight: 18,
+  },
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   perfomanceCard: {
     paddingVertical: 24,
     paddingHorizontal: 16,
@@ -489,44 +572,7 @@ const styles = StyleSheet.create({
   },
   // Quick Actions
 
-  sumCard: {
-    paddingVertical: 38,
-    paddingHorizontal: 20,
-  },
-  sumTitle: {
-    fontFamily: 'Poppins-SemiBold',
-    fontSize: 14,
-    lineHeight: 16,
-    color: '#fff',
-    textAlign: 'center',
-    marginBottom: 15,
-  },
-  sumRow: {
-    flexDirection: 'row',
-    // justifyContent:'space-between',
-  },
-  sumColumn: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  sumValue: {
-    fontFamily: 'Poppins-SemiBold',
-    fontSize: 20,
-    lineHeight: 22,
-    color: '#fff',
-    textAlign: 'center',
-    marginBottom: 10,
-  },
-  sumArrow: {
-    fontSize: 15,
-  },
-  sumLabel: {
-    fontFamily: 'Poppins-SemiBold',
-    fontSize: 12,
-    lineHeight: 14,
-    color: '#fff',
-    textAlign: 'center',
-  },
+
 
 
 
