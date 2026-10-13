@@ -26,8 +26,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 function Login() {
     const [passwordVisible, setPasswordVisible] = useState(false);
-    const [email, setEmail] = useState('');
+    const [emailOrMobile, setEmailOrMobile] = useState('');
     const [password, setPassword] = useState('');
+    const [loginLoading, setLoginLoading] = useState(false);
 
     const [isEmailFocused, setIsEmailFocused] = useState(false);
     const [isPasswordFocused, setIsPasswordFocused] = useState(false);
@@ -38,73 +39,183 @@ function Login() {
     const [resetPasswordModal, setResetPasswordModal] = useState(false);
     const [focusedInput, setFocusedInput] = useState(null);
     const navigation = useNavigation();
-    const [errors, setErrors] = useState({ email: '', password: '' });
+    const [errors, setErrors] = useState({
+        emailOrMobile: '',
+        password: '',
+    });
     const { showAlertModal, hideAlert } = useGlobalAlert();
 
 
 
-    const validateEmail = (email) => {
-        const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return pattern.test(email);
+    const validateEmail = value => {
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailPattern.test(value);
+    };
+
+    const validateMobile = value => {
+        const cleanedValue = value.replace(/[\s()+-]/g, '');
+
+        // Accepts:
+        // 4563214569
+        // 914563214569
+        // +914563214569
+        return /^(?:91)?\d{10}$/.test(cleanedValue);
+    };
+
+    const normalizeEmailOrMobile = value => {
+        const trimmedValue = value.trim();
+
+        if (validateEmail(trimmedValue)) {
+            return trimmedValue.toLowerCase();
+        }
+
+        const cleanedMobile = trimmedValue.replace(
+            /[\s()+-]/g,
+            '',
+        );
+
+        // Remove 91 only when the number contains 12 digits.
+        if (
+            cleanedMobile.length === 12 &&
+            cleanedMobile.startsWith('91')
+        ) {
+            return cleanedMobile.substring(2);
+        }
+
+        return cleanedMobile;
     };
 
     const handleLogin = async () => {
-        let valid = true;
-        let newErrors = { email: '', password: '' };
+        const identifier = emailOrMobile.trim();
 
-        if (!email) {
-            newErrors.email = 'Email is required';
-            valid = false;
-        } else if (!validateEmail(email)) {
-            newErrors.email = 'Enter a valid email address';
-            valid = false;
+        const newErrors = {
+            emailOrMobile: '',
+            password: '',
+        };
+
+        let isValid = true;
+
+        if (!identifier) {
+            newErrors.emailOrMobile =
+                'Email address or mobile number is required';
+            isValid = false;
+        } else if (
+            !validateEmail(identifier) &&
+            !validateMobile(identifier)
+        ) {
+            newErrors.emailOrMobile =
+                'Enter a valid email address or 10-digit mobile number';
+            isValid = false;
         }
 
         if (!password) {
             newErrors.password = 'Password is required';
-            valid = false;
+            isValid = false;
         } else if (password.length < 6) {
-            newErrors.password = 'Password must be at least 6 characters';
-            valid = false;
+            newErrors.password =
+                'Password must be at least 6 characters';
+            isValid = false;
         }
 
         setErrors(newErrors);
 
-        if (valid) {
-            try {
-                const loginRequest = {
-                    "emailOrMobile": email,
-                    "user_pass": password
-                }
-                const response = await AuthService.empLogin(loginRequest);
-                console.log('Login API Response: ', response)
-                if (response?.access_token) {
-                    await AsyncStorage.setItem("token", response.access_token);
-
-                    await AsyncStorage.setItem("user_id", response.userData?.id?.toString() || '');
-                    await AsyncStorage.setItem("user_name", response.userData?.client_name || '');
-                    await AsyncStorage.setItem("user_email", response.userData?.email || '');
-                    await AsyncStorage.setItem("PASSWORD_EXPIRED_IN", response.userData?.passwordExpiresInDays || '');
-
-                    const lastLoginFormatted = formatLoginDate();
-                    await AsyncStorage.setItem("lastLogin", lastLoginFormatted);
-
-                    showAlertModal('Login Successful!', false);
-                    setTimeout(() => {
-                        hideAlert();
-                        navigation.replace('AppTabs');
-                    }, 1000)
-                }
-                else {
-                    showAlertModal('Invalid email or password.', true);
-                }
-            } catch (error) {
-                console.error("Login Error:", error);
-                showAlertModal("Login Failed"+ "Invalid email or password. Please check your credentials and try again.", true);
-            } finally {
-                setLoginLoading(false); // End login loading
-            }
+        if (!isValid || loginLoading) {
+            return;
         }
+
+        try {
+            setLoginLoading(true);
+
+            const loginRequest = {
+                emailOrMobile:
+                    normalizeEmailOrMobile(identifier),
+                user_pass: password,
+            };
+
+            console.log('Login Request:', loginRequest);
+
+            const response =
+                await AuthService.empLogin(loginRequest);
+
+            console.log('Login API Response:', response);
+
+            if (!response?.access_token) {
+                showAlertModal(
+                    response?.message ||
+                    'Invalid email/mobile number or password.',
+                    true,
+                );
+                return;
+            }
+
+            await AsyncStorage.setItem(
+                'token',
+                response.access_token,
+            );
+
+            await AsyncStorage.setItem(
+                'user_id',
+                response.userData?.id?.toString() || '',
+            );
+
+            await AsyncStorage.setItem(
+                'user_name',
+                response.userData?.client_name || '',
+            );
+
+            await AsyncStorage.setItem(
+                'user_email',
+                response.userData?.email || '',
+            );
+
+            await AsyncStorage.setItem(
+                'PASSWORD_EXPIRED_IN',
+                response.userData?.passwordExpiresInDays
+                    ?.toString() || '',
+            );
+
+            await AsyncStorage.setItem(
+                'lastLogin',
+                formatLoginDate(),
+            );
+
+            showAlertModal('Login Successful!', false);
+
+            setTimeout(() => {
+                hideAlert();
+                navigation.replace('AppTabs');
+            }, 1000);
+        } catch (error) {
+            console.error('Login Error:', {
+                status: error?.response?.status,
+                response: error?.response?.data,
+                code: error?.code,
+                message: error?.message,
+            });
+
+            let errorMessage =
+                'Unable to connect to the server. Please check your internet connection and try again.';
+
+            if (error?.response?.data?.message) {
+                errorMessage = error.response.data.message;
+            } else if (
+                error?.code === 'ECONNABORTED' ||
+                error?.message?.toLowerCase().includes('timeout')
+            ) {
+                errorMessage =
+                    'The server is taking too long to respond. Please try again.';
+            } else if (
+                error?.message === 'Network Error' ||
+                error?.code === 'ERR_NETWORK'
+            ) {
+                errorMessage =
+                    'Network connection failed. Please check your internet connection and try again.';
+            }
+
+            showAlertModal(errorMessage, true);
+        } finally {
+        setLoginLoading(false);
+    }
     };
 
 
@@ -153,25 +264,52 @@ function Login() {
                         <Text style={styles.subtitle}>Smooth Access, Stronger Business</Text>
 
                         {/* Email Input */}
+                        {/* Email or Mobile Input */}
                         <View style={styles.inputContainer}>
                             <TextInput
                                 style={[
                                     styles.input,
-                                    { borderColor: isEmailFocused ? '#00A651' : '#B2B2B2' },
+                                    {
+                                        borderColor: isEmailFocused
+                                            ? '#00A651'
+                                            : '#B2B2B2',
+                                    },
                                 ]}
-                                placeholder="Email"
-                                value={email}
-                                onChangeText={(text) => setEmail(text)}
+                                placeholder="Email address or mobile number"
+                                placeholderTextColor="#949494"
+                                value={emailOrMobile}
+                                onChangeText={text => {
+                                    setEmailOrMobile(text);
+
+                                    if (errors.emailOrMobile) {
+                                        setErrors(previousErrors => ({
+                                            ...previousErrors,
+                                            emailOrMobile: '',
+                                        }));
+                                    }
+                                }}
                                 keyboardType="email-address"
+                                autoCapitalize="none"
+                                autoCorrect={false}
                                 onFocus={() => setIsEmailFocused(true)}
                                 onBlur={() => setIsEmailFocused(false)}
                             />
+
                             <Image
                                 source={require('../../../assets/logicon.png')}
-                                style={{ position: 'absolute', left: 15, top: 13 }}
+                                style={{
+                                    position: 'absolute',
+                                    left: 15,
+                                    top: 13,
+                                }}
                             />
                         </View>
-                        {errors.email ? <Text style={styles.errorText}>{errors.email}</Text> : null}
+
+                        {errors.emailOrMobile ? (
+                            <Text style={styles.errorText}>
+                                {errors.emailOrMobile}
+                            </Text>
+                        ) : null}
 
                         {/* Password Input */}
                         <View style={styles.inputContainer}>

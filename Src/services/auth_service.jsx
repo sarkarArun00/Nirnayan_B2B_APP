@@ -1,18 +1,43 @@
-import BASE_API_URL from "./API";
+
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { globalApiClient, apiClient  } from './API';
+import { apiClient } from './API';
 
 
 // Define the API service functions
 const AuthService = {
 
-  empLogin: async (data) => {
+  empLogin: async data => {
     try {
-      const response = await apiClient.post('auth/partnerLogin', data);
-      return response.data
+      const payload = {
+        emailOrMobile:
+          String(data.emailOrMobile).trim(),
+        user_pass:
+          String(data.user_pass),
+      };
+
+      const response = await apiClient.post(
+        'auth/partnerLogin',
+        payload,
+        {
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+          timeout: 30000,
+          withCredentials: false,
+        },
+      );
+
+      return response.data;
     } catch (error) {
-      console.log("empLogin error response:", error.response?.data);
-      throw error;  // re-throw original error
+      console.log('empLogin error:', {
+        message: error?.message,
+        code: error?.code,
+        status: error?.response?.status,
+        response: error?.response?.data,
+      });
+
+      throw error;
     }
   },
 

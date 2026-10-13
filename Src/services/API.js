@@ -1,124 +1,117 @@
-import axios from "axios";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// Base URLs
-const BASE_API_URL = "https://limstest.nirnayanhealthcare.com/";
-const GLOBAL_API_URL = "https://limsapi-dev.nirnayanhealthcare.com/global/";
-const GOOGLE_MAPS_APIKEY = "AIzaSyAeQzuOcT3aIg5Ql2__hJ2bDli20jCA-Bo";
+const BASE_API_URL =
+  'https://lims-testing-api.nirnayanhealthcare.com/';
 
-// Shared Auth Interceptor
-const attachAuthInterceptor = (instance) => {
+const GLOBAL_API_URL =
+  'https://lims-testing-exp-api.nirnayanhealthcare.com/global/';
+
+const GOOGLE_MAPS_APIKEY =
+  'AIzaSyAeQzuOcT3aIg5Ql2__hJ2bDli20jCA-Bo';
+
+const attachAuthInterceptor = instance => {
   instance.interceptors.request.use(
-    async (config) => {
-      const token = await AsyncStorage.getItem("token");
-      const userId = await AsyncStorage.getItem("user_id");
+    async config => {
+      const token =
+        await AsyncStorage.getItem('token');
 
-      if (token) config.headers.Authorization = `Bearer ${token}`;
-      if (userId) config.headers.user_id = userId;
+      const userId =
+        await AsyncStorage.getItem('user_id');
 
-      const keys = await AsyncStorage.getAllKeys();
-      const allItems = await AsyncStorage.multiGet(keys);
-      console.log("Full AsyncStorage:", allItems);
+      if (token) {
+        config.headers.Authorization =
+          `Bearer ${token}`;
+      }
 
+      if (userId) {
+        config.headers.user_id = userId;
+      }
 
-      console.log("Full API URL:", config.baseURL + config.url);
+      console.log(
+        'Final API URL:',
+        `${config.baseURL}${config.url}`,
+      );
+
+      console.log(
+        'Request headers:',
+        config.headers,
+      );
+
+      console.log(
+        'Request payload:',
+        config.data,
+      );
 
       return config;
     },
-    (error) => Promise.reject(error)
+    error => Promise.reject(error),
   );
 };
 
-// Factory to create API clients with different base URLs
-const createApiClient = (baseURL) => {
+const createApiClient = baseURL => {
   const instance = axios.create({
     baseURL,
-    timeout: 1000,
+    timeout: 30000,
+    withCredentials: false,
     headers: {
-      "accept": "application/json"
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
     },
   });
 
   attachAuthInterceptor(instance);
 
-  // Optional: Logging for development
- if (__DEV__) {
-  // Enable XMLHttpRequest & FormData debugging on React Native
-  global.XMLHttpRequest = global.originalXMLHttpRequest
-    ? global.originalXMLHttpRequest
-    : global.XMLHttpRequest;
+  instance.interceptors.request.use(
+    config => {
+      console.log('FINAL REQUEST CONFIG:', {
+        url: `${config.baseURL}${config.url}`,
+        method: config.method,
+        timeout: config.timeout,
+        withCredentials: config.withCredentials,
+        contentType:
+          config.headers?.['Content-Type'],
+        data: config.data,
+      });
 
-  global.FormData = global.originalFormData
-    ? global.originalFormData
-    : global.FormData;
+      return config;
+    },
+    error => Promise.reject(error),
+  );
 
-  // Request Interceptor
-  instance.interceptors.request.use((config) => {
-    console.log("===== 📤 AXIOS REQUEST =====");
-    console.log("➡️ Method:", config.method?.toUpperCase());
-    console.log("➡️ URL:", config.url);
-    console.log("➡️ Headers:", config.headers);
-    console.log("➡️ Payload:", config.data);
-    console.log("============================");
-    return config;
-  });
-
-  // Response Interceptor
   instance.interceptors.response.use(
-    (response) => {
-      console.log("===== 📥 AXIOS RESPONSE =====");
-      console.log("✅ Status:", response.status);
-      console.log("🌐 URL:", response.config.url);
-      console.log("📦 Data:", response.data);
-      console.log("📄 Headers:", response.headers);
-      console.log("============================");
+    response => {
+      console.log('API RESPONSE:', {
+        status: response.status,
+        data: response.data,
+      });
+
       return response;
     },
-    (error) => {
-      console.log("===== ❌ AXIOS ERROR =====");
-
-      console.log("❗ Message:", error.message);
-      console.log("❗ Code:", error.code);
-
-      if (error.config) {
-        console.log("📌 Request Config:", {
-          url: error.config.url,
-          method: error.config.method,
-          headers: error.config.headers,
-          data: error.config.data,
-        });
-      }
-
-      if (error.response) {
-        console.log("🔻 ERROR RESPONSE:");
-        console.log("🔺 Status:", error.response.status);
-        console.log("🔺 Headers:", error.response.headers);
-        console.log("🔺 Data:", error.response.data);
-      } else if (error.request) {
-        console.log("📡 Request Made but No Response:", error.request);
-      } else {
-        console.log("⚠️ Unknown Axios Error:", error);
-      }
-
-      console.log("============================");
+    error => {
+      console.log('API ERROR:', {
+        message: error?.message,
+        code: error?.code,
+        status: error?.response?.status,
+        response: error?.response?.data,
+        timeout: error?.config?.timeout,
+      });
 
       return Promise.reject(error);
-    }
+    },
   );
-}
-
 
   return instance;
 };
 
-// Export specific instances
 const apiClient = createApiClient(BASE_API_URL);
-const globalApiClient = createApiClient(GLOBAL_API_URL);
 
-// Exports
+const globalApiClient =
+  createApiClient(GLOBAL_API_URL);
+
 export {
   apiClient,
   globalApiClient,
   BASE_API_URL,
-  GOOGLE_MAPS_APIKEY
+  GOOGLE_MAPS_APIKEY,
 };
