@@ -85,139 +85,303 @@ function Login() {
         return cleanedMobile;
     };
 
-    const handleLogin = async () => {
-        const identifier = emailOrMobile.trim();
+    // const handleLogin = async () => {
+    //     const identifier = emailOrMobile.trim();
 
-        const newErrors = {
-            emailOrMobile: '',
-            password: '',
+    //     const newErrors = {
+    //         emailOrMobile: '',
+    //         password: '',
+    //     };
+
+    //     let isValid = true;
+
+    //     if (!identifier) {
+    //         newErrors.emailOrMobile =
+    //             'Email address or mobile number is required';
+    //         isValid = false;
+    //     } else if (
+    //         !validateEmail(identifier) &&
+    //         !validateMobile(identifier)
+    //     ) {
+    //         newErrors.emailOrMobile =
+    //             'Enter a valid email address or 10-digit mobile number';
+    //         isValid = false;
+    //     }
+
+    //     if (!password) {
+    //         newErrors.password = 'Password is required';
+    //         isValid = false;
+    //     } else if (password.length < 6) {
+    //         newErrors.password =
+    //             'Password must be at least 6 characters';
+    //         isValid = false;
+    //     }
+
+    //     setErrors(newErrors);
+
+    //     if (!isValid || loginLoading) {
+    //         return;
+    //     }
+
+    //     try {
+    //         setLoginLoading(true);
+
+    //         const loginRequest = {
+    //             emailOrMobile:
+    //                 normalizeEmailOrMobile(identifier),
+    //             user_pass: password,
+    //         };
+
+    //         console.log('Login Request:', loginRequest);
+
+    //         const response =
+    //             await AuthService.empLogin(loginRequest);
+
+    //         console.log('Login API Response:', response);
+
+    //         if (!response?.access_token) {
+    //             showAlertModal(
+    //                 response?.message ||
+    //                 'Invalid email/mobile number or password.',
+    //                 true,
+    //             );
+    //             return;
+    //         }
+
+    //         await AsyncStorage.setItem(
+    //             'token',
+    //             response.access_token,
+    //         );
+
+    //         await AsyncStorage.setItem(
+    //             'user_id',
+    //             response.userData?.id?.toString() || '',
+    //         );
+
+    //         await AsyncStorage.setItem(
+    //             'user_name',
+    //             response.userData?.client_name || '',
+    //         );
+
+    //         await AsyncStorage.setItem(
+    //             'user_email',
+    //             response.userData?.email || '',
+    //         );
+
+    //         await AsyncStorage.setItem(
+    //             'PASSWORD_EXPIRED_IN',
+    //             response.userData?.passwordExpiresInDays
+    //                 ?.toString() || '',
+    //         );
+
+    //         await AsyncStorage.setItem(
+    //             'lastLogin',
+    //             formatLoginDate(),
+    //         );
+
+    //         showAlertModal('Login Successful!', false);
+
+    //         setTimeout(() => {
+    //             hideAlert();
+    //             navigation.replace('AppTabs');
+    //         }, 1000);
+    //     } catch (error) {
+    //         console.error('Login Error:', {
+    //             status: error?.response?.status,
+    //             response: error?.response?.data,
+    //             code: error?.code,
+    //             message: error?.message,
+    //         });
+
+    //         let errorMessage =
+    //             'Unable to connect to the server. Please check your internet connection and try again.';
+
+    //         if (error?.response?.data?.message) {
+    //             errorMessage = error.response.data.message;
+    //         } else if (
+    //             error?.code === 'ECONNABORTED' ||
+    //             error?.message?.toLowerCase().includes('timeout')
+    //         ) {
+    //             errorMessage =
+    //                 'The server is taking too long to respond. Please try again.';
+    //         } else if (
+    //             error?.message === 'Network Error' ||
+    //             error?.code === 'ERR_NETWORK'
+    //         ) {
+    //             errorMessage =
+    //                 'Network connection failed. Please check your internet connection and try again.';
+    //         }
+
+    //         showAlertModal(errorMessage, true);
+    //     } finally {
+    //     setLoginLoading(false);
+    // }
+    // };
+
+
+    const handleLogin = async () => {
+    const identifier = emailOrMobile.trim();
+
+    const newErrors = {
+        emailOrMobile: '',
+        password: '',
+    };
+
+    let isValid = true;
+
+    if (!identifier) {
+        newErrors.emailOrMobile =
+            'Email address or mobile number is required';
+        isValid = false;
+    } else if (
+        !validateEmail(identifier) &&
+        !validateMobile(identifier)
+    ) {
+        newErrors.emailOrMobile =
+            'Enter a valid email address or 10-digit mobile number';
+        isValid = false;
+    }
+
+    if (!password) {
+        newErrors.password = 'Password is required';
+        isValid = false;
+    } else if (password.length < 6) {
+        newErrors.password =
+            'Password must be at least 6 characters';
+        isValid = false;
+    }
+
+    setErrors(newErrors);
+
+    if (!isValid || loginLoading) {
+        return;
+    }
+
+    try {
+        setLoginLoading(true);
+
+        const loginRequest = {
+            emailOrMobile:
+                normalizeEmailOrMobile(identifier),
+            user_pass: password,
         };
 
-        let isValid = true;
+        const response =
+            await AuthService.empLogin(loginRequest);
 
-        if (!identifier) {
-            newErrors.emailOrMobile =
-                'Email address or mobile number is required';
-            isValid = false;
-        } else if (
-            !validateEmail(identifier) &&
-            !validateMobile(identifier)
-        ) {
-            newErrors.emailOrMobile =
-                'Enter a valid email address or 10-digit mobile number';
-            isValid = false;
-        }
+        console.log('Login API Response:', response);
 
-        if (!password) {
-            newErrors.password = 'Password is required';
-            isValid = false;
-        } else if (password.length < 6) {
-            newErrors.password =
-                'Password must be at least 6 characters';
-            isValid = false;
-        }
-
-        setErrors(newErrors);
-
-        if (!isValid || loginLoading) {
+        if (!response?.access_token) {
+            showAlertModal(
+                response?.message ||
+                'Invalid email/mobile number or password.',
+                true,
+            );
             return;
         }
 
-        try {
-            setLoginLoading(true);
+        // Remove password hash before saving
+        const { user_pass, ...safeUserData } = response.userData || {};
 
-            const loginRequest = {
-                emailOrMobile:
-                    normalizeEmailOrMobile(identifier),
-                user_pass: password,
-            };
+        // Whole response in one key
+        await AsyncStorage.setItem(
+            'loginResponse',
+            JSON.stringify({ ...response, userData: safeUserData }),
+        );
 
-            console.log('Login Request:', loginRequest);
+        await AsyncStorage.setItem(
+            'token',
+            response.access_token,
+        );
 
-            const response =
-                await AuthService.empLogin(loginRequest);
+        await AsyncStorage.setItem(
+            'centreId',
+            String(response.centreId ?? ''),
+        );
 
-            console.log('Login API Response:', response);
+        await AsyncStorage.setItem(
+            'loginType',
+            response.loginType || '',
+        );
 
-            if (!response?.access_token) {
-                showAlertModal(
-                    response?.message ||
-                    'Invalid email/mobile number or password.',
-                    true,
-                );
-                return;
-            }
+        await AsyncStorage.setItem(
+            'success',
+            String(response.success),
+        );
 
-            await AsyncStorage.setItem(
-                'token',
-                response.access_token,
-            );
+        await AsyncStorage.setItem(
+            'loginMessage',
+            response.data || '',
+        );
 
-            await AsyncStorage.setItem(
-                'user_id',
-                response.userData?.id?.toString() || '',
-            );
+        await AsyncStorage.setItem(
+            'PASSWORD_EXPIRED_IN',
+            String(response.passwordExpiresInDays ?? ''),
+        );
 
-            await AsyncStorage.setItem(
-                'user_name',
-                response.userData?.client_name || '',
-            );
+        await AsyncStorage.setItem(
+            'userData',
+            JSON.stringify(safeUserData),
+        );
 
-            await AsyncStorage.setItem(
-                'user_email',
-                response.userData?.email || '',
-            );
+        await AsyncStorage.setItem(
+            'user_id',
+            String(safeUserData.id ?? ''),
+        );
 
-            await AsyncStorage.setItem(
-                'PASSWORD_EXPIRED_IN',
-                response.userData?.passwordExpiresInDays
-                    ?.toString() || '',
-            );
+        await AsyncStorage.setItem(
+            'user_name',
+            safeUserData.client_name || '',
+        );
 
-            await AsyncStorage.setItem(
-                'lastLogin',
-                formatLoginDate(),
-            );
+        await AsyncStorage.setItem(
+            'user_email',
+            safeUserData.email || '',
+        );
 
-            showAlertModal('Login Successful!', false);
+        await AsyncStorage.setItem(
+            'lastLogin',
+            formatLoginDate(),
+        );
 
-            setTimeout(() => {
-                hideAlert();
-                navigation.replace('AppTabs');
-            }, 1000);
-        } catch (error) {
-            console.error('Login Error:', {
-                status: error?.response?.status,
-                response: error?.response?.data,
-                code: error?.code,
-                message: error?.message,
-            });
+        showAlertModal('Login Successful!', false);
 
-            let errorMessage =
-                'Unable to connect to the server. Please check your internet connection and try again.';
+        setTimeout(() => {
+            hideAlert();
+            navigation.replace('AppTabs');
+        }, 1000);
+    } catch (error) {
+        console.error('Login Error:', {
+            status: error?.response?.status,
+            response: error?.response?.data,
+            code: error?.code,
+            message: error?.message,
+        });
 
-            if (error?.response?.data?.message) {
-                errorMessage = error.response.data.message;
-            } else if (
-                error?.code === 'ECONNABORTED' ||
-                error?.message?.toLowerCase().includes('timeout')
-            ) {
-                errorMessage =
-                    'The server is taking too long to respond. Please try again.';
-            } else if (
-                error?.message === 'Network Error' ||
-                error?.code === 'ERR_NETWORK'
-            ) {
-                errorMessage =
-                    'Network connection failed. Please check your internet connection and try again.';
-            }
+        let errorMessage =
+            'Unable to connect to the server. Please check your internet connection and try again.';
 
-            showAlertModal(errorMessage, true);
-        } finally {
+        if (error?.response?.data?.message) {
+            errorMessage = error.response.data.message;
+        } else if (
+            error?.code === 'ECONNABORTED' ||
+            error?.message?.toLowerCase().includes('timeout')
+        ) {
+            errorMessage =
+                'The server is taking too long to respond. Please try again.';
+        } else if (
+            error?.message === 'Network Error' ||
+            error?.code === 'ERR_NETWORK'
+        ) {
+            errorMessage =
+                'Network connection failed. Please check your internet connection and try again.';
+        }
+
+        showAlertModal(errorMessage, true);
+    } finally {
         setLoginLoading(false);
     }
-    };
-
+};
 
     const formatLoginDate = () => {
         const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
