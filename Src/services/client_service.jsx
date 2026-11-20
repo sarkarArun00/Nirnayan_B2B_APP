@@ -155,6 +155,23 @@ createRegistration: async payload => {
       throw error;
     }
   },
+//PatientEditRequest
+getPatientEditRequest: async payload => {
+  try {
+    const response = await apiClient.post(
+      '/approval/request',
+      payload,
+    );
+
+    return response.data;
+  } catch (error) {
+    console.log(
+      'getPatientEditRequest error:',
+      error.response?.data || error,
+    );
+    throw error;
+  }
+},
 
   // ---------- Notifications ---------- //
 

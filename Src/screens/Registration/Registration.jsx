@@ -14,8 +14,8 @@ import {
   Animated,
   TextInput,
   FlatList,
-  Alert,
   ActivityIndicator,
+  RefreshControl,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -28,7 +28,7 @@ import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import UploadClinicalHistory from './UploadClinicalHistory';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ClientService from '../../services/client_service';
-
+import AlertModal from '../../componenets/AlertModal';
 const screenWidth = Dimensions.get('window').width;
 const SCHEMA_NAME = 'nir1691144565';
 
@@ -214,6 +214,10 @@ const mapInvestigations = response => {
     .filter(it => it && !seen.has(it.id) && seen.add(it.id));
 };
 
+// Small red message shown under a field that failed validation
+const FieldError = ({ text, style }) =>
+  text ? <Text style={[styles.errorText, style]}>{text}</Text> : null;
+
 function Registration({ navigation }) {
   const [activeTab, setActiveTab] = useState(0);
   const [session, setSession] = useState(null);
@@ -302,8 +306,53 @@ function Registration({ navigation }) {
 
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
 
+  // Validation: a tab's errors are shown only after the user tried to go Next / Register on it
+  const [attempted, setAttempted] = useState({});
+  const [docAttempted, setDocAttempted] = useState(false); // Add Doctor modal
+  const [refreshing, setRefreshing] = useState(false); // pull-to-refresh
+
   const scrollRef = useRef(null);
   const progressAnim = useRef(new Animated.Value(0)).current;
+
+  // ---------- Alert modal ----------
+  // One shared modal for the whole screen. `type` picks the title, colour and icon
+  // (success | error | warning | delete). `onClose` runs AFTER the user taps OK,
+  // so we can navigate or switch tabs only once the message has been read.
+  const [alertConfig, setAlertConfig] = useState({
+    visible: false,
+    type: 'success',
+    message: '',
+    onClose: null, // callback for the OK button
+    onConfirm: null, // callback for "Yes, Delete" (type === 'delete' only)
+  });
+
+  // Shows a normal (OK only) alert. Optional callback runs when OK is pressed.
+  const showAlert = (type, message, onClose = null) =>
+    setAlertConfig({ visible: true, type, message, onClose, onConfirm: null });
+
+  // Shows the delete confirmation. `onYes` runs only if the user confirms.
+  const showDeleteConfirm = (message, onYes) =>
+    setAlertConfig({
+      visible: true,
+      type: 'delete',
+      message,
+      onClose: null,
+      onConfirm: onYes,
+    });
+
+  // OK pressed: hide the modal first, then run the follow-up action (if any)
+  const closeAlert = () => {
+    const cb = alertConfig.onClose;
+    setAlertConfig(prev => ({ ...prev, visible: false, onClose: null }));
+    cb?.();
+  };
+
+  // Delete modal: AlertModal calls onConfirm(true) for "Yes, Delete", onConfirm(false) for "Cancel"
+  const handleAlertConfirm = confirmed => {
+    const cb = alertConfig.onConfirm;
+    setAlertConfig(prev => ({ ...prev, visible: false, onConfirm: null }));
+    if (confirmed) cb?.();
+  };
 
   // ---------- derived values (must stay above the effects that use them) ----------
   const selectedInvestigations = products.filter(p => p.checked);
@@ -318,6 +367,41 @@ function Registration({ navigation }) {
   const receivedNum = Number(receiveAmount) || 0;
   const netAmount = grossTotal - discountNum + chargesNum;
   const dueAmount = Math.max(netAmount - receivedNum, 0);
+
+  // ---------- validation of every red-star (*) field ----------
+  // Pure function of the current state, so an error disappears as soon as the user fixes the field.
+  const fieldErrors = {
+    // Tab 0: Patient Details
+    initial: !selectInitial ? 'Please select an initial' : '',
+    patientName: !stripTitle(patientName) ? 'Patient name is required' : '',
+    dob: !dob ? 'Date of birth is required' : '',
+    gender: !selectGender ? 'Please select a gender' : '',
+    // Tab 2: Client & Doctor Details
+    referDoctor: !selectReferDoctor ? 'Please select a refer doctor' : '',
+    // Tab 4: Payment Details (UTR / TRN / cheque fields only count for the selected mode)
+    receiveAmount:
+      receiveAmount.trim() === '' ? 'Receive amount is required' : '',
+    utr: activePaymentTab === 'upi' && !utr.trim() ? 'UTR is required' : '',
+    trn: activePaymentTab === 'card' && !trn.trim() ? 'TRN is required' : '',
+    chequeNo:
+      activePaymentTab === 'cheque' && !chequeNo.trim()
+        ? 'Cheque number is required'
+        : '',
+    chequeDate:
+      activePaymentTab === 'cheque' && !chequeDate
+        ? 'Cheque date is required'
+        : '',
+    bankName:
+      activePaymentTab === 'cheque' && !bankName ? 'Please select a bank' : '',
+  };
+  const TAB_FIELDS = {
+    0: ['initial', 'patientName', 'dob', 'gender'],
+    2: ['referDoctor'],
+    4: ['receiveAmount', 'utr', 'trn', 'chequeNo', 'chequeDate', 'bankName'],
+  };
+  const tabHasErrors = i => (TAB_FIELDS[i] || []).some(k => !!fieldErrors[k]);
+  // Error text for a field, only once its tab has been attempted
+  const err = (tabIndex, key) => (attempted[tabIndex] ? fieldErrors[key] : '');
 
   const invQuery = invSearch.trim().toLowerCase();
   const visibleProducts = invQuery
@@ -373,6 +457,12 @@ function Registration({ navigation }) {
   };
 
   const handleNextTab = () => {
+    // Block "Next" while a required (*) field on this tab is empty
+    if (tabHasErrors(activeTab)) {
+      setAttempted(prev => ({ ...prev, [activeTab]: true }));
+      showAlert('warning', 'Please fill all required (*) fields.');
+      return;
+    }
     if (activeTab < tabs.length - 1) {
       handleTabPress(activeTab + 1);
     }
@@ -388,13 +478,14 @@ function Registration({ navigation }) {
       setReferDoctors(extractList(res));
     } catch (e) {
       console.log('Refer doctors error:', e?.response?.data || e?.message);
-      Alert.alert('Error', 'Could not load doctors');
+      showAlert('error', 'Could not load doctors');
     }
   };
 
   const handleAddDoctor = async () => {
     if (!docName.trim()) {
-      Alert.alert('Required', 'Doctor name is required');
+      setDocAttempted(true); // shows the red message under the Doctor Name field
+      showAlert('warning', 'Doctor name is required');
       return;
     }
     try {
@@ -414,9 +505,11 @@ function Registration({ navigation }) {
       setDocPhone('');
       setDocAddress('');
       setDocDescription('');
+      setDocAttempted(false);
       loadReferDoctors(); // refresh dropdown
+      showAlert('success', 'Doctor added successfully');
     } catch (e) {
-      Alert.alert('Error', e.response?.data?.message || 'Could not add doctor');
+      showAlert('error', e.response?.data?.message || 'Could not add doctor');
     } finally {
       setSavingDoctor(false);
     }
@@ -450,7 +543,11 @@ function Registration({ navigation }) {
   };
 
   // ---------- API: investigations (by client, or by partner with client fallback) ----------
-  const loadInvestigations = async (partnerId = '', s = session) => {
+  const loadInvestigations = async (
+    partnerId = '',
+    s = session,
+    keepSelection = false, // true on pull-to-refresh: keep ticked / urgent items
+  ) => {
     if (!s?.user_id) return;
     const reqId = ++invReqRef.current;
 
@@ -494,7 +591,23 @@ function Registration({ navigation }) {
       }
 
       if (reqId !== invReqRef.current) return; // a newer request replaced this one
-      setProducts(list);
+      if (keepSelection) {
+        setProducts(prev =>
+          list.map(it => {
+            const old = prev.find(p => p.id === it.id);
+            return old
+              ? {
+                  ...it,
+                  checked: old.checked,
+                  selected: old.selected,
+                  urgent: old.urgent,
+                }
+              : it;
+          }),
+        );
+      } else {
+        setProducts(list);
+      }
     } catch (error) {
       if (reqId !== invReqRef.current) return;
       console.log(
@@ -555,6 +668,36 @@ function Registration({ navigation }) {
       );
     } finally {
       setLoadingRegs(false);
+    }
+  };
+
+  // ---------- reload every tab's API data ----------
+  // Doctors (tab 3), partners (tab 3), registrations list (tab 1) and investigations (tab 4).
+  // What the user already typed is kept.
+  const reloadAll = async (s = session) => {
+    if (!s) return;
+    await Promise.all([
+      loadReferDoctors(s),
+      loadPartners(s),
+      loadRegistrations(s),
+      loadInvestigations(selectRefer, s, true),
+    ]);
+  };
+
+  // Pull down on the screen to reload
+  const onRefresh = async () => {
+    setRefreshing(true);
+    try {
+      if (session) {
+        await reloadAll(session);
+      } else {
+        // session never loaded: read it again, the [session] effect then loads everything
+        setSession(await loadSession());
+      }
+    } catch (e) {
+      console.log('onRefresh error:', e?.message || e);
+    } finally {
+      setRefreshing(false);
     }
   };
 
@@ -681,6 +824,57 @@ function Registration({ navigation }) {
     );
   };
 
+  // ---------- Reset every tab after a registration ----------
+  const resetForm = () => {
+    // Tab 1: patient details
+    setSelectInitial('');
+    setPatientName('');
+    setDob(null);
+    setSelectGender('');
+    setPhone('');
+    // Tab 2: more information
+    setEmail('');
+    setAddress('');
+    setAltPhone('');
+    setHeight('');
+    setWeight('');
+    setBloodGroup('');
+    setOtherInfo('');
+    setRemarks('');
+    // Tab 3: client & doctor
+    setSelectSubClient('');
+    setSelectRefer('');
+    setSelectReferDoctor('');
+    // Tab 4: investigations (reload the default client list with nothing ticked)
+    setInvSearch('');
+    setInvMessage('');
+    setProducts([]);
+    loadInvestigations('', session);
+    // Tab 5: payment
+    setIsEnabled(false);
+    setActivePaymentTab('cash');
+    setChargesAdded(false);
+    setBankName('');
+    setChequeDate(null);
+    setDiscountAmt('');
+    setCollectionCharges('');
+    setReceiveAmount('');
+    setUtr('');
+    setTrn('');
+    setChequeNo('');
+    // Search box, validation messages, retry ids
+    setSearchText('');
+    setShowRegistrationForm(true);
+    setAttempted({});
+    progressRef.current = {
+      patientId: null,
+      registrationDone: false,
+      orderNo: null,
+    };
+    // Back to the first tab
+    handleTabPress(0);
+  };
+
   // ---------- Register: patient -> registration -> LIS work order ----------
   const handleRegister = async () => {
     console.log('Register pressed', {
@@ -694,74 +888,62 @@ function Registration({ navigation }) {
       activePaymentTab,
     });
 
+    // Session problems: the user cannot fix these on this screen, so no follow-up action
     if (!session?.user_id || !session?.centre_id) {
-      Alert.alert('Session missing', 'Please log in again.');
+      showAlert('error', 'Session missing. Please log in again.');
       return;
     }
     if (!session.schemaName) {
-      Alert.alert(
-        'schemaName missing',
+      showAlert(
+        'error',
         'The login data has no schemaName. Save it at login (see the Login API Response log) and try again.',
       );
       return;
     }
     const cleanName = stripTitle(patientName);
 
-    if (!selectInitial || !cleanName || !dob || !selectGender) {
-      Alert.alert('Missing details', 'Please fill all required (*) fields.');
-      handleTabPress(0);
+    // Required (*) fields on the Patient Details and Client & Doctor tabs:
+    // show the red messages, then jump to the first tab that has a problem
+    const firstBadTab = [0, 2].find(tabHasErrors);
+    if (firstBadTab !== undefined) {
+      setAttempted(prev => ({ ...prev, 0: true, 2: true }));
+      showAlert('warning', 'Please fill all required (*) fields.', () =>
+        handleTabPress(firstBadTab),
+      );
       return;
     }
-    if (!selectReferDoctor) {
-      Alert.alert('Missing details', 'Please select a refer doctor.');
-      handleTabPress(2);
-      return;
-    }
-    // Check whether any investigation is available
+    // No investigations loaded: jump to the Investigation tab
     if (products.length === 0) {
-      Alert.alert('Missing details', 'Please add at least one investigation.');
-      handleTabPress(3);
+      showAlert('warning', 'Please add at least one investigation.', () =>
+        handleTabPress(3),
+      );
       return;
     }
 
-    // Check whether at least one investigation is selected
+    // Nothing ticked: jump to the Investigation tab
     if (selectedInvestigations.length === 0) {
-      Alert.alert(
-        'Investigation Required',
-        'Please select at least one investigation.',
+      showAlert('warning', 'Please select at least one investigation.', () =>
+        handleTabPress(3),
       );
-      handleTabPress(3);
       return;
     }
+    // Required (*) fields on the Payment tab (receive amount, UTR / TRN / cheque details)
+    if (tabHasErrors(4)) {
+      setAttempted(prev => ({ ...prev, 4: true }));
+      showAlert('warning', 'Please fill all required (*) fields.', () =>
+        handleTabPress(4),
+      );
+      return;
+    }
+    // Amount checks
     if (discountNum > grossTotal) {
-      Alert.alert('Invalid amount', 'Discount cannot exceed the gross total.');
+      showAlert('error', 'Discount cannot exceed the gross total.');
       return;
     }
     if (receivedNum > netAmount) {
-      Alert.alert(
-        'Invalid amount',
-        'Received amount cannot exceed net amount.',
-      );
+      showAlert('error', 'Received amount cannot exceed net amount.');
       return;
     }
-    if (receivedNum > 0) {
-      if (activePaymentTab === 'upi' && !utr.trim()) {
-        Alert.alert('Missing details', 'Please enter the UTR.');
-        return;
-      }
-      if (activePaymentTab === 'card' && !trn.trim()) {
-        Alert.alert('Missing details', 'Please enter the TRN.');
-        return;
-      }
-      if (
-        activePaymentTab === 'cheque' &&
-        (!chequeNo.trim() || !chequeDate || !bankName)
-      ) {
-        Alert.alert('Missing details', 'Please fill all cheque details.');
-        return;
-      }
-    }
-
     // the picker can hand back a number or a string, so compare as strings
     const doctor = referDoctors.find(
       d => String(d.id) === String(selectReferDoctor),
@@ -885,11 +1067,11 @@ function Registration({ navigation }) {
           orderNo: null,
         };
         loadRegistrations();
-        Alert.alert(
-          'Registered',
+        resetForm(); // the registration is saved, so clear the form
+        showAlert(
+          'warning',
           'Registration saved, but the order number was not found in the response, so the LIS work order was not sent.',
         );
-        navigation.goBack();
         return;
       }
 
@@ -932,17 +1114,22 @@ function Registration({ navigation }) {
       };
       loadRegistrations();
 
-      Alert.alert(
-        lisFailed ? 'Registered with warning' : 'Success',
-        lisFailed
-          ? `Order ${orderNo} was saved, but sending it to the LIS failed. Please retry from the order screen.`
-          : `Order ${orderNo} registered successfully`,
-      );
-      navigation.goBack();
+      // Registration is saved: erase every field on every tab and go back to tab 1
+      resetForm();
+
+      // Final result: warning if the LIS push failed, success otherwise
+      if (lisFailed) {
+        showAlert(
+          'warning',
+          `Order ${orderNo} was saved, but sending it to the LIS failed. Please retry from the order screen.`,
+        );
+      } else {
+        showAlert('success', `Order ${orderNo} registered successfully`);
+      }
     } catch (e) {
       console.log('handleRegister error:', e.response?.data || e);
-      Alert.alert(
-        'Error',
+      showAlert(
+        'error',
         e.response?.data?.message || e.message || 'Registration failed',
       );
     } finally {
@@ -992,7 +1179,12 @@ function Registration({ navigation }) {
                     <Text style={GlobalStyles.label}>
                       Initial<Text style={GlobalStyles.regText}>*</Text>
                     </Text>
-                    <View style={GlobalStyles.pickerInput}>
+                    <View
+                      style={[
+                        GlobalStyles.pickerInput,
+                        !!err(0, 'initial') && styles.inputError,
+                      ]}
+                    >
                       <Picker
                         selectedValue={selectInitial}
                         onValueChange={value => setSelectInitial(value)}
@@ -1007,6 +1199,7 @@ function Registration({ navigation }) {
                         <Picker.Item label="Mrs." value="Mrs." />
                       </Picker>
                     </View>
+                    <FieldError text={err(0, 'initial')} />
                   </View>
                   <View style={GlobalStyles.inpBox}>
                     <Text style={GlobalStyles.label}>
@@ -1017,22 +1210,31 @@ function Registration({ navigation }) {
                       placeholder="Enter Patient Name"
                       value={patientName}
                       onChangeText={setPatientName}
-                      style={GlobalStyles.input}
+                      style={[
+                        GlobalStyles.input,
+                        !!err(0, 'patientName') && styles.inputError,
+                      ]}
                       placeholderTextColor="#C2C2C2"
                     />
+                    <FieldError text={err(0, 'patientName')} />
                   </View>
                   <View style={GlobalStyles.inpBox}>
                     <Text style={GlobalStyles.label}>
                       Date of Birth<Text style={GlobalStyles.regText}>*</Text>
                     </Text>
                     <TouchableOpacity
-                      style={[GlobalStyles.input, { justifyContent: 'center' }]}
+                      style={[
+                        GlobalStyles.input,
+                        { justifyContent: 'center' },
+                        !!err(0, 'dob') && styles.inputError,
+                      ]}
                       onPress={() => setDobPickerVisible(true)}
                     >
                       <Text style={{ color: dob ? '#000' : '#999' }}>
                         {dob ? formatDob(dob) : 'Select Date of Birth'}
                       </Text>
                     </TouchableOpacity>
+                    <FieldError text={err(0, 'dob')} />
                   </View>
                   <View style={GlobalStyles.inpBox}>
                     <Text style={GlobalStyles.label}>Age</Text>
@@ -1048,7 +1250,12 @@ function Registration({ navigation }) {
                     <Text style={GlobalStyles.label}>
                       Gender<Text style={GlobalStyles.regText}>*</Text>
                     </Text>
-                    <View style={GlobalStyles.pickerInput}>
+                    <View
+                      style={[
+                        GlobalStyles.pickerInput,
+                        !!err(0, 'gender') && styles.inputError,
+                      ]}
+                    >
                       <Picker
                         selectedValue={selectGender}
                         onValueChange={value => setSelectGender(value)}
@@ -1063,6 +1270,7 @@ function Registration({ navigation }) {
                         <Picker.Item label="Other" value="Other" />
                       </Picker>
                     </View>
+                    <FieldError text={err(0, 'gender')} />
                   </View>
                   <View style={GlobalStyles.inpBox}>
                     <Text style={GlobalStyles.label}>Phone</Text>
@@ -1391,7 +1599,12 @@ function Registration({ navigation }) {
               <Text style={GlobalStyles.label}>
                 Refer Doctor<Text style={GlobalStyles.regText}>*</Text>
               </Text>
-              <View style={GlobalStyles.pickerInput}>
+              <View
+                style={[
+                  GlobalStyles.pickerInput,
+                  !!err(2, 'referDoctor') && styles.inputError,
+                ]}
+              >
                 <Picker
                   selectedValue={selectReferDoctor}
                   onValueChange={value => setSelectReferDoctor(value)}
@@ -1417,10 +1630,14 @@ function Registration({ navigation }) {
                     ))}
                 </Picker>
               </View>
+              <FieldError text={err(2, 'referDoctor')} />
             </View>
             <TouchableOpacity
               style={styles.addDoctor}
-              onPress={() => setAddDoctor(true)}
+              onPress={() => {
+                setDocAttempted(false);
+                setAddDoctor(true);
+              }}
             >
               <Text style={styles.addDoctorText}>Add Doctor</Text>
             </TouchableOpacity>
@@ -1756,10 +1973,17 @@ function Registration({ navigation }) {
                     <TextInput
                       placeholder="Enter UTR"
                       placeholderTextColor="#9A9A9A"
-                      style={styles.pmntInput}
+                      style={[
+                        styles.pmntInput,
+                        !!err(4, 'utr') && styles.inputError,
+                      ]}
                       value={utr}
                       onChangeText={setUtr}
                       autoCapitalize="characters"
+                    />
+                    <FieldError
+                      text={err(4, 'utr')}
+                      style={styles.errorTextRow}
                     />
                   </View>
                 )}
@@ -1772,9 +1996,16 @@ function Registration({ navigation }) {
                     <TextInput
                       placeholder="Enter TRN"
                       placeholderTextColor="#9A9A9A"
-                      style={styles.pmntInput}
+                      style={[
+                        styles.pmntInput,
+                        !!err(4, 'trn') && styles.inputError,
+                      ]}
                       value={trn}
                       onChangeText={setTrn}
+                    />
+                    <FieldError
+                      text={err(4, 'trn')}
+                      style={styles.errorTextRow}
                     />
                   </View>
                 )}
@@ -1788,10 +2019,14 @@ function Registration({ navigation }) {
                       <TextInput
                         placeholder="Enter Cheque No"
                         placeholderTextColor="#9A9A9A"
-                        style={styles.pmntInputv2}
+                        style={[
+                          styles.pmntInputv2,
+                          !!err(4, 'chequeNo') && styles.inputError,
+                        ]}
                         value={chequeNo}
                         onChangeText={setChequeNo}
                       />
+                      <FieldError text={err(4, 'chequeNo')} />
                     </View>
                     <View style={styles.pmntInpRow}>
                       <Text style={styles.pmntLabelv2}>
@@ -1800,6 +2035,7 @@ function Registration({ navigation }) {
                       <TouchableOpacity
                         style={[
                           styles.pmntInputv2,
+                          !!err(4, 'chequeDate') && styles.inputError,
                           {
                             flexDirection: 'row',
                             alignItems: 'center',
@@ -1824,12 +2060,19 @@ function Registration({ navigation }) {
                           }}
                         />
                       </TouchableOpacity>
+                      <FieldError text={err(4, 'chequeDate')} />
                     </View>
                     <View style={styles.pmntInpRow}>
                       <Text style={styles.pmntLabelv2}>
                         Bank Name<Text style={GlobalStyles.regText}>*</Text>
                       </Text>
-                      <View style={[styles.pmntInputv2, { paddingRight: 0 }]}>
+                      <View
+                        style={[
+                          styles.pmntInputv2,
+                          { paddingRight: 0 },
+                          !!err(4, 'bankName') && styles.inputError,
+                        ]}
+                      >
                         <Picker
                           selectedValue={bankName}
                           onValueChange={value => setBankName(value)}
@@ -1866,6 +2109,7 @@ function Registration({ navigation }) {
                           <Picker.Item label="IndusInd Bank" value="INDUSIND" />
                         </Picker>
                       </View>
+                      <FieldError text={err(4, 'bankName')} />
                     </View>
                   </View>
                 )}
@@ -1908,12 +2152,19 @@ function Registration({ navigation }) {
                   <TextInput
                     placeholder="Receive Amount"
                     placeholderTextColor="#9A9A9A"
-                    style={styles.pmntInput}
+                    style={[
+                      styles.pmntInput,
+                      !!err(4, 'receiveAmount') && styles.inputError,
+                    ]}
                     keyboardType="numeric"
                     value={receiveAmount}
                     onChangeText={t =>
                       setReceiveAmount(t.replace(/[^0-9.]/g, ''))
                     }
+                  />
+                  <FieldError
+                    text={err(4, 'receiveAmount')}
+                    style={styles.errorTextRow}
                   />
                 </View>
               </View>
@@ -1989,7 +2240,18 @@ function Registration({ navigation }) {
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      <ScrollView style={{ flex: 1 }} keyboardShouldPersistTaps="handled">
+      <ScrollView
+        style={{ flex: 1 }}
+        keyboardShouldPersistTaps="handled"
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={['#00A651']}
+            tintColor="#00A651"
+          />
+        }
+      >
         {/* Header */}
         <ImageBackground
           source={require('../../../assets/partnerbg.png')}
@@ -2131,9 +2393,19 @@ function Registration({ navigation }) {
                   <TextInput
                     placeholder="Dr."
                     placeholderTextColor="#C2C2C2"
-                    style={GlobalStyles.input}
+                    style={[
+                      GlobalStyles.input,
+                      docAttempted && !docName.trim() && styles.inputError,
+                    ]}
                     value={docName}
                     onChangeText={setDocName}
+                  />
+                  <FieldError
+                    text={
+                      docAttempted && !docName.trim()
+                        ? 'Doctor name is required'
+                        : ''
+                    }
                   />
                 </View>
 
@@ -2213,6 +2485,16 @@ function Registration({ navigation }) {
               </ScrollView>
             </View>
           </View>
+
+          {/* Alert shown while the Add Doctor modal is open.
+              iOS cannot stack two separate Modals, so this one lives INSIDE it. */}
+          <AlertModal
+            visible={alertConfig.visible && addDoctor}
+            type={alertConfig.type}
+            message={alertConfig.message}
+            onClose={closeAlert}
+            onConfirm={handleAlertConfirm}
+          />
         </Modal>
       </ScrollView>
 
@@ -2238,18 +2520,31 @@ function Registration({ navigation }) {
               <Icon name="time-outline" size={20} color="#fff" />
             </TouchableOpacity>
 
-            {/* DELETE SELECTED */}
+            {/* DELETE SELECTED: ask for confirmation first */}
             <TouchableOpacity
               style={styles.actionCircle}
-              onPress={() => {
-                setProducts(prev => prev.filter(p => !p.checked));
-              }}
+              onPress={() =>
+                showDeleteConfirm(
+                  `Remove ${selectedCount} selected investigation(s)?`,
+                  () => setProducts(prev => prev.filter(p => !p.checked)),
+                )
+              }
             >
               <Icon name="trash-outline" size={20} color="#fff" />
             </TouchableOpacity>
           </View>
         </Animated.View>
       )}
+
+      {/* Global alert (success / error / warning / delete confirm).
+          Hidden while the Add Doctor modal is open, because that modal has its own copy. */}
+      <AlertModal
+        visible={alertConfig.visible && !addDoctor}
+        type={alertConfig.type}
+        message={alertConfig.message}
+        onClose={closeAlert}
+        onConfirm={handleAlertConfirm}
+      />
     </SafeAreaView>
   );
 }
@@ -2257,6 +2552,22 @@ function Registration({ navigation }) {
 export default Registration;
 
 const styles = StyleSheet.create({
+  // Validation
+  inputError: {
+    borderWidth: 1,
+    borderColor: '#E53935',
+  },
+  errorText: {
+    fontFamily: 'Poppins-Regular',
+    fontSize: 11,
+    color: '#E53935',
+    marginTop: 4,
+  },
+  errorTextRow: {
+    width: '100%',
+    textAlign: 'right',
+  },
+
   // Payment Option And Split Payment Box Start
   pmntOptBox: {
     backgroundColor: '#FFFFFF',
