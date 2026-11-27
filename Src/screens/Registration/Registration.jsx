@@ -68,6 +68,12 @@ const BLOOD_GROUP_MAP = {
   'AB-': 8,
 };
 
+// reverse maps: id from the API -> label used by the pickers
+const GENDER_LABEL = { 1: 'Male', 2: 'Female', 3: 'Other' };
+const BLOOD_GROUP_LABEL = Object.fromEntries(
+  Object.entries(BLOOD_GROUP_MAP).map(([label, id]) => [id, label]),
+);
+
 const SELF_DOCTOR_ID = 1; // "Self" in your registrations (referDoctor: 1)
 
 // ---------- helpers ----------
@@ -292,7 +298,11 @@ function Registration({ navigation }) {
 
   // Search / registrations list
   const [searchText, setSearchText] = useState('');
-  const [showRegistrationForm, setShowRegistrationForm] = useState(true);
+  // CHANGED: the form is hidden at first. The patient list shows first and the
+  // form opens only after the user taps "Are you a new patient?"
+  const [showRegistrationForm, setShowRegistrationForm] = useState(false);
+  // true after the user taps a patient in the list (form is pre-filled from that patient)
+  const [isExistingPatient, setIsExistingPatient] = useState(false);
   const [registrations, setRegistrations] = useState([]);
   const [loadingRegs, setLoadingRegs] = useState(false);
   const [regError, setRegError] = useState('');
@@ -547,6 +557,7 @@ function Registration({ navigation }) {
     partnerId = '',
     s = session,
     keepSelection = false, // true on pull-to-refresh: keep ticked / urgent items
+    preselectIds = null, // Set of investigation ids to tick (used when a patient is picked)
   ) => {
     if (!s?.user_id) return;
     const reqId = ++invReqRef.current;
@@ -591,6 +602,11 @@ function Registration({ navigation }) {
       }
 
       if (reqId !== invReqRef.current) return; // a newer request replaced this one
+      if (preselectIds && preselectIds.size > 0) {
+        list = list.map(it =>
+          preselectIds.has(it.id) ? { ...it, checked: true } : it,
+        );
+      }
       if (keepSelection) {
         setProducts(prev =>
           list.map(it => {
@@ -794,6 +810,7 @@ function Registration({ navigation }) {
         doctor: r.refer_doctor_name || '-',
         time: timeAgo(r.createdAt),
         gender: Number(r.patient?.gender) === 2 ? 'female' : 'male',
+        raw: r, // full record, used to auto-fill the form when the card is tapped
       })),
     [registrations],
   );
@@ -822,6 +839,85 @@ function Registration({ navigation }) {
     setProducts(prev =>
       prev.map(p => (p.id === id ? { ...p, checked: newValue } : p)),
     );
+  };
+
+  // "Back to patient list": a picked patient's data is cleared, a half-typed new patient is kept
+  const handleBackToList = () => {
+    if (isExistingPatient) {
+      resetForm(); // clears every tab, shows the list and the "new patient" button
+    } else {
+      setShowRegistrationForm(false);
+    }
+  };
+
+  // ---------- Tap a patient in the list: fill every tab, then open the Payment tab ----------
+  const handleSelectPatient = async patient => {
+    const r = patient?.raw || {};
+    const p = r.patient || {};
+    const pick = (...vals) => vals.find(v => v != null && v !== '');
+
+    // Tab 1: patient details
+    const title = pick(p.title) || '';
+    const name = stripTitle(String(pick(p.patient_name, p.patientName) || ''));
+    setSelectInitial(title);
+    setPatientName(title ? `${title} ${name}` : name);
+    const dobRaw = pick(p.dob);
+    const dobDate = dobRaw ? new Date(dobRaw) : null;
+    setDob(dobDate && !isNaN(dobDate.getTime()) ? dobDate : null);
+    setSelectGender(GENDER_LABEL[Number(p.gender)] || '');
+    setPhone(String(pick(p.phoneNumber, p.phone_number, p.mobile) ?? ''));
+
+    // Tab 2: more information
+    setEmail(String(pick(p.patientEmail, p.email) ?? ''));
+    setAddress(String(pick(p.patientAddress, p.address) ?? ''));
+    setAltPhone(String(pick(p.altPhoneNumber, p.alt_phone_number) ?? ''));
+    setHeight(p.height != null ? String(p.height) : '');
+    setWeight(p.weight != null ? String(p.weight) : '');
+    setBloodGroup(BLOOD_GROUP_LABEL[Number(p.blood_group)] || '');
+    setOtherInfo(String(pick(r.info) ?? ''));
+    setRemarks(String(pick(r.remarks) ?? ''));
+
+    // Tab 3: refer doctor (keeps the "Self" id as a number, like the picker items)
+    const docId = pick(r.referDoctor, r.refer_doctor, r.refer_doctor_id);
+    setSelectReferDoctor(docId != null ? Number(docId) || docId : '');
+    const partnerId = pick(r.partnerId, r.partner_id);
+    setSelectRefer(partnerId != null ? String(partnerId) : '');
+
+    // Tab 4: tick the investigations of that registration (if the API sends them)
+    const invList = r.investigations || r.tests || r.investigationList || [];
+    const ids = new Set(
+      (Array.isArray(invList) ? invList : [])
+        .map(i => i?.id ?? i?.investigationId ?? i?.investigation?.id ?? i)
+        .filter(v => v != null && typeof v !== 'object')
+        .map(String),
+    );
+
+    // Tab 5: a new order, so the payment fields start empty
+    setDiscountAmt('');
+    setCollectionCharges('');
+    setChargesAdded(false);
+    setReceiveAmount('');
+    setUtr('');
+    setTrn('');
+    setChequeNo('');
+    setChequeDate(null);
+    setBankName('');
+    setActivePaymentTab('cash');
+
+    // The patient already exists: reuse its id so Register does not create a duplicate
+    progressRef.current = {
+      patientId: pick(p.id, r.patientId, r.patient_id) ?? null,
+      registrationDone: false,
+      orderNo: null,
+    };
+    setAttempted({});
+    setIsExistingPatient(true);
+    setShowRegistrationForm(true); // Patient Details tab shows the filled form, not the list
+    setSearchText('');
+
+    // Open the first (Patient Details) tab with the filled form, then load the rate list with the ticks
+    handleTabPress(0);
+    loadInvestigations(partnerId != null ? String(partnerId) : '', session, false, ids);
   };
 
   // ---------- Reset every tab after a registration ----------
@@ -864,7 +960,8 @@ function Registration({ navigation }) {
     setChequeNo('');
     // Search box, validation messages, retry ids
     setSearchText('');
-    setShowRegistrationForm(true);
+    setShowRegistrationForm(false); // CHANGED: show the patient list again (was true)
+    setIsExistingPatient(false);
     setAttempted({});
     progressRef.current = {
       patientId: null,
@@ -907,9 +1004,11 @@ function Registration({ navigation }) {
     const firstBadTab = [0, 2].find(tabHasErrors);
     if (firstBadTab !== undefined) {
       setAttempted(prev => ({ ...prev, 0: true, 2: true }));
-      showAlert('warning', 'Please fill all required (*) fields.', () =>
-        handleTabPress(firstBadTab),
-      );
+      showAlert('warning', 'Please fill all required (*) fields.', () => {
+        // tab 0 fields are only visible while the form is open
+        if (firstBadTab === 0) setShowRegistrationForm(true);
+        handleTabPress(firstBadTab);
+      });
       return;
     }
     // No investigations loaded: jump to the Investigation tab
@@ -1157,8 +1256,9 @@ function Registration({ navigation }) {
                   style={GlobalStyles.searchinput}
                   value={searchText}
                   onChangeText={text => {
+                    if (isExistingPatient) resetForm(); // drop the picked patient's data
                     setSearchText(text);
-                    setShowRegistrationForm(text.trim().length === 0);
+                    setShowRegistrationForm(false); // searching always shows the list
                   }}
                 />
               </View>
@@ -1172,8 +1272,33 @@ function Registration({ navigation }) {
               </View>
             </View>
 
+            {/* "Are you a new patient?" button: only while the form is hidden */}
+            {!showRegistrationForm && (
+              <TouchableOpacity
+                style={[GlobalStyles.applyBtnFullWidth, { marginTop: 14 }]}
+                onPress={() => setShowRegistrationForm(true)}
+              >
+                <Text style={GlobalStyles.applyBtnTextNew}>
+                  Add New Patient.
+                </Text>
+              </TouchableOpacity>
+            )}
+
+            {/* Registration form: opens after tapping the button */}
             {showRegistrationForm && (
               <View nativeID="registrationForm" style={{ paddingTop: 18 }}>
+                <TouchableOpacity
+                  onPress={handleBackToList}
+                  style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}
+                >
+                  <Icon name="arrow-back" size={16} color="#00A651" />
+                  <Text
+                    style={{ color: '#00A651', fontFamily: 'Poppins-Medium' }}
+                  >
+                    Back to patient list
+                  </Text>
+                </TouchableOpacity>
+
                 <View style={{ paddingTop: 18 }}>
                   <View style={GlobalStyles.inpBox}>
                     <Text style={GlobalStyles.label}>
@@ -1295,125 +1420,149 @@ function Registration({ navigation }) {
               </View>
             )}
 
-            {/* Search Patient */}
-            <View>
-              {loadingRegs ? (
-                <View style={{ alignItems: 'center', padding: 20 }}>
-                  <ActivityIndicator size="small" color="#00A651" />
-                </View>
-              ) : filteredPatients.length > 0 ? (
-                filteredPatients.map((patient, index) => (
-                  <View
-                    style={styles.patientCard}
-                    key={`${String(patient.id)}-${index}`}
-                  >
-                    {/* Top Row */}
-                    <View style={styles.patientTopRow}>
-                      <View style={styles.patientIdBox}>
-                        <Text style={styles.patientIdText}>{patient.id}</Text>
-                      </View>
-
-                      <View style={styles.patientReferBox}>
-                        <Image
-                          source={require('../../../assets/handshake.png')}
-                          style={{
-                            width: 24,
-                            height: 14,
-                            resizeMode: 'contain',
-                          }}
-                        />
-                        <Text style={styles.patientReferText}>
-                          {' '}
-                          {patient.referName}
-                        </Text>
-                      </View>
-                    </View>
-
-                    {/* Middle Row */}
-                    <View style={styles.patientMiddleRow}>
-                      <View style={styles.patientLeftColumn}>
-                        <View style={styles.patientRow}>
-                          <Image
-                            source={require('../../../assets/bbdoct.png')}
-                            style={{
-                              width: 18,
-                              height: 20,
-                              resizeMode: 'contain',
-                            }}
-                          />
-
-                          <Text style={styles.patientName}>{patient.name}</Text>
-
-                          <Icon
-                            name={
-                              patient.gender === 'male'
-                                ? 'male-outline'
-                                : 'female-outline'
-                            }
-                            size={16}
-                            color="#3C82F6"
-                            style={{ marginLeft: 4 }}
-                          />
+            {/* Patient list / search response: only while the form is hidden */}
+            {!showRegistrationForm && (
+              <View>
+                {loadingRegs ? (
+                  <View style={{ alignItems: 'center', padding: 20 }}>
+                    <ActivityIndicator size="small" color="#00A651" />
+                  </View>
+                ) : filteredPatients.length > 0 ? (
+                  filteredPatients.map((patient, index) => (
+                    <TouchableOpacity
+                      style={styles.patientCard}
+                      key={`${String(patient.id)}-${index}`}
+                      activeOpacity={0.7}
+                      onPress={() => handleSelectPatient(patient)}
+                    >
+                      {/* Top Row */}
+                      <View style={styles.patientTopRow}>
+                        <View style={styles.patientIdBox}>
+                          <Text style={styles.patientIdText}>{patient.id}</Text>
                         </View>
 
-                        <Text style={styles.patientAge}>{patient.age}</Text>
-                      </View>
-
-                      <View style={styles.patientRightColumn}>
-                        <View style={styles.patientRow}>
+                        <View style={styles.patientReferBox}>
                           <Image
-                            source={require('../../../assets/bbdoct2.png')}
+                            source={require('../../../assets/handshake.png')}
                             style={{
-                              width: 22,
-                              height: 22,
+                              width: 24,
+                              height: 14,
                               resizeMode: 'contain',
                             }}
                           />
+                          <Text style={styles.patientReferText}>
+                            {' '}
+                            {patient.referName}
+                          </Text>
+                        </View>
+                      </View>
 
-                          <View style={styles.refTextPnl}>
-                            <Text style={styles.patientReferBy}>Refer by</Text>
+                      {/* Middle Row */}
+                      <View style={styles.patientMiddleRow}>
+                        <View style={styles.patientLeftColumn}>
+                          <View style={styles.patientRow}>
+                            <Image
+                              source={require('../../../assets/bbdoct.png')}
+                              style={{
+                                width: 18,
+                                height: 20,
+                                resizeMode: 'contain',
+                              }}
+                            />
 
-                            <Text style={styles.patientDoctorLabel}>
-                              {patient.doctor}
+                            <Text style={styles.patientName}>
+                              {patient.name}
                             </Text>
+
+                            <Icon
+                              name={
+                                patient.gender === 'male'
+                                  ? 'male-outline'
+                                  : 'female-outline'
+                              }
+                              size={16}
+                              color="#3C82F6"
+                              style={{ marginLeft: 4 }}
+                            />
+                          </View>
+
+                          <Text style={styles.patientAge}>{patient.age}</Text>
+                        </View>
+
+                        <View style={styles.patientRightColumn}>
+                          <View style={styles.patientRow}>
+                            <Image
+                              source={require('../../../assets/bbdoct2.png')}
+                              style={{
+                                width: 22,
+                                height: 22,
+                                resizeMode: 'contain',
+                              }}
+                            />
+
+                            <View style={styles.refTextPnl}>
+                              <Text style={styles.patientReferBy}>
+                                Refer by
+                              </Text>
+
+                              <Text style={styles.patientDoctorLabel}>
+                                {patient.doctor}
+                              </Text>
+                            </View>
                           </View>
                         </View>
                       </View>
-                    </View>
 
-                    {/* Bottom Row */}
-                    <View style={styles.patientBottomRow}>
-                      <Icon name="time-outline" size={15} color="#777" />
-                      <Text style={styles.patientTimeText}>
-                        {' '}
-                        {patient.time}
-                      </Text>
-                    </View>
-                  </View>
-                ))
-              ) : (
-                <View style={{ alignItems: 'center', padding: 20 }}>
-                  <Text
-                    style={{ color: '#777', fontSize: 14, textAlign: 'center' }}
-                  >
-                    {!session && !regError
-                      ? 'Loading your account...'
-                      : registrations.length > 0
-                      ? 'No patients match your search.'
-                      : regError || 'No patients found!'}
-                  </Text>
-                  {registrations.length === 0 && !!session && (
-                    <TouchableOpacity
-                      style={[styles.addDoctor, { marginTop: 12 }]}
-                      onPress={() => loadRegistrations()}
-                    >
-                      <Text style={styles.addDoctorText}>Retry</Text>
+                      {/* Bottom Row */}
+                      <View style={styles.patientBottomRow}>
+                        <Icon name="time-outline" size={15} color="#777" />
+                        <Text style={styles.patientTimeText}>
+                          {' '}
+                          {patient.time}
+                        </Text>
+                      </View>
                     </TouchableOpacity>
-                  )}
-                </View>
-              )}
-            </View>
-            {/* Search Patient */}
+                  ))
+                ) : (
+                  <View style={{ alignItems: 'center', padding: 20 }}>
+                    <Text
+                      style={{
+                        color: '#777',
+                        fontSize: 14,
+                        textAlign: 'center',
+                      }}
+                    >
+                      {!session && !regError
+                        ? 'Loading your account...'
+                        : registrations.length > 0
+                        ? 'No patient found for your search.'
+                        : regError || 'No patients found!'}
+                    </Text>
+
+                    {/* No patient found: offer to open the form */}
+                    {!!session && (
+                      <TouchableOpacity
+                        style={[styles.addDoctor, { marginTop: 12 }]}
+                        onPress={() => setShowRegistrationForm(true)}
+                      >
+                        <Text style={styles.addDoctorText}>
+                          Register as new patient
+                        </Text>
+                      </TouchableOpacity>
+                    )}
+
+                    {registrations.length === 0 && !!session && (
+                      <TouchableOpacity
+                        style={[styles.addDoctor, { marginTop: 12 }]}
+                        onPress={() => loadRegistrations()}
+                      >
+                        <Text style={styles.addDoctorText}>Retry</Text>
+                      </TouchableOpacity>
+                    )}
+                  </View>
+                )}
+              </View>
+            )}
           </View>
         );
 

@@ -147,6 +147,7 @@ const AppNavigator = () => {
       <Stack.Screen name="Main" component={TabNavigator} />
       <Stack.Screen name="SliderScreens" component={SliderScreens} />
       <Stack.Screen name="Login" component={Login} />
+      <Stack.Screen name="Registration" component={Registration} />
       <Stack.Screen name="Reports" component={Reports} />
       <Stack.Screen name="ResetPassword" component={ResetPassword} />
       <Stack.Screen name="Profile" component={ProfileScreen} />

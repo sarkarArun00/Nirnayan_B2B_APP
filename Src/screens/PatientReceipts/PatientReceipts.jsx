@@ -14,6 +14,8 @@ import {
   Alert,
   ActivityIndicator,
   RefreshControl,
+  PermissionsAndroid,
+  Platform,
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { GlobalStyles } from '../../GlobalStyles';
@@ -23,7 +25,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import * as ImagePicker from 'react-native-image-picker';
 import ClientService from '../../services/client_service';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import ReactNativeBlobUtil from 'react-native-blob-util';
 const PAGE_SIZE = 10;
 
 const documentTypes = [
@@ -78,7 +80,124 @@ const genderToApi = value => {
 
   return genderMap[value] ?? '';
 };
+const onDownload = async item => {
+  try {
+    const id =
+      item.service_registration_id || item.id;
 
+    if (!id) {
+      Alert.alert(
+        'Error',
+        'Registration ID not found',
+      );
+      return;
+    }
+
+    // PDF API URL
+    const fileUrl =
+      `https://lims-testing-api.nirnayanhealthcare.com/client/service-registration/pdf/${id}`;
+
+    // File name
+    const fileName =  `Invoice_${item.investigationId}.pdf`;
+
+    console.log('Downloading PDF:', fileUrl);
+
+    if (Platform.OS === 'android') {
+      // Android 9 and below permission
+      if (Platform.Version < 29) {
+        const granted =
+          await PermissionsAndroid.request(
+            PermissionsAndroid.PERMISSIONS
+              .WRITE_EXTERNAL_STORAGE,
+          );
+
+        if (
+          granted !==
+          PermissionsAndroid.RESULTS.GRANTED
+        ) {
+          throw new Error(
+            'Storage permission denied',
+          );
+        }
+      }
+
+      // Download PDF into temporary cache
+      const response =
+        await ReactNativeBlobUtil.config({
+          fileCache: true,
+          appendExt: 'pdf',
+        }).fetch('GET', fileUrl);
+
+      const statusCode =
+        response.info().status;
+
+      if (statusCode !== 200) {
+        throw new Error(
+          `Download failed: HTTP ${statusCode}`,
+        );
+      }
+
+      const tempPath = response.path();
+
+      // Save PDF into shared Android Downloads
+      const savedPath =
+        await ReactNativeBlobUtil.MediaCollection
+          .copyToMediaStore(
+            {
+              name: fileName,
+              parentFolder: 'Payment_Reports',
+              mimeType: 'application/pdf',
+            },
+            'Download',
+            tempPath,
+          );
+
+      console.log(
+        'PDF saved in shared storage:',
+        savedPath,
+      );
+
+      // Delete temporary cache file
+      await ReactNativeBlobUtil.fs.unlink(
+        tempPath,
+      );
+
+      Alert.alert(
+        'Download Successful',
+        `Report saved in Downloads/Payment_Reports\n\n${fileName}`,
+      );
+    } else {
+      // iOS
+      const downloadPath =
+        `${ReactNativeBlobUtil.fs.dirs.DocumentDir}/${fileName}`;
+
+      const result =
+        await ReactNativeBlobUtil.config({
+          path: downloadPath,
+        }).fetch('GET', fileUrl);
+
+      if (result.info().status !== 200) {
+        throw new Error(
+          `PDF download failed: ${result.info().status}`,
+        );
+      }
+
+      ReactNativeBlobUtil.ios.previewDocument(
+        downloadPath,
+      );
+    }
+  } catch (error) {
+    console.log(
+      'Download PDF Error:',
+      error,
+    );
+
+    Alert.alert(
+      'Download Failed',
+      error.message || 'Unable to download PDF',
+    );
+  }
+};
 const genderToLabel = value => {
   const genderMap = {
     1: 'Male',
@@ -212,7 +331,7 @@ const getTheme = status => {
 };
 
 /* ---------- single receipt card ---------- */
-const ReceiptCard = ({ item, onEdit, onUpload, onDownload }) => {
+const ReceiptCard = ({ item, onEdit, onUpload }) => {
   const [amountIdx, setAmountIdx] = useState(0);
   const theme = getTheme(item.payment_status_flag);
   const opt = AMOUNT_OPTIONS[amountIdx];
@@ -393,27 +512,47 @@ function BillReceipt() {
   const remainingCount = 5 - completedCount;
 
   /* ----- API ----- */
+
   const fetchReceipts = useCallback(
     async (dates, isRefresh = false) => {
       try {
         isRefresh ? setRefreshing(true) : setLoading(true);
         setError(null);
+
         const params = {
           fromDate: dates.fromDate,
           toDate: dates.toDate,
           clientId,
           centreId,
         };
+
         const data = await ClientService.getAllB2BRegistration(params);
+
         const list = Array.isArray(data)
           ? data
           : data?.data ?? data?.rows ?? [];
+
+        // Store patient information in AsyncStorage
+        if (list.length > 0) {
+          const patientData = list[0]?.patient ?? list[0];
+
+          await AsyncStorage.setItem(
+            'patientData',
+            JSON.stringify(patientData),
+          );
+
+          console.log('Patient data stored:', patientData);
+        }
+
         setReceipts(Array.isArray(list) ? list : []);
       } catch (e) {
+        console.log('fetchReceipts error:', e);
+
         setError(
           e?.response?.data?.message ||
             'Unable to load receipts. Please try again.',
         );
+
         setReceipts([]);
       } finally {
         setLoading(false);
@@ -422,6 +561,27 @@ function BillReceipt() {
     },
     [clientId, centreId],
   );
+
+  const getPatientData = async () => {
+    try {
+      const storedData = await AsyncStorage.getItem('patientData');
+
+      if (storedData) {
+        const patient = JSON.parse(storedData);
+
+        console.log('Patient ID:', patient.id);
+        console.log('Patient Name:', patient.patient_name);
+        console.log('Patient Mobile:', patient.phoneNumber);
+
+        return patient;
+      }
+
+      return null;
+    } catch (error) {
+      console.log('Get patient data error:', error);
+      return null;
+    }
+  };
 
   useEffect(() => {
     fetchReceipts(appliedDates);
@@ -666,22 +826,79 @@ function BillReceipt() {
   const deleteFile = fileId =>
     setUploads(prev => prev.filter(file => file.id !== fileId));
 
-  const handleSubmit = () => {
+  const [isUploadingDocuments, setIsUploadingDocuments] = useState(false);
+
+  const handleSubmit = async () => {
     if (!selectedDocType) {
-      Alert.alert('Error', 'Please select a document type before submitting.');
+      Alert.alert('Error', 'Please select a document type.');
       return;
     }
+
     if (uploads.length === 0) {
-      Alert.alert(
-        'Error',
-        'Please upload at least one file before submitting.',
-      );
+      Alert.alert('Error', 'Please upload at least one file.');
       return;
     }
-    Alert.alert(
-      'Success',
-      `Submitted ${uploads.length} files under "${selectedDocType.name}"`,
-    );
+
+    try {
+      setIsUploadingDocuments(true);
+
+      // Get selected patient's data
+      const patient = activeReceipt?.patient ?? (await getPatientData());
+
+      const serviceRegistrationId = patient?.id;
+
+      if (!serviceRegistrationId) {
+        Alert.alert('Error', 'Patient ID not found.');
+        return;
+      }
+
+      console.log('Service Registration ID:', serviceRegistrationId);
+
+      // Upload all selected files
+      const results = [];
+
+      for (const file of uploads) {
+        const response = await ClientService.uploadDocument(
+          serviceRegistrationId,
+          selectedDocType.name,
+          {
+            uri: file.uri,
+            name: file.fileName,
+            type: file.fileType,
+          },
+        );
+
+        console.log('Upload Response:', response);
+        results.push(response);
+      }
+
+      Alert.alert(
+        'Success',
+        `${results.length} document(s) uploaded successfully.`,
+        [
+          {
+            text: 'OK',
+            onPress: () => {
+              setUploads([]);
+              setSelectedDocType(null);
+              setUploadMdl(false);
+            },
+          },
+        ],
+      );
+    } catch (error) {
+      console.log(
+        'Document Upload Error:',
+        error.response?.data || error.message,
+      );
+
+      Alert.alert(
+        'Upload Failed',
+        error.response?.data?.message || 'Unable to upload document.',
+      );
+    } finally {
+      setIsUploadingDocuments(false);
+    }
   };
 
   const renderItem = ({ item }) => (
@@ -959,7 +1176,6 @@ function BillReceipt() {
                 item={item}
                 onEdit={openEdit}
                 onUpload={openUpload}
-                onDownload={openDownload}
               />
             ))}
 
@@ -1115,12 +1331,17 @@ function BillReceipt() {
                 <TouchableOpacity
                   style={[
                     GlobalStyles.applyBtnNew,
-                    { opacity: uploads.length === 0 ? 0.5 : 1 },
+                    {
+                      opacity:
+                        uploads.length === 0 || isUploadingDocuments ? 0.5 : 1,
+                    },
                   ]}
-                  disabled={uploads.length === 0}
+                  disabled={uploads.length === 0 || isUploadingDocuments}
                   onPress={handleSubmit}
                 >
-                  <Text style={GlobalStyles.applyBtnTextNew}>Submit</Text>
+                  <Text style={GlobalStyles.applyBtnTextNew}>
+                    {isUploadingDocuments ? 'Uploading...' : 'Submit'}
+                  </Text>
                 </TouchableOpacity>
               </ScrollView>
             </View>

@@ -1,39 +1,302 @@
-import React, { useState, useRef } from "react";
-import { View, Text, SafeAreaView, ScrollView, ImageBackground, TouchableOpacity, Image, TextInput, Switch, StyleSheet, Modal } from "react-native";
-import { GlobalStyles } from "../../GlobalStyles";
-import Ionicons from "react-native-vector-icons/Ionicons";
-import { Picker } from "@react-native-picker/picker";
-import DateTimePickerModal from "react-native-modal-datetime-picker";
-import ReportList from "./ReportList";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
+import React, { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  SafeAreaView,
+  ScrollView,
+  ImageBackground,
+  TouchableOpacity,
+  Image,
+  TextInput,
+  Switch,
+  StyleSheet,
+  Modal,
+  Alert,
+  PermissionsAndroid,
+  Platform,
+} from 'react-native';
+import { GlobalStyles } from '../../GlobalStyles';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import { Picker } from '@react-native-picker/picker';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import ReportList from './ReportList';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import ClientService from '../../services/client_service';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import ReactNativeBlobUtil from 'react-native-blob-util';
+
+const BASE_URL = 'https://lims-testing-api.nirnayanhealthcare.com';
 
 export const statusColors = {
-  "Registered": "#CC6812",
-  "Pick-up Requested": "#9000FF",
-  "In Transit": "#0045AC",
-  "Processing": "#AC8B1F",
-  "Printed": "#00C9FF",
-  "Hold": "#FF6757",
-  "Approved": "#00A651",
-  "In-progress": "#B19D31",
+  Registered: '#CC6812',
+  'Pick-up Requested': '#9000FF',
+  'In Transit': '#0045AC',
+  Processing: '#AC8B1F',
+  Printed: '#00C9FF',
+  Hold: '#FF6757',
+  Approved: '#00A651',
+  'In-progress': '#B19D31',
+  PENDING: '#CC6812',
 };
 
+/* -------------------------------------------------------------------------- */
+/*  Report card (defined OUTSIDE Reports so it is not re-created every render) */
+/* -------------------------------------------------------------------------- */
+const CardItem = ({
+  item,
+  downloadingId,
+  onOpenInvestigation,
+  onDownload,
+  onShare,
+}) => {
+  const isDownloading = downloadingId === item.registration_id;
+  const color = statusColors[item.status] || '#CC6812';
+
+  return (
+    <TouchableOpacity style={styles.orderCard} onPress={onOpenInvestigation}>
+      {/* Header */}
+      <View style={styles.headerRow}>
+        <View style={styles.headerRowLeft}>
+          <Text style={styles.orderId}>{item.orderId}</Text>
+          <View style={[styles.statusBox, { backgroundColor: `${color}20` }]}>
+            <Text style={[styles.statusText, { color }]}>{item.status}</Text>
+          </View>
+          {!!item.urgentItem && (
+            <View style={styles.urgentIconBox}>
+              <Image
+                source={require('../../../assets/urgenticon.png')}
+                style={styles.urgentIcon}
+              />
+            </View>
+          )}
+        </View>
+        <TouchableOpacity onPress={onOpenInvestigation}>
+          <Ionicons name="ellipsis-vertical" size={18} color="#000" />
+        </TouchableOpacity>
+      </View>
+
+      {/* User Info */}
+      <View style={styles.userRow}>
+        <View style={styles.userIconBox}>
+          <Image
+            source={require('../../../assets/user1.png')}
+            style={styles.userIcon}
+          />
+        </View>
+        <View style={{ flex: 1, marginLeft: 10 }}>
+          <Text style={styles.userName}>{item.name}</Text>
+          <Text style={styles.userDetails}>
+            {item.gender}, {item.age} Years
+          </Text>
+        </View>
+      </View>
+
+      {/* Registered Row */}
+      <View style={styles.infoRow}>
+        <View style={styles.infoRowLeft}>
+          <Ionicons name="time" size={20} color="#D2D2D2" />
+          <Text style={styles.infoLabel}>Registered</Text>
+        </View>
+        <Text style={styles.infoValue}>{item.registered}</Text>
+      </View>
+
+      {/* Lab Receive Row */}
+      <View style={[styles.infoRow, { borderBottomWidth: 0 }]}>
+        <View style={styles.infoRowLeft}>
+          <Ionicons name="time" size={20} color="#D2D2D2" />
+          <Text style={styles.infoLabel}>Lab Receive</Text>
+        </View>
+        <Text style={styles.infoValue}>{item.labReceive}</Text>
+      </View>
+
+      {/* Buttons */}
+      <View style={styles.downloadRow}>
+        <TouchableOpacity
+          style={[styles.downloadBtn, isDownloading && { opacity: 0.6 }]}
+          onPress={() => onDownload(item)}
+          disabled={downloadingId !== null}
+        >
+          <Text style={styles.downloadText}>
+            {isDownloading ? 'Downloading...' : 'Download'}
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.shareBtn} onPress={onShare}>
+          <Image
+            source={require('../../../assets/share.png')}
+            style={styles.shareIcon}
+          />
+        </TouchableOpacity>
+      </View>
+    </TouchableOpacity>
+  );
+};
+
+/* -------------------------------------------------------------------------- */
+/*  Screen                                                                    */
+/* -------------------------------------------------------------------------- */
 export default function Reports({ navigation }) {
   const [filterModal, setFilterModal] = useState(false);
-  const [status, setStatus] = useState("");
+  const [status, setStatus] = useState('');
   const [isEnabled, setIsEnabled] = useState(false);
   const [downloadModal, setDownloadModal] = useState(false);
   const [downloadShare, setDownloadShare] = useState(false);
   const [investigationModal, setInvestigationModal] = useState(false);
-  // Date Picker
-  const [fromDate, setFromDate] = useState(null);
-  const [toDate, setToDate] = useState(null);
+
+  // Which report is currently downloading (null = none)
+  const [downloadingId, setDownloadingId] = useState(null);
+
+  // Dates
+  const today = new Date();
+  const [fromDate, setFromDate] = useState(today);
+  const [toDate, setToDate] = useState(today);
   const [isPickerVisible, setPickerVisible] = useState(false);
   const [pickerType, setPickerType] = useState(null);
-  // Date Picker
 
-  // Date Picker
-  const showDatePicker = (type) => {
+  // API states
+  const [reportData, setReportData] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  const [selectedReportIds, setSelectedReportIds] = useState([]);
+
+  /* ------------------------------ Download ------------------------------- */
+  const handleDownloadReport = async item => {
+    try {
+      if (!item?.registration_id) {
+        Alert.alert('Error', 'Registration ID not found.');
+        return;
+      }
+
+      setDownloadingId(item.registration_id);
+
+      // Step 1: ask API for the PDF path
+      const response = await ClientService.downloadReport([
+        Number(item.registration_id),
+      ]);
+
+      console.log('Download API Response:', response);
+
+      if (response?.success !== true || response?.status !== 1) {
+        throw new Error('Report API did not return success.');
+      }
+
+      const filePath = response.data?.[0]?.letterhead;
+      if (!filePath) {
+        throw new Error('Letterhead PDF path is empty.');
+      }
+
+      // Step 2: build full URL (handles full URLs and relative paths)
+      const fileUrl = /^https?:\/\//i.test(filePath)
+        ? encodeURI(filePath)
+        : encodeURI(`${BASE_URL}/${filePath.replace(/^\/+/, '')}`);
+
+      const fileName = `Report_${item.investigationId}_${Date.now()}.pdf`;
+      console.log('PDF URL:', fileUrl);
+
+      
+if (Platform.OS === 'android') {
+  try {
+    // Android 9 and below permission
+    if (Platform.Version < 29) {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+      );
+
+      if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
+        throw new Error('Storage permission denied');
+      }
+    }
+
+    // Download PDF into temporary cache
+    const response = await ReactNativeBlobUtil.config({
+      fileCache: true,
+      appendExt: 'pdf',
+    }).fetch('GET', fileUrl);
+
+    const statusCode = response.info().status;
+
+    if (statusCode !== 200) {
+      throw new Error(`Download failed: HTTP ${statusCode}`);
+    }
+
+    const tempPath = response.path();
+
+    // Save PDF into shared Android storage
+    const savedPath =
+      await ReactNativeBlobUtil.MediaCollection.copyToMediaStore(
+        {
+          name: fileName,
+          parentFolder: 'TestReports',
+          mimeType: 'application/pdf',
+        },
+        'Download',
+        tempPath,
+      );
+
+    console.log('PDF saved in shared storage:', savedPath);
+
+    // Remove temporary cache file
+    await ReactNativeBlobUtil.fs.unlink(tempPath);
+
+    Alert.alert(
+      'Download Successful',
+      `Report saved in Downloads/TestReports\n\n${fileName}`,
+    );
+  } catch (error) {
+    console.log('MediaStore Download Error:', error);
+    throw error;
+  }
+} else {
+  // iOS
+  const downloadPath =
+    `${ReactNativeBlobUtil.fs.dirs.DocumentDir}/${fileName}`;
+
+  const result = await ReactNativeBlobUtil.config({
+    path: downloadPath,
+  }).fetch('GET', fileUrl);
+
+  if (result.info().status !== 200) {
+    throw new Error(`PDF download failed: ${result.info().status}`);
+  }
+
+  ReactNativeBlobUtil.ios.previewDocument(downloadPath);
+}
+
+    } catch (error) {
+      console.log('DOWNLOAD REPORT ERROR:', error);
+      Alert.alert(
+        'Download Failed',
+        error.message || 'Unable to download report.',
+      );
+    } finally {
+      setDownloadingId(null);
+    }
+  };
+
+  /* ------------------------------ Formatting ----------------------------- */
+  const formattedReports = (Array.isArray(reportData) ? reportData : []).map(
+    item => ({
+      orderId: item.investigationId,
+      status: item.investigations?.[0]?.status || 'Registered',
+      name: item.patient_name,
+      gender: item.gender,
+      age: item.age,
+      registered: item.registration_date_time
+        ? new Date(item.registration_date_time).toLocaleString('en-IN')
+        : '',
+      labReceive: item.lab_receive_date_time
+        ? new Date(item.lab_receive_date_time).toLocaleString('en-IN')
+        : '',
+      urgentItem: '',
+      investigations: Array.isArray(item.investigations)
+        ? item.investigations
+        : [],
+      progress_percent: item.progress_percent,
+      registration_id: item.registration_id,
+    }),
+  );
+
+  /* ------------------------------ Date picker ---------------------------- */
+  const showDatePicker = type => {
     setPickerType(type);
     setPickerVisible(true);
   };
@@ -42,139 +305,108 @@ export default function Reports({ navigation }) {
     setPickerVisible(false);
   };
 
-  const handleDateConfirm = (selectedDate) => {
-    if (pickerType === "from") {
+  const handleDateConfirm = selectedDate => {
+    if (pickerType === 'from') {
       setFromDate(selectedDate);
-    } else {
+    } else if (pickerType === 'to') {
       setToDate(selectedDate);
     }
     hidePicker();
   };
 
-  const formatDate = (date) => {
-    if (!date) return "Select Date";
-    return date.toLocaleDateString("en-GB");
+  // YYYY-MM-DD for the API
+  const formatApiDate = date =>
+    `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
+      2,
+      '0',
+    )}-${String(date.getDate()).padStart(2, '0')}`;
+
+  // DD/MM/YYYY for display
+  const formatDate = date => {
+    if (!date) return 'Select Date';
+    return date.toLocaleDateString('en-GB');
   };
-  // Date Picker
 
-  const data = [
-    {
-      orderId: "SE/CL/250117/0007",
-      status: "In-progress",
-      name: "Arun Sarkar",
-      gender: "Male",
-      age: 45,
-      registered: "Jan 18, 2024, 09:30 AM",
-      labReceive: "Jan 18, 2024, 09:30 AM",
-      urgentItem: "yes",
-    },
-    {
-      orderId: "SE/CL/250118/0024",
-      status: "Processing",
-      name: "Arun Sarkar",
-      gender: "Male",
-      age: 45,
-      registered: "Jan 18, 2024, 09:30 AM",
-      labReceive: "Jan 18, 2024, 09:30 AM",
-      urgentItem: "",
-    },
-  ];
+  /* ------------------------------ Fetch reports -------------------------- */
+  const fetchReportData = async (from, to) => {
+    try {
+      setLoading(true);
 
-  const CardItem = ({ item }) => {
-    return (
-      <TouchableOpacity style={styles.orderCard} onPress={() => setInvestigationModal(true)}>
-        {/* Header */}
-        <View style={styles.headerRow}>
-          <View style={styles.headerRowLeft}>
-            <Text style={styles.orderId}>{item.orderId}</Text>
-            <View style={[
-              styles.statusBox,
-              { backgroundColor: `${statusColors[item.status]}20` }
-            ]}>
-              <Text style={[styles.statusText, { color: statusColors[item.status] }]}>
-                {item.status}
-              </Text>
-            </View>
-            {!!item.urgentItem && (
-              <View style={styles.urgentIconBox}>
-                <Image
-                  source={require("../../../assets/urgenticon.png")}
-                  style={styles.urgentIcon}
-                />
-              </View>
-            )}
-          </View>
-          <TouchableOpacity onPress={() => setInvestigationModal(true)}>
-            <Ionicons name="ellipsis-vertical" size={18} color="#000" />
-          </TouchableOpacity>
-        </View>
-        {/* User Info */}
-        <View style={styles.userRow}>
-          <View style={styles.userIconBox}>
-            <Image source={require('../../../assets/user1.png')} style={styles.userIcon} />
-          </View>
-          <View style={{ flex: 1, marginLeft: 10, }}>
-            <Text style={styles.userName}>{item.name}</Text>
-            <Text style={styles.userDetails}>{item.gender}, {item.age} Years</Text>
-          </View>
-        </View>
-        {/* Registered Row */}
-        <View style={styles.infoRow}>
-          <View style={styles.infoRowLeft}>
-            <Ionicons name="time" size={20} color="#D2D2D2" />
-            <Text style={styles.infoLabel}>Registered</Text>
-          </View>
-          <Text style={styles.infoValue}>{item.registered}</Text>
-        </View>
-        {/* Lab Receive Row */}
-        <View style={[styles.infoRow, { borderBottomWidth: 0, }]}>
-          <View style={styles.infoRowLeft}>
-            <Ionicons name="time" size={20} color="#D2D2D2" />
-            <Text style={styles.infoLabel}>Lab Receive</Text>
-          </View>
-          <Text style={styles.infoValue}>{item.labReceive}</Text>
-        </View>
-        {/* Buttons */}
-        <View style={styles.downloadRow}>
-          <TouchableOpacity style={styles.downloadBtn} onPress={() => setDownloadModal(true)}>
-            <Text style={styles.downloadText}>Download</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.shareBtn} onPress={() => setDownloadShare(true)}>
-            <Image source={require('../../../assets/share.png')} style={styles.shareIcon} />
-          </TouchableOpacity>
-        </View>
+      const clientId = await AsyncStorage.getItem('user_id');
 
-      </TouchableOpacity>
-    );
-  }
+      if (!clientId) {
+        Alert.alert('Error', 'Client ID not found');
+        setReportData([]);
+        return;
+      }
 
-  // Reports data for ReportList
+      const params = {
+        clientId: clientId,
+        fromDate: formatApiDate(from),
+        toDate: formatApiDate(to),
+      };
+
+      console.log('Report Request Params:', params);
+
+      const result = await ClientService.getReportData(params);
+
+      console.log('Report Data:', result);
+
+      setReportData(Array.isArray(result) ? result : []);
+    } catch (error) {
+      console.log('Fetch Report Error:', error);
+      setReportData([]);
+      Alert.alert('Error', 'Unable to fetch reports');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchReportData(fromDate, toDate);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleApplyFilter = () => {
+    if (!fromDate || !toDate) {
+      Alert.alert('Required', 'Please select both dates.');
+      return;
+    }
+
+    if (fromDate > toDate) {
+      Alert.alert('Invalid Date', 'From Date cannot be greater than To Date.');
+      return;
+    }
+
+    setFilterModal(false);
+    fetchReportData(fromDate, toDate);
+  };
+
+  /* ------------------------------ ReportList data ------------------------ */
   const reportsData = [
     {
       id: 101,
-      title: "Suswastham 17.0 – Pre Operative Check Up Basic Package",
-      status: "Processing",
-      statusColor: statusColors["Processing"] || "#AC8B1F",
+      title: 'Suswastham 17.0 – Pre Operative Check Up Basic Package',
+      status: 'Processing',
+      statusColor: statusColors['Processing'] || '#AC8B1F',
     },
     {
       id: 102,
-      title: "Suswastham 17.0 – Pre Operative Check Up Basic Package",
-      status: "Registered",
-      statusColor: statusColors["Registered"] || "#CC6812",
+      title: 'Suswastham 17.0 – Pre Operative Check Up Basic Package',
+      status: 'Registered',
+      statusColor: statusColors['Registered'] || '#CC6812',
     },
     {
       id: 103,
-      title: "Suswastham 17.0 – Pre Operative Check Up Basic Package",
-      status: "In Transit",
-      statusColor: statusColors["In Transit"] || "#0045AC",
+      title: 'Suswastham 17.0 – Pre Operative Check Up Basic Package',
+      status: 'In Transit',
+      statusColor: statusColors['In Transit'] || '#0045AC',
     },
   ];
 
-  const [selectedReportIds, setSelectedReportIds] = useState([]);
-
-  const handleToggleSelect = (id) => {
-    setSelectedReportIds((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+  const handleToggleSelect = id => {
+    setSelectedReportIds(prev =>
+      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id],
     );
   };
 
@@ -182,57 +414,65 @@ export default function Reports({ navigation }) {
     if (selectedReportIds.length === reportsData.length) {
       setSelectedReportIds([]);
     } else {
-      setSelectedReportIds(reportsData.map((r) => r.id));
+      setSelectedReportIds(reportsData.map(r => r.id));
     }
   };
 
-  const handleShare = (itemOrIds) => {
-    console.log("Share called:", itemOrIds);
+  const handleShare = itemOrIds => {
+    console.log('Share called:', itemOrIds);
     setDownloadShare(true);
   };
 
-  const handleDownload = (itemOrIds) => {
-    console.log("Download called:", itemOrIds);
+  const handleDownload = itemOrIds => {
+    console.log('Download called:', itemOrIds);
     setDownloadModal(true);
   };
-  // Reports data for ReportList
 
+  /* ------------------------------ Render --------------------------------- */
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <SafeAreaView style={{ flex: 1, backgroundColor: "#FFF" }}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: '#FFF' }}>
         <ScrollView>
           {/* Header BG */}
           <ImageBackground
-            source={require("../../../assets/partnerbg.png")}
+            source={require('../../../assets/partnerbg.png')}
             style={GlobalStyles.background}
           >
             <View style={GlobalStyles.flexdv}>
-
-              <TouchableOpacity style={GlobalStyles.leftArrow} onPress={() => navigation.goBack()}>
+              <TouchableOpacity
+                style={GlobalStyles.leftArrow}
+                onPress={() => navigation.goBack()}
+              >
                 <View style={GlobalStyles.arrowBox}>
-                  <Image source={require("../../../assets/arrow1.png")} />
+                  <Image source={require('../../../assets/arrow1.png')} />
                 </View>
                 <Text style={GlobalStyles.titleText}>Report Download</Text>
               </TouchableOpacity>
 
               <View style={GlobalStyles.rightSection}>
                 <TouchableOpacity>
-                  <Image source={require("../../../assets/notification.png")} />
+                  <Image source={require('../../../assets/notification.png')} />
                   <View style={GlobalStyles.notiDot} />
                 </TouchableOpacity>
 
-                <TouchableOpacity onPress={() => navigation.navigate("Profile")}>
-                  <Image source={require("../../../assets/menu-bar.png")} />
+                <TouchableOpacity
+                  onPress={() => navigation.navigate('Profile')}
+                >
+                  <Image source={require('../../../assets/menu-bar.png')} />
                 </TouchableOpacity>
               </View>
-
             </View>
           </ImageBackground>
 
           {/* Search */}
           <View style={GlobalStyles.searchContainer}>
             <View style={GlobalStyles.searchBox}>
-              <Ionicons name="search" size={20} color="#aaa" style={GlobalStyles.searchIcon} />
+              <Ionicons
+                name="search"
+                size={20}
+                color="#aaa"
+                style={GlobalStyles.searchIcon}
+              />
               <TextInput
                 placeholder="Search"
                 placeholderTextColor="#999"
@@ -240,19 +480,39 @@ export default function Reports({ navigation }) {
               />
             </View>
 
-            <TouchableOpacity style={GlobalStyles.filterButton} onPress={() => setFilterModal(true)}>
+            <TouchableOpacity
+              style={GlobalStyles.filterButton}
+              onPress={() => setFilterModal(true)}
+            >
               <Ionicons name="options-outline" size={24} color="#fff" />
             </TouchableOpacity>
           </View>
 
-          {/* List */}
-          <View style={{ paddingTop: 10, }}>
-            {data.map((item, index) => (
-              <CardItem key={index} item={item} />
-            ))}
+          {/* Reports List */}
+          <View style={{ paddingTop: 10 }}>
+            {loading ? (
+              <Text style={{ textAlign: 'center', padding: 20 }}>
+                Loading reports...
+              </Text>
+            ) : formattedReports.length > 0 ? (
+              formattedReports.map((item, index) => (
+                <CardItem
+                  key={item.registration_id || index}
+                  item={item}
+                  downloadingId={downloadingId}
+                  onOpenInvestigation={() => setInvestigationModal(true)}
+                  onDownload={handleDownloadReport}
+                  onShare={() => setDownloadShare(true)}
+                />
+              ))
+            ) : (
+              <Text style={{ textAlign: 'center', padding: 20, color: '#999' }}>
+                No Reports Found , Please Check Once Filter Date.
+              </Text>
+            )}
           </View>
 
-          {/* Investigation Modal Start */}
+          {/* Investigation Modal */}
           <Modal
             transparent
             visible={investigationModal}
@@ -264,7 +524,8 @@ export default function Reports({ navigation }) {
                 <View style={GlobalStyles.modalContainer}>
                   <TouchableOpacity
                     style={GlobalStyles.modalClose}
-                    onPress={() => setInvestigationModal(false)}>
+                    onPress={() => setInvestigationModal(false)}
+                  >
                     <Text style={GlobalStyles.closeIcon}>✕</Text>
                   </TouchableOpacity>
                   <ReportList
@@ -280,7 +541,7 @@ export default function Reports({ navigation }) {
             </GestureHandlerRootView>
           </Modal>
 
-          {/* Filter Modal Start */}
+          {/* Filter Modal */}
           <Modal
             transparent
             visible={filterModal}
@@ -296,27 +557,43 @@ export default function Reports({ navigation }) {
                   <Text style={GlobalStyles.closeIcon}>✕</Text>
                 </TouchableOpacity>
                 <Text style={GlobalStyles.mdlTitle}>Filter</Text>
-                <Text style={GlobalStyles.mdlSubTitle}>Create your customized data</Text>
+                <Text style={GlobalStyles.mdlSubTitle}>
+                  Create your customized data
+                </Text>
                 <ScrollView showsVerticalScrollIndicator={false}>
                   <View style={GlobalStyles.inpBox}>
-                    <Text style={GlobalStyles.label}>From Date<Text style={GlobalStyles.regText}>*</Text></Text>
+                    <Text style={GlobalStyles.label}>
+                      From Date<Text style={GlobalStyles.regText}>*</Text>
+                    </Text>
                     <TouchableOpacity
                       style={GlobalStyles.inputv2}
-                      onPress={() => showDatePicker("from")}
+                      onPress={() => showDatePicker('from')}
                     >
-                      <Image source={require("../../../assets/mdl-calender.png")} style={GlobalStyles.calenderIcon} />
-                      <Text style={GlobalStyles.PlaceholderDateText}>{formatDate(fromDate)}</Text>
+                      <Image
+                        source={require('../../../assets/mdl-calender.png')}
+                        style={GlobalStyles.calenderIcon}
+                      />
+                      <Text style={GlobalStyles.PlaceholderDateText}>
+                        {formatDate(fromDate)}
+                      </Text>
                     </TouchableOpacity>
                   </View>
 
                   <View style={GlobalStyles.inpBox}>
-                    <Text style={GlobalStyles.label}>To Date<Text style={GlobalStyles.regText}>*</Text></Text>
+                    <Text style={GlobalStyles.label}>
+                      To Date<Text style={GlobalStyles.regText}>*</Text>
+                    </Text>
                     <TouchableOpacity
                       style={GlobalStyles.inputv2}
-                      onPress={() => showDatePicker("to")}
+                      onPress={() => showDatePicker('to')}
                     >
-                      <Image source={require("../../../assets/mdl-calender.png")} style={GlobalStyles.calenderIcon} />
-                      <Text style={GlobalStyles.PlaceholderDateText}>{formatDate(toDate)}</Text>
+                      <Image
+                        source={require('../../../assets/mdl-calender.png')}
+                        style={GlobalStyles.calenderIcon}
+                      />
+                      <Text style={GlobalStyles.PlaceholderDateText}>
+                        {formatDate(toDate)}
+                      </Text>
                     </TouchableOpacity>
                   </View>
 
@@ -325,9 +602,9 @@ export default function Reports({ navigation }) {
                     <View style={GlobalStyles.pickerInput}>
                       <Picker
                         selectedValue={status}
-                        onValueChange={(value) => setStatus(value)}
+                        onValueChange={value => setStatus(value)}
                         dropdownIconColor="#C2C2C2"
-                        style={{ color: status ? "#C2C2C2" : "#C2C2C2" }}
+                        style={{ color: '#C2C2C2' }}
                       >
                         <Picker.Item label="Status" value="" color="#C2C2C2" />
                         <Picker.Item label="Active" value="active" />
@@ -337,7 +614,9 @@ export default function Reports({ navigation }) {
                   </View>
 
                   <View style={GlobalStyles.inpBox}>
-                    <Text style={GlobalStyles.label}>Test Department<Text Style={GlobalStyles.regText}>*</Text></Text>
+                    <Text style={GlobalStyles.label}>
+                      Test Department<Text style={GlobalStyles.regText}>*</Text>
+                    </Text>
                     <TextInput
                       style={GlobalStyles.input}
                       placeholder="Search.."
@@ -345,33 +624,45 @@ export default function Reports({ navigation }) {
                     />
                   </View>
 
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, }}>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      gap: 4,
+                    }}
+                  >
                     <Text style={GlobalStyles.switchLabel}>Urgent Samples</Text>
                     <Switch
-                      trackColor={{ false: "#D0D0D0", true: "#00A651" }}
-                      thumbColor={isEnabled ? "#fff" : "#fff"}
+                      trackColor={{ false: '#D0D0D0', true: '#00A651' }}
+                      thumbColor="#fff"
                       ios_backgroundColor="#D0D0D0"
                       onValueChange={() => setIsEnabled(!isEnabled)}
                       value={isEnabled}
                     />
                   </View>
 
-                  <TouchableOpacity style={GlobalStyles.applyBtnFullWidth}>
-                    <Text style={GlobalStyles.applyBtnTextNew}>Apply</Text>
+                  <TouchableOpacity
+                    style={GlobalStyles.applyBtnFullWidth}
+                    onPress={handleApplyFilter}
+                    disabled={loading}
+                  >
+                    <Text style={GlobalStyles.applyBtnTextNew}>
+                      {loading ? 'Loading...' : 'Apply'}
+                    </Text>
                   </TouchableOpacity>
-
                 </ScrollView>
               </View>
             </View>
 
-            {/* DATE PICKER */}
+            {/* Date picker */}
             <DateTimePickerModal
               isVisible={isPickerVisible}
               mode="date"
+              date={pickerType === 'from' ? fromDate : toDate}
+              maximumDate={new Date()}
               onConfirm={handleDateConfirm}
               onCancel={hidePicker}
             />
-
           </Modal>
 
           {/* Download Modal */}
@@ -389,17 +680,35 @@ export default function Reports({ navigation }) {
                 >
                   <Text style={GlobalStyles.closeIcon}>✕</Text>
                 </TouchableOpacity>
-                <Text style={[GlobalStyles.mdlTitle2, { textAlign: 'center', }]}>Choose Download Option</Text>
+                <Text style={[GlobalStyles.mdlTitle2, { textAlign: 'center' }]}>
+                  Choose Download Option
+                </Text>
                 <View style={styles.downloadMdlRow}>
                   <TouchableOpacity style={styles.downloadRowBtn}>
                     <View style={styles.downloadRowIconBox}>
-                      <Image source={require('../../../assets/letterhead1.png')} style={styles.downloadRowIcon} />
+                      <Image
+                        source={require('../../../assets/letterhead1.png')}
+                        style={styles.downloadRowIcon}
+                      />
                     </View>
                     <Text style={styles.downloadLabel}>With Letterhead</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity style={[styles.downloadRowBtn, { backgroundColor: 'rgba(167,167,167,0.15)', }]}>
-                    <View style={[styles.downloadRowIconBox, { backgroundColor: '#fff', }]}>
-                      <Image source={require('../../../assets/letterhead2.png')} style={styles.downloadRowIcon} />
+                  <TouchableOpacity
+                    style={[
+                      styles.downloadRowBtn,
+                      { backgroundColor: 'rgba(167,167,167,0.15)' },
+                    ]}
+                  >
+                    <View
+                      style={[
+                        styles.downloadRowIconBox,
+                        { backgroundColor: '#fff' },
+                      ]}
+                    >
+                      <Image
+                        source={require('../../../assets/letterhead2.png')}
+                        style={styles.downloadRowIcon}
+                      />
                     </View>
                     <Text style={styles.downloadLabel}>Without Letterhead</Text>
                   </TouchableOpacity>
@@ -423,17 +732,35 @@ export default function Reports({ navigation }) {
                 >
                   <Text style={GlobalStyles.closeIcon}>✕</Text>
                 </TouchableOpacity>
-                <Text style={[GlobalStyles.mdlTitle2, { textAlign: 'center', }]}>Choose Download & Share Option</Text>
+                <Text style={[GlobalStyles.mdlTitle2, { textAlign: 'center' }]}>
+                  Choose Download & Share Option
+                </Text>
                 <View style={styles.downloadMdlRow}>
                   <TouchableOpacity style={styles.downloadRowBtn}>
                     <View style={styles.downloadRowIconBox}>
-                      <Image source={require('../../../assets/letterhead1.png')} style={styles.downloadRowIcon} />
+                      <Image
+                        source={require('../../../assets/letterhead1.png')}
+                        style={styles.downloadRowIcon}
+                      />
                     </View>
                     <Text style={styles.downloadLabel}>With Letterhead</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity style={[styles.downloadRowBtn, { backgroundColor: 'rgba(167,167,167,0.15)', }]}>
-                    <View style={[styles.downloadRowIconBox, { backgroundColor: '#fff', }]}>
-                      <Image source={require('../../../assets/letterhead2.png')} style={styles.downloadRowIcon} />
+                  <TouchableOpacity
+                    style={[
+                      styles.downloadRowBtn,
+                      { backgroundColor: 'rgba(167,167,167,0.15)' },
+                    ]}
+                  >
+                    <View
+                      style={[
+                        styles.downloadRowIconBox,
+                        { backgroundColor: '#fff' },
+                      ]}
+                    >
+                      <Image
+                        source={require('../../../assets/letterhead2.png')}
+                        style={styles.downloadRowIcon}
+                      />
                     </View>
                     <Text style={styles.downloadLabel}>Without Letterhead</Text>
                   </TouchableOpacity>
@@ -441,10 +768,8 @@ export default function Reports({ navigation }) {
               </View>
             </View>
           </Modal>
-
         </ScrollView>
       </SafeAreaView>
-
     </GestureHandlerRootView>
   );
 }
@@ -490,13 +815,13 @@ const styles = StyleSheet.create({
   // Download And Share Modal End
 
   orderCard: {
-    backgroundColor: "#FFF",
+    backgroundColor: '#FFF',
     padding: 12,
     marginHorizontal: 16,
     marginVertical: 10,
     borderRadius: 15,
     elevation: 3,
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOpacity: 0.1,
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 4,
@@ -632,5 +957,4 @@ const styles = StyleSheet.create({
     height: 20,
     resizeMode: 'contain',
   },
-
 });
